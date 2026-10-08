@@ -1,3 +1,31 @@
+# 1.0.21
+
+## 中文
+
+- 版本 **1.0.21**。修的是**「明明装着最新版，面板却说本页跑的是旧代码」** —— 我 1.0.16 写的那张
+  告警卡把自己算错了。
+- 根因：本页 JS 的构建标记是 `v1.0.20+c264e4f`，磁盘上的插件版本是 `1.0.20`，代码却写成
+  `String(PANEL_BUILD).indexOf(String(f.version)) !== 0` —— `'v1.0.20+…'.indexOf('1.0.20')` 是 **1**
+  （开头那个 `v` 把它顶偏了一位），于是**永远判定为"不一致"**。现在按版本号本身比（去掉 `v` 前缀与 `+提交` 后缀），
+  并且分两种情况：本页更旧 → 提示硬刷新；本页更新 → 提示看包目录/重装（这才是真需要的动作）。
+- **面板文案里漏出来的 markdown 星号**：面板不渲染 markdown，之前有 12 处 `**加粗**` 原样显示成星号
+  （你在「插件」页看到的那句就有），服务端返回的面板文案里另有 7 处（卸载说明、工具说明、并发提示等）。
+  已全部改成「」，并加静态检查：`client.js` 的渲染字符串里再出现 `**` 直接测试失败。
+
+## English
+
+- Version **1.0.21**. Fixes **"the panel claims this page runs old code even though the latest version is
+  installed"** — a 1.0.16 warning card that miscalculated itself.
+- Root cause: this page's JS build stamp is `v1.0.20+c264e4f` while the on-disk plugin version is `1.0.20`,
+  but the check was `String(PANEL_BUILD).indexOf(String(f.version)) !== 0` — `'v1.0.20+…'.indexOf('1.0.20')`
+  is **1** (the leading `v` shifts it), so it **always** reported a mismatch. It now compares the version
+  itself (leading `v` and `+sha` stripped) and distinguishes the two cases: page older → hard refresh;
+  page newer → check the package directory / reinstall.
+- **Literal markdown asterisks leaked into panel text**: the panel does not render markdown, so 12 spots
+  with `**bold**` were displayed as asterisks (the sentence you saw on the Plugins page was one of them),
+  plus 7 more in server-provided panel text (uninstall notes, toolkit notes, concurrency hint). All replaced
+  with 「」, and a static check now fails the build if `client.js` renders `**` again.
+
 # 1.0.20
 
 ## 中文
