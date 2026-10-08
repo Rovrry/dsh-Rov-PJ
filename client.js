@@ -3951,6 +3951,15 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
     }
 
     /* ---------------------------------------------------------- 资产测绘 */
+    /* 资产删除时连带清掉的副表 → 人话名称（干跑结果里直接写中文，别让用户猜表名） */
+    const TABLE_LABEL = {
+      asset: '资产', assets: '资产', asset_name: '主机名', port: '端口', service: '服务',
+      fingerprint: '指纹', observation: '采集溯源', tag: '标签', edge: '关系边',
+      vuln: '漏洞', credential: '凭据', access_session: '会话', webshell: 'WebShell',
+      tunnel: '隧道', http_evidence: 'HTTP 证据', score_hit: '得分记录',
+      attack_file: '攻击文件', attack_step: '攻击步骤', asset_fts: '检索索引',
+    }
+
     function AssetsTab(props) {
       const eng = props.engagement
       const snapshot = props.snapshot
@@ -4038,6 +4047,63 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         }, () => {})
       }
 
+      /* 删除资产 / 网段：先干跑看清会删掉什么（后端只统计、一行不动），确认后才真删。
+         确认按钮渲染在**点它的那一行**上（面板可滚动，弹到别处等于没弹）。 */
+      const [delAsk, setDelAsk] = React.useState(null)
+      const [delBusy, setDelBusy] = React.useState('')
+      const [delMsg, setDelMsg] = React.useState(null)
+      const delKeyOf = (ask) => (ask.assets ? 'seg:' + ask.cidr : 'asset:' + ((ask.ids || []).join(',')))
+      const delSummary = (ask) => {
+        const c = ask.counts || {}
+        const parts = [ask.assets ? (ask.assets + ' 台资产') : ((ask.targets || []).length + ' 台资产')]
+          .concat(Object.keys(c).filter((k) => k !== 'assets').map((k) => TABLE_LABEL[k] ? TABLE_LABEL[k] + ' ' + c[k] : k + ' ' + c[k]))
+        return parts.join(' · ')
+      }
+      const askDeleteAssets = (ids) => {
+        setDelMsg(null); setDelAsk(null); setDelBusy('a' + ids.join(','))
+        api({ op: 'assetDelete', engagement: eng, assetIds: ids, dryRun: true }).then((r) => {
+          setDelBusy('')
+          if (!r || r.ok === false) { setDelMsg({ err: (r && r.error) || '删除预检失败' }); return }
+          if (!r.targets || !r.targets.length) { setDelMsg({ err: '这些资产已经不在库里了' }); return }
+          setDelAsk(Object.assign({ ids: ids }, r))
+        }, (e) => { setDelBusy(''); setDelMsg({ err: String((e && e.message) || e) }) })
+      }
+      const askDeleteSegment = (cidr) => {
+        setDelMsg(null); setDelAsk(null); setDelBusy('s' + cidr)
+        api({ op: 'segmentDelete', engagement: eng, cidr: cidr, dryRun: true }).then((r) => {
+          setDelBusy('')
+          if (!r || r.ok === false) { setDelMsg({ err: (r && r.error) || '删除预检失败' }); return }
+          setDelAsk(Object.assign({ assets: r.assets, cidr: cidr, ids: (r.targets || []).map((t) => t.id) }, r))
+        }, (e) => { setDelBusy(''); setDelMsg({ err: String((e && e.message) || e) }) })
+      }
+      const doDelete = () => {
+        if (!delAsk) return
+        setDelBusy('do')
+        const body = delAsk.cidr
+          ? { op: 'segmentDelete', engagement: eng, cidr: delAsk.cidr, confirm: true }
+          : { op: 'assetDelete', engagement: eng, assetIds: delAsk.ids, confirm: true }
+        api(body).then((r) => {
+          setDelBusy('')
+          if (!r || r.ok === false) { setDelMsg({ err: (r && r.error) || '删除失败' }); setDelAsk(null); return }
+          const n = r.removed || 0
+          setDelMsg({ ok: '已删除 ' + (delAsk.cidr ? delAsk.cidr + '（' + n + ' 台资产）' : n + ' 台资产')
+            + '，连带清掉 ' + Object.keys(r.counts || {}).filter((k) => k !== 'assets').map((k) => (TABLE_LABEL[k] || k) + ' ' + r.counts[k]).join(' / ')
+            + '。库里还剩 ' + ((r.after && r.after.assets) !== undefined ? r.after.assets : '?') + ' 台。' })
+          setDelAsk(null)
+          setOpenId(null); setDetail(null)
+          if (onRefresh) onRefresh()          /* 重新拉当前筛选结果 */
+          if (onData) onData()                /* 左侧 C 段与计数同步刷新 */
+        }, (e) => { setDelBusy(''); setDelAsk(null); setDelMsg({ err: String((e && e.message) || e) }) })
+      }
+      /* 行内确认条：与展开详情同一套网格（1fr），不挤坏表格列宽 */
+      const confirmRow = (key, ask, extra) => h('div', {
+        key: key, className: 'rt-row',
+        style: { cursor: 'default', gridTemplateColumns: '1fr', background: 'color-mix(in srgb, #ef4444 8%, transparent)' },
+      }, h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', padding: '2px 0' } },
+        h('span', { style: { fontSize: 12 } }, '删除 ' + extra + '？连带：' + delSummary(ask)),
+        h('button', { className: 'rt-btn rt-btn-primary', disabled: delBusy === 'do', onClick: doDelete }, delBusy === 'do' ? '删除中…' : '确认删除'),
+        h('button', { className: 'rt-btn', disabled: delBusy === 'do', onClick: () => setDelAsk(null) }, '取消')))
+
       const segs = (snapshot && snapshot.segments) || []
 
       const sideChildren = []
@@ -4074,6 +4140,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         if (!open) return out
         for (const s of list) {
           /* 一段一行：只给 C 段 + 资产数（端口数不再占位，归属与存活放进悬浮提示） */
+          const asking = !!(delAsk && delAsk.cidr === s.cidr)
           out.push(h('div', Object.assign({
             key: s.cidr, className: 'rt-seg' + (cidr === s.cidr ? ' on' : ''),
             title: (s.org || '未知归属') + ' · 存活 ' + (s.live || 0) + '/' + (s.assets || 0) + ' 台',
@@ -4083,7 +4150,25 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
               h('span', { className: 'rt-scope rt-scope-' + kind }, kind === 'internal' ? '内' : '外'),
               h('span', { style: { flex: 1 } }, s.cidr),
               h('span', { className: 'rt-seg-meta', style: { margin: 0, whiteSpace: 'nowrap' } },
-                s.assets + ' 台'))))
+                s.assets + ' 台'),
+              /* 整段清空：扫错网段 / 导错数据时最实用的一刀（同样先干跑） */
+              h('button', {
+                className: 'rt-btn', style: { fontSize: 10, padding: '0 4px', lineHeight: '14px', opacity: asking ? 1 : 0.5 },
+                title: '清空这个 C 段（删除段下全部资产与其子表数据，先干跑再确认）',
+                onClick: (e) => {
+                  if (e && e.stopPropagation) e.stopPropagation()
+                  if (asking) setDelAsk(null); else askDeleteSegment(s.cidr)
+                },
+              }, delBusy === 's' + s.cidr ? '…' : (asking ? '收起' : '✕')))))
+          if (asking) {
+            out.push(h('div', { className: 'rt-seg', style: { background: 'color-mix(in srgb, #ef4444 10%, transparent)' } },
+              h('div', { style: { fontSize: 11.5 } }, '清空 ' + s.cidr + '（' + delAsk.assets + ' 台）'),
+              h('div', { style: { fontSize: 10.5, opacity: 0.85, margin: '2px 0 4px' } }, '连带：' + delSummary(delAsk)),
+              h('div', { style: { display: 'flex', gap: 6 } },
+                h('button', { className: 'rt-btn rt-btn-primary', style: { fontSize: 11 }, disabled: delBusy === 'do', onClick: doDelete },
+                  delBusy === 'do' ? '删除中…' : '确认清空'),
+                h('button', { className: 'rt-btn', style: { fontSize: 11 }, disabled: delBusy === 'do', onClick: () => setDelAsk(null) }, '取消'))))
+          }
         }
         return out
       }
@@ -4144,6 +4229,21 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         h('button', { className: 'rt-btn' + (view === 'domain' ? ' rt-btn-primary' : ''), onClick: () => setView('domain') }, '域名'),
         h('button', { className: 'rt-btn' + (view === 'web' ? ' rt-btn-primary' : ''), onClick: () => setView('web') }, 'Web'))
 
+      /* 删除结果 / 失败原因：放在筛选栏下方（列表滚动区之外，永远看得见） */
+      const delNote = (delMsg || delAsk)
+        ? h('div', { style: { padding: '6px 10px', borderBottom: '1px solid var(--dsw-alias-border-l1)' } },
+          delMsg
+            ? h('div', { className: delMsg.err ? 'rt-err' : 'rt-foot' }, (delMsg.err ? '✗ ' : '✓ ') + (delMsg.err || delMsg.ok))
+            : null,
+          /* 网段删除（点击处不在一行上）在这里确认；单台的在行内确认 */
+          delAsk && delAsk.cidr
+            ? h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', fontSize: 12 } },
+              h('span', null, '清空 ' + delAsk.cidr + '（' + delAsk.assets + ' 台资产）？连带：' + delSummary(delAsk)),
+              h('button', { className: 'rt-btn rt-btn-primary', disabled: delBusy === 'do', onClick: doDelete }, delBusy === 'do' ? '删除中…' : '确认清空'),
+              h('button', { className: 'rt-btn', disabled: delBusy === 'do', onClick: () => setDelAsk(null) }, '取消'))
+            : null)
+        : null
+
       /* ── 结论行：一屏看清家底，数字点一下就是筛选 ───────────────────── */
       const tests = (snapshot && snapshot.tests) || {}
       const snapStats = (snapshot && snapshot.stats) || {}
@@ -4200,6 +4300,12 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
               },
             }),
             h('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis' } }, it.ip),
+            /* 删除就在这一行（铅笔式小按钮）：先干跑看清连带清掉什么，再确认 */
+            h('button', {
+              className: 'rt-btn', style: { fontSize: 10, padding: '0 4px', lineHeight: '14px', opacity: 0.55 },
+              title: '从资产库删除这台资产（会先列出连带删除的子表行数）',
+              onClick: (e) => { if (e && e.stopPropagation) e.stopPropagation(); askDeleteAssets([it.id]) },
+            }, delBusy === 'a' + it.id ? '…' : '✕'),
             /* 发现时间挂在 IP 下面一行：IP 列宽度有限，不另开列（列宽一改整表要跟着调） */
             h('span', {
               style: { fontSize: 10.5, color: 'var(--dsw-alias-label-secondary)', whiteSpace: 'nowrap' },
@@ -4211,6 +4317,11 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
             it.blocked_count ? h('span', { className: 'rt-tag', style: { color: '#ef4444', borderColor: '#ef444455', marginLeft: 4 } }, '封' + it.blocked_count) : null),
           h('span', { title: portText }, (shownPorts || '—') + morePorts),
           h('span', { title: fpText }, fpText.length > 30 ? fpText.slice(0, 30) + '…' : fpText)))
+
+        /* 单台删除的确认条：紧贴这一行下方，不用去别处找 */
+        if (delAsk && !delAsk.cidr && (delAsk.ids || []).length === 1 && delAsk.ids[0] === it.id) {
+          rowNodes.push(confirmRow('del' + it.id, delAsk, it.ip))
+        }
 
         if (openId !== it.id) continue
         const d = detail && detail.id === it.id ? detail : null
@@ -4282,7 +4393,15 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
                   ? h(Clip, { key: 'notes', label: '测试记录（' + noteLines.length + ' 条）', text: noteLines.join('\n') })
                   : null,
                 h('div', { style: { margin: '6px 0 3px', fontWeight: 600 } }, '采集溯源（最近 8 条）'),
-                h('div', null, obsRows.length ? obsRows : '—'))
+                h('div', null, obsRows.length ? obsRows : '—'),
+                /* 详情里也放一个（打开详情看完再决定删，是常见路径） */
+                h('div', { style: { marginTop: 10, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
+                  h('button', {
+                    className: 'rt-btn', style: { color: '#ef4444', borderColor: '#ef444455' },
+                    onClick: () => askDeleteAssets([it.id]),
+                  }, '删除这台资产'),
+                  h('span', { style: { fontSize: 11, opacity: 0.8 } }, '删除会连带清掉它的端口 / 指纹 / 漏洞 / 得分记录等子表数据')
+                    ))
                 : null)
           : h('div', null, '加载中…')
         rowNodes.push(h('div', {
@@ -4341,6 +4460,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 
       return h('div', { className: 'rt-split' }, side,
         h('div', { className: 'rt-main' }, view === 'testing' ? null : toolbar,
+          delNote,
           conclusion,
           state.error ? h('div', { className: 'rt-err' }, state.error) : null,
           pane))
@@ -5643,6 +5763,68 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         query({ templateOffset: offset })
       }
 
+      /* 导出 / 导入：把"打穿记录"整包搬走再搬回来（换机器、重装插件、清理数据前先落一份） */
+      const [ioBusy, setIoBusy] = React.useState('')
+      const [ioAsk, setIoAsk] = React.useState(null)      /* 解析好的导入包，确认后才写库 */
+      const [ioMode, setIoMode] = React.useState('merge')
+      const [ioScope, setIoScope] = React.useState('all')
+      const ioFileName = () => 'dsh-redteam-knowledge-' + new Date().toISOString().slice(0, 10) + '.json'
+      const doExport = () => {
+        setIoBusy('export'); setMsg(null)
+        api({ op: 'pocExport', scope: ioScope }).then((r) => {
+          setIoBusy('')
+          if (!r || r.ok === false) { setMsg({ err: (r && r.error) || '导出失败' }); return }
+          const text = JSON.stringify(r.bundle, null, 2)
+          /* 两条路都给：浏览器下载 + 服务端落一份（下载被拦时还能去目录里拿） */
+          try {
+            const blob = new Blob([text], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url; a.download = ioFileName(); a.click()
+            URL.revokeObjectURL(url)
+          } catch (e) { /* 浏览器侧失败不致命：下面照样报服务端路径 */ }
+          setMsg({ ok: '已导出 ' + r.count + ' 条（已验证 ' + (r.verifiedCount || 0) + ' · 有复用记录 ' + (r.usedCount || 0) + '）'
+            + (r.path ? '；本机也存了一份：' + r.path : '') })
+        }, (e) => { setIoBusy(''); setMsg({ err: String((e && e.message) || e) }) })
+      }
+      const readImportFile = (file) => {
+        if (!file) return
+        setIoBusy('read'); setMsg(null); setIoAsk(null)
+        const done = (text) => {
+          setIoBusy('')
+          let parsed = null
+          try { parsed = JSON.parse(text) } catch (e) { setMsg({ err: '不是 JSON 文件：' + ((e && e.message) || e) }); return }
+          const pocs = Array.isArray(parsed) ? parsed : (parsed && parsed.pocs)
+          if (!Array.isArray(pocs)) { setMsg({ err: '这个文件里没有 pocs 数组（要用「知识库」页导出的 JSON）' }); return }
+          if (parsed && parsed._kind && parsed._kind !== 'dsh-redteam-knowledge') { setMsg({ err: '文件类型是 ' + parsed._kind + '，不是知识库导出文件' }); return }
+          const verified = pocs.filter((p) => Number(p && p.verified) === 1).length
+          const used = pocs.filter((p) => Number(p && p.hit_count) > 0).length
+          setIoAsk({ bundle: parsed, count: pocs.length, verified, used, exportedAt: parsed && parsed.exportedAt, file: (file && file.name) || '' })
+        }
+        try {
+          const p = typeof file.text === 'function' ? file.text() : null
+          if (p && typeof p.then === 'function') { p.then(done, (e) => { setIoBusy(''); setMsg({ err: '读文件失败：' + ((e && e.message) || e) }) }); return }
+          const fr = new FileReader()
+          fr.onload = () => done(String(fr.result || ''))
+          fr.onerror = () => { setIoBusy(''); setMsg({ err: '读文件失败' }) }
+          fr.readAsText(file)
+        } catch (e) { setIoBusy(''); setMsg({ err: '读文件失败：' + ((e && e.message) || e) }) }
+      }
+      const doImport = () => {
+        if (!ioAsk) return
+        setIoBusy('import')
+        api({ op: 'pocImport', bundle: ioAsk.bundle, mode: ioMode }).then((r) => {
+          setIoBusy('')
+          if (!r || r.ok === false) { setMsg({ err: (r && r.error) || '导入失败' }); return }
+          setIoAsk(null)
+          if (r.failed && r.failed.length) { try { console.warn('[dsh-purge] 导入跳过的条目：', r.failed) } catch (e) { /* ignore */ } }
+          /* 先刷新（query 内部会清 msg），再把结果写进提示 —— 顺序反了用户看不到导入结果 */
+          query({})
+          setMsg({ ok: '导入完成：新增 ' + (r.created || 0) + ' · 合并更新 ' + (r.updated || 0) + ' · 跳过 ' + (r.skipped || 0)
+            + (r.failed && r.failed.length ? '（' + r.failed.length + ' 条有问题，见控制台）' : '') })
+        }, (e) => { setIoBusy(''); setMsg({ err: String((e && e.message) || e) }) })
+      }
+
       const card = (x) => {
         const isOpen = openId === x.id
         const d = isOpen && detail && detail.id === x.id ? detail : null
@@ -5706,6 +5888,32 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
             : null,
           tpl.total ? h('span', { className: 'rt-tag rt-tag-passive' }, '本机模板 ' + tpl.total) : null,
           h('div', { className: 'rt-spacer' }),
+          /* 导出 / 导入：一键搬走"打穿记录"。页签在工具栏，不藏在详情里 */
+          h('select', {
+            className: 'rt-input', style: { maxWidth: 116 },
+            title: '导出范围：全部条目 / 只导已验证（打穿过）的条目',
+            value: ioScope, onChange: (e) => setIoScope(e.target.value),
+          },
+            h('option', { value: 'all' }, '导出：全部'),
+            h('option', { value: 'verified' }, '导出：已验证')),
+          h('button', {
+            className: 'rt-btn', disabled: !!ioBusy,
+            title: '导出成 JSON（浏览器下载 + 本机 exports/ 各留一份）',
+            onClick: doExport,
+          }, ioBusy === 'export' ? '导出中…' : '导出知识库'),
+          h('label', {
+            className: 'rt-btn', style: { cursor: 'pointer' },
+            title: '导入之前导出的 JSON（按 code 合并，不覆盖已有的打穿痕迹）',
+          },
+            ioBusy === 'read' ? '读取中…' : '导入知识库',
+            h('input', {
+              type: 'file', accept: '.json,application/json', style: { display: 'none' },
+              onChange: (e) => {
+                const f = e && e.target && e.target.files && e.target.files[0]
+                readImportFile(f)
+                if (e && e.target) e.target.value = ''   /* 同一个文件能连选两次 */
+              },
+            })),
           h('button', { className: 'rt-btn' + (grouped ? ' rt-btn-primary' : ''), title: '按归类分组显示 / 平铺显示', onClick: () => setGrouped(!grouped) }, grouped ? '按归类分组' : '平铺显示'),
           h('button', { className: 'rt-btn', disabled: busy, onClick: () => query() }, busy ? '检索中…' : '刷新')),
         /* 归类总览：点一下就是按该类筛选，一眼看清"哪类武器攒了多少、哪类还是空的" */
@@ -5750,6 +5958,25 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
             '只看已验证'),
           h('button', { className: 'rt-btn rt-btn-primary', onClick: () => query() }, '检索')),
         msg ? h('div', { className: msg.err ? 'rt-err' : 'rt-foot' }, msg.err || msg.ok) : null,
+        /* 导入确认：解析完先报"包里几条、多少是打穿过的"，选好冲突策略再写库 */
+        ioAsk
+          ? h('div', {
+            className: 'rt-card', style: { margin: '8px 10px', borderLeft: '3px solid var(--dsw-alias-brand-primary)' },
+          },
+            h('div', { style: { fontWeight: 600, marginBottom: 4 } },
+              '准备导入' + (ioAsk.file ? ' ' + ioAsk.file : '') + '：' + ioAsk.count + ' 条'),
+            h('div', { style: { fontSize: 11.5, opacity: 0.9, marginBottom: 6 } },
+              '其中已验证（打穿过）' + ioAsk.verified + ' 条 · 有复用记录 ' + ioAsk.used + ' 条'
+              + (ioAsk.exportedAt ? ' · 导出于 ' + fmt(ioAsk.exportedAt) : '')
+              + '。合并规则：同 code 的条目取更完整的一份，已验证 / 复用次数只增不减；本机没有的会新建并落盘正文。'),
+            h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
+              h('select', { className: 'rt-input', style: { maxWidth: 200 }, value: ioMode, onChange: (e) => setIoMode(e.target.value) },
+                h('option', { value: 'merge' }, '合并（推荐：不丢已有痕迹）'),
+                h('option', { value: 'skip' }, '跳过已存在的条目')),
+              h('button', { className: 'rt-btn rt-btn-primary', disabled: ioBusy === 'import', onClick: doImport },
+                ioBusy === 'import' ? '导入中…' : '确认导入'),
+              h('button', { className: 'rt-btn', disabled: ioBusy === 'import', onClick: () => setIoAsk(null) }, '取消')))
+          : null,
         err ? h('div', { className: 'rt-err' },
           /engagement required|unknown op/i.test(err)
             /* 老 host 还没有知识库接口：讲清怎么恢复，别让人对着 "engagement required" 发懵 */
@@ -5829,6 +6056,183 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
             : null),
         h('div', { className: 'rt-foot' },
           h('span', null, '全局共享（跨靶标）｜ 落盘：pocs/<code>/ ｜ 只收录通用可复用的 POC/EXP，靶标专用脚本走「攻击文件」')))
+    }
+
+    /* ---------------------------------------------------------- 插件自身（版本 / 数据位置 / 怎么正确卸载） */
+    /**
+     * 「插件」页：回答三个问题 —— 这插件装在哪、它留了什么数据、**怎么干净地把它删掉**。
+     *
+     * 卸载顺序是有讲究的（回滚本体改动 → 摘依赖 → 删状态 → 可选删数据），
+     * 顺序颠倒会留下"本体已经被打过补丁、插件却没了"的中间态 —— 所以这一页把顺序写死并给出可复制命令。
+     */
+    function PluginTab(props) {
+      const refreshKey = props.refreshKey || 0
+      const onGoto = props.onGoto
+      /* 体积写成人话（EnvTab 里那份是局部变量，这里必须自带一份） */
+      const fmtBytes = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB'
+        : (n >= 1024 ? (n / 1024).toFixed(1) + ' KB' : String(n || 0) + ' B'))
+      const [data, setData] = React.useState(null)
+      const [err, setErr] = React.useState(null)
+      const [copied, setCopied] = React.useState('')
+      const [uAsk, setUAsk] = React.useState(false)
+      const [uBusy, setUBusy] = React.useState(false)
+      const [uResult, setUResult] = React.useState(null)
+
+      React.useEffect(() => {
+        api({ op: 'pluginRemovalPlan' }).then((r) => {
+          if (!r || r.ok === false) { setErr((r && r.error) || '读取失败'); return }
+          setErr(null); setData(r)
+        }, (e) => setErr(String((e && e.message) || e)))
+      }, [refreshKey])
+
+      const copy = (text, key) => {
+        copyText(text).then((okFlag) => {
+          setCopied(okFlag ? key : 'err:' + key)
+          setTimeout(() => setCopied((cur) => (cur === key || cur === 'err:' + key ? '' : cur)), 1500)
+        })
+      }
+      const runUninstall = () => {
+        setUBusy(true); setUResult(null)
+        api({ op: 'pluginUninstall' }).then((r) => {
+          setUBusy(false); setUAsk(false)
+          setUResult(r && typeof r === 'object' ? r : { ok: false, error: '卸载没有返回' })
+          if (onGoto) onGoto('env')
+        }, (e) => { setUBusy(false); setUAsk(false); setUResult({ ok: false, error: String((e && e.message) || e) }) })
+      }
+
+      if (err) return h('div', { className: 'rt-main' }, h('div', { className: 'rt-err' }, err))
+      if (!data) return h('div', { className: 'rt-main' }, h('div', { className: 'rt-empty' }, '读取中…'))
+      const f = data.footprint || {}
+      const steps = data.steps || []
+
+      const copyBtn = (text, key, label) => h('button', {
+        className: 'rt-btn', style: { fontSize: 11 },
+        onClick: () => copy(text, key),
+      }, copied === key ? '已复制' : (copied === 'err:' + key ? '复制失败' : (label || '复制')))
+
+      return h('div', { className: 'rt-main' },
+        h('div', { className: 'rt-toolbar' },
+          h('span', { style: { fontWeight: 600 } }, '插件 · dsh-purge'),
+          h('span', { className: 'rt-tag' }, 'v' + (f.version || '未知')),
+          (f.profiles || []).length
+            ? h('span', { className: 'rt-tag rt-tag-live' }, '已装：' + f.profiles.map((p) => p.name + (p.declared ? '' : '(未声明)')).join(' / '))
+            : h('span', { className: 'rt-tag rt-tag-warn' }, '没在 profile 里找到安装目录'),
+          h('div', { className: 'rt-spacer' }),
+          h('button', { className: 'rt-btn', title: '重新读取安装位置与数据体积', onClick: () => { setData(null); api({ op: 'pluginRemovalPlan' }).then((r) => { if (r && r.ok !== false) setData(r) }, () => {}) } }, '刷新')),
+
+        h('div', { style: { flex: 1, minHeight: 0, overflow: 'auto', padding: 12 } },
+          /* 1) 安装位置与数据 */
+          h('div', { className: 'rt-card' },
+            h('h4', null, '它装在哪、留了什么'),
+            h('div', { className: 'rt-kv' }, h('b', null, '包目录'), h('span', { className: 'rt-mono', style: { wordBreak: 'break-all' } }, f.pluginRoot || '—')),
+            h('div', { className: 'rt-kv' }, h('b', null, 'DSH_HOME'), h('span', { className: 'rt-mono' }, f.dshHome || '—')),
+            (f.profiles || []).map((p) => h('div', { key: p.name, className: 'rt-kv' },
+              h('b', null, 'profile'), h('span', { className: 'rt-mono', style: { wordBreak: 'break-all' } },
+                p.name + ' → ' + p.dir + (p.version ? '（v' + p.version + '）' : '') + (p.declared ? '' : ' · package.json 里没有依赖声明')))),
+            h('div', { style: { margin: '8px 0 4px', fontWeight: 600, fontSize: 12 } }, '数据目录（卸载器**不会**删带「保留」的那些）'),
+            (f.dirs || []).map((d) => h('div', { key: d.path, className: 'rt-kv' },
+              h('b', null, d.keep ? '保留' : '可删'),
+              h('span', null, h('span', { className: 'rt-mono', style: { wordBreak: 'break-all' } }, d.path)),
+              h('span', { style: { opacity: 0.8, marginLeft: 6 } },
+                d.exists ? d.files + ' 个文件 · ' + fmtBytes(d.bytes) : '不存在'),
+              h('span', { style: { opacity: 0.75, marginLeft: 6 } }, d.note || '')))),
+
+          /* 2) 正确卸载顺序 */
+          h('div', { className: 'rt-card', style: { borderLeft: '3px solid #ef4444' } },
+            h('h4', null, '怎么正确卸载（按这个顺序，别颠倒）'),
+            h('div', { style: { fontSize: 11.5, opacity: 0.9, marginBottom: 6 } },
+              '关键点：**先回滚插件给 dsh 本体打过的补丁**，再摘依赖、再删残留。'
+              + '反过来的话本体还带着补丁，但插件已经没了——改不回去也卸不干净。'),
+            steps.map((s, i) => h('div', { key: 'st' + i, style: { marginBottom: 10 } },
+              h('div', { style: { fontWeight: 600, fontSize: 12 } }, s.title + (s.optional ? '（可选）' : '')),
+              h('div', { style: { fontSize: 11.5, opacity: 0.88, margin: '2px 0 4px' } }, s.detail),
+              h('div', { style: { display: 'flex', gap: 6, alignItems: 'flex-start', flexWrap: 'wrap' } },
+                h('code', {
+                  className: 'rt-mono',
+                  style: { fontSize: 11, padding: '4px 6px', background: 'rgba(128,128,128,0.12)', borderRadius: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-all', flex: 1, minWidth: 220 },
+                }, s.cmd),
+                copyBtn(s.cmd, 's' + i)))),
+            h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 4 } },
+              h('button', { className: 'rt-btn', onClick: () => copy(data.quickCommand, 'all') },
+                copied === 'all' ? '已复制' : '复制必做命令（不含删数据）'),
+              h('button', { className: 'rt-btn', onClick: () => copy(data.keepCommands, 'keep') },
+                copied === 'keep' ? '已复制' : '复制删数据命令（慎用）')),
+            (data.notes || []).map((n, i) => h('div', { key: 'note' + i, className: 'rt-foot', style: { marginTop: 4 } }, '· ' + n))),
+
+          /* 3) 面板里一键卸载 */
+          h('div', { className: 'rt-card', style: { borderLeft: '3px solid #ef4444' } },
+            h('h4', null, '面板里一键卸载'),
+            h('div', { style: { fontSize: 11.5, opacity: 0.9, marginBottom: 6 } },
+              '等价于上面 ①②③ 三步：回滚补丁与 shim、清掉 override 与规则、从 profile 摘掉依赖、'
+              + '删掉插件状态目录。**不会**碰红队数据目录（靶标库 / 知识库 / 工具箱都在里面）。'),
+            uAsk
+              ? h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
+                h('span', { style: { fontSize: 12, color: '#ef4444' } }, '确认现在卸载？卸载后要重启 dsh，本面板会消失。'),
+                h('button', { className: 'rt-btn rt-btn-primary', disabled: uBusy, onClick: runUninstall }, uBusy ? '卸载中…' : '确认卸载'),
+                h('button', { className: 'rt-btn', disabled: uBusy, onClick: () => setUAsk(false) }, '取消'))
+              : h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
+                h('button', {
+                  className: 'rt-btn', style: { color: '#ef4444', borderColor: '#ef444455' },
+                  disabled: f.hasUninstaller === false,
+                  title: f.hasUninstaller === false ? '这个安装形态里没有卸载器（lib/uninstall.js 缺失），请按上面的命令手工卸' : '回滚补丁 + 摘依赖 + 删状态目录',
+                  onClick: () => setUAsk(true),
+                }, '一键卸载本插件'),
+                !uResult
+                  ? h('span', { style: { fontSize: 11, opacity: 0.8 } }, '卸载前建议先把知识库导出（下一张卡片里有按钮）')
+                  : null),
+            uResult
+              ? h('div', {
+                className: uResult.ok ? 'rt-foot' : 'rt-err',
+                style: { marginTop: 8, whiteSpace: 'pre-wrap' },
+              },
+                (uResult.ok ? '✓ ' : '✗ ') + (uResult.note || uResult.error || (uResult.ok ? '已卸载' : '卸载失败'))
+                + '\n已回滚补丁：' + (uResult.reverted ? '是' : '否')
+                + ' · 摘掉依赖的 profile：' + ((uResult.stripped && uResult.stripped.length) ? uResult.stripped.join('、') : '无')
+                + ' · 待清理残留：' + ((uResult.cleanup && uResult.cleanup.length) ? uResult.cleanup.length + ' 个' : '无')
+                + (uResult.cleanup_failed && uResult.cleanup_failed.length ? '（其中 ' + uResult.cleanup_failed.length + ' 个删不掉，重启后再删）' : '')
+                + ((uResult.errors && uResult.errors.length) ? '\n错误：' + uResult.errors.join('\n') : ''))
+              : null,
+            uResult && uResult.ok
+              ? h('div', { style: { marginTop: 6, fontSize: 11.5 } },
+                '现在重启 dsh：', h('code', { className: 'rt-mono' }, 'pkill -f "dsh web" && dsh web --no-open'))
+              : null),
+
+          /* 4) 删数据前先备份 */
+          h('div', { className: 'rt-card' },
+            h('h4', null, '要清数据就先把成果搬走'),
+            h('div', { style: { fontSize: 11.5, opacity: 0.9 } },
+              '知识库（POC / EXP + 打穿记录）可以整包导出成 JSON，重装插件后一键导入 —— '
+              + '靶标库里的资产、漏洞、攻击链、得分是 SQLite 库文件，要留就把整个目录拷走。'),
+            h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 6 } },
+              h('button', { className: 'rt-btn rt-btn-primary', onClick: () => { if (onGoto) onGoto('knowledge') } }, '去「知识库」页导出'),
+              h('span', { style: { fontSize: 11, opacity: 0.75 } }, '导出位置：知识库页工具栏「导出知识库」→ 浏览器下载 + ' + (f.redteamRoot ? f.redteamRoot + '/exports/' : 'exports/') + ' 各一份'))),
+
+          /* 5) 装回来 */
+          h('div', { className: 'rt-card' },
+            h('h4', null, '重启后想装回来'),
+            h('div', { style: { fontSize: 11.5, opacity: 0.9, marginBottom: 4 } },
+              '装回同一个版本，或者直接装 main：命令一样。装完重启 dsh，然后去「知识库」页导入之前的 JSON。'),
+            h('div', { style: { display: 'flex', gap: 6, alignItems: 'flex-start', flexWrap: 'wrap' } },
+              h('code', {
+                className: 'rt-mono',
+                style: { fontSize: 11, padding: '4px 6px', background: 'rgba(128,128,128,0.12)', borderRadius: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-all', flex: 1, minWidth: 220 },
+              }, 'dsh plugin --profile ' + ((f.profiles && f.profiles[0] && f.profiles[0].name) || 'web')
+                + ' add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz'),
+              copyBtn('dsh plugin --profile ' + ((f.profiles && f.profiles[0] && f.profiles[0].name) || 'web')
+                + ' add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz', 'reinstall'))),
+
+          /* 6) 卸载后自检 */
+          h('div', { className: 'rt-card' },
+            h('h4', null, '卸载后自检（都对了才算干净）'),
+            h('div', { className: 'rt-foot', style: { whiteSpace: 'pre-wrap' } },
+              [
+                '1) 依赖没了：dsh plugin --profile <profile> list 里看不到 dsh-purge',
+                '2) 包目录没了：' + ((f.profiles && f.profiles[0] && f.profiles[0].dir) || '<profile>/node_modules/dsh-purge') + ' 不存在',
+                '3) 本体回滚了：dsh 里的 /purge 命令不存在了（补丁已还原）',
+                '4) 状态目录没了：' + (f.dshHome ? f.dshHome + '/dsh-purge' : '$DSH_HOME/dsh-purge') + ' 不存在',
+                '5) 数据还在（如果你没删）：' + (f.redteamRoot || '$DSH_HOME/redteam') + ' —— 想留就留着，重装后接着用',
+                '6) 装回来之后：知识库页 →「导入知识库」选之前导出的 JSON → 打穿记录原样回来',
+              ].join('\n')))))
     }
 
     /* ---------------------------------------------------------- 环境适配（Windows / 非 Kali） */
@@ -7808,6 +8212,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         ['chain', '攻击链'], ['scores', '得分目标'], ['report', '报告'],
         ['knowledge', '知识库'],
         ['skills', '技能库'],
+        ['about', '插件'],
       ]
       const full = !!st.full
       /* 退全屏：清 hash，不 reload —— reload 会丢掉面板里的当前页签与筛选。 */
@@ -7839,6 +8244,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       else if (st.tab === 'knowledge') body = h(KnowledgeTab, { refreshKey: refreshKey })
       else if (st.tab === 'env') body = h(EnvTab, { refreshKey: refreshKey })
       else if (st.tab === 'skills') body = h(SkillsTab, { refreshKey: refreshKey })
+      else if (st.tab === 'about') body = h(PluginTab, { refreshKey: refreshKey, onGoto: (t) => setUI({ tab: t }) })
       else if (st.tab === 'agents' || st.tab === 'prompts') body = h(AgentsTab, { engagement: eng, refreshKey: refreshKey })
       else if (!eng) {
         body = h('div', { className: 'rt-pane' },

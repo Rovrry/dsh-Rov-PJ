@@ -1,3 +1,84 @@
+# 1.0.15
+
+## 中文
+
+- 版本 **1.0.15**。三件事：**卸载指引**、**资产删除**、**知识库导出/导入**。
+- **① 新增「插件」页（演练台最后一个页签）· 怎么正确卸载本插件**
+  - 写清**顺序**（颠倒会留下"本体已被打过补丁、插件却没了"的中间态）：
+    `① 回滚对本体的改动（/purge revert）` → `② 从 profile 摘依赖（dsh plugin --profile <名字> remove dsh-purge）`
+    → `③ 删插件状态目录（$DSH_HOME/dsh-purge）` → `④ 红队数据（可留可删，先导出）`。
+  - 每条命令都能**一键复制**，另给「复制必做命令」和「复制删数据命令（慎用）」两个整包按钮。
+  - 每条路径都是**本机实测**：包目录、DSH_HOME、每个装了插件的 profile 及其版本、各类数据目录的**文件数与体积**，
+    并明确标出哪些卸载器**会**删、哪些**不会**删（`redteam/` 里的靶标库 + 知识库 + 工具箱 ≈ 你的成果）。
+  - 面板里另给**一键卸载**（等价于 ①②③，两段式确认，卸载后提示重启命令），
+    以及**卸载后自检清单**（依赖 / 包目录 / 本体回滚 / 状态目录 / 数据 / 装回来怎么导入）。
+  - Windows 下命令自动换成 PowerShell（`Remove-Item -Recurse -Force`）。
+- **② 资产测绘可以删资产了**
+  - 每行 **✕**、展开详情里的「删除这台资产」、左侧 C 段后面的 ✕（**整段清空**）三处入口。
+  - **两段式，绝不误删**：点一下先**干跑**（后端只统计、一行都不动），确认条**就地出现在那一行/那一段**，
+    并写清"连带删掉"的子表行数（主机名 / 端口 / 服务 / 指纹 / 采集溯源 / 关系边 / 漏洞 / 得分记录 / 检索索引），
+    点「确认删除」才真删。
+  - 级联关系表**只有一处定义**（`#assetCascadeSpec`）：统计和真删共用同一份 spec，
+    避免"提示删 3 行、实际删 30 行"。真删走**事务**，中途出错整体回滚，不留"删了端口没删资产"的半成品。
+  - 关系边同时清两种写法（图谱自动边写的是资产数字 id 的字符串、智能体手写的可能直接写 IP），
+    不留指向已删资产的悬空边。
+  - 反例都保持拒绝：空 id 列表 → 明说要 `assetIds`；id 不存在 → 报 `missing` 且**什么都不删**；
+    没有 `confirm:true` → 永远只是干跑。
+- **③ 知识库导出 / 导入：重装插件也能把"打穿记录"搬回来**
+  - 工具栏新增「导出知识库」（可选**只导已验证**的条目）+「导入知识库」。
+  - 导出同时走两条路：**浏览器下载** JSON + 服务端在 `$DSH_HOME/redteam/exports/` **留一份文件**，
+    提示里直接给出落盘路径（下载被拦也有兜底）。
+  - 导出内容不只有正文：`verified / verified_note / hit_count / used_on / 来源靶标 / 发现资产 / 标签 / 时间` 全都带上 ——
+    "哪个单位的哪台机器上打穿过"才是这套库最值钱的部分。
+  - 导入是**按 code 合并**，且**只增不减**：同 code 的条目 `verified` 取两者最大值、
+    `hit_count` 取最大、`used_on` 已有就不覆盖、正文为空**不抹掉**本机正文；本机没有的条目**新建并按原样落库**（含打穿痕迹）。
+  - 导入前先出**预览卡**：文件名、条数、其中多少条打过穿、导出时间，并可选「合并」或「跳过已存在」。
+  - 坏文件明确拒绝：不是 JSON、缺 `pocs` 数组、`_kind` 不对 → 讲清原因且**一行都不写库**；
+    条目缺 `code/title` 只跳过那一条并说明原因。
+  - 路径净化沿用 `savePoc` 的规则（`code` 与文件名都被净化 + `assertPathWithin` 兜底），
+    `code: "../../etc/x"`、`filename: "../../evil.sh"` 都落不出 `pocs/` 目录。
+- 顺手修一个真问题：知识库导入后**看不到导入结果** —— 刷新用的 `query()` 内部会 `setMsg(null)`，
+  提示被自己清掉了。现在先刷新、再写提示。
+
+## English
+
+- Version **1.0.15**. Three things: **uninstall guidance**, **asset deletion**, **knowledge export/import**.
+- **① New "Plugin" tab (last tab of the console) — how to remove this plugin correctly**
+  - Documents the **order** (getting it wrong leaves the host patched but the plugin gone):
+    `① revert host changes (/purge revert)` → `② remove the dependency from the profile`
+    → `③ delete the plugin state dir` → `④ red-team data (keep or delete — export first)`.
+  - Every command is **one-click copyable**, plus two bundles: required commands and delete-data (use with care).
+  - All paths are **measured on this machine**: package dir, DSH_HOME, each profile that has the plugin and its version,
+    and the **file count / size** of each data dir — with what the uninstaller **does** and **does not** delete
+    (`redteam/` holds your engagements, knowledge base and toolkit).
+  - Also an in-panel **one-click uninstall** (step ①②③ with a two-step confirm and the restart command) and a
+    **post-uninstall checklist** (dependency / package dir / host reverted / state dir / data / how to re-import).
+  - On Windows the commands switch to PowerShell (`Remove-Item -Recurse -Force`).
+- **② Assets can now be deleted**
+  - Three entry points: the **✕** on each row, "delete this asset" in the expanded detail, and the **✕** on a C-segment
+    (wipe the whole segment).
+  - **Two-step, never accidental**: the first click runs a **dry run** (backend only counts, changes nothing);
+    the confirm bar appears **inline in that row/segment** and spells out the cascade
+    (names / ports / services / fingerprints / observations / edges / vulns / score hits / search index).
+    Only "confirm" performs the delete.
+  - The cascade table list has **exactly one definition** (`#assetCascadeSpec`) shared by the dry run and the real delete,
+    so "says 3 rows, deletes 30" cannot happen. The real delete runs in a **transaction** and rolls back on error.
+  - Edges are cleaned in both notations (auto edges store the numeric asset id as text; agent-written edges may use the IP).
+  - Negative cases stay rejected: empty id list, unknown ids (reported as `missing`, nothing deleted), and no
+    `confirm:true` → always a dry run.
+- **③ Knowledge base export / import — bring your "pwned" records back after a reinstall**
+  - Toolbar gains "export knowledge" (optionally **verified only**) and "import knowledge".
+  - Export writes **both** a browser download and a copy under `$DSH_HOME/redteam/exports/`, with the path in the message.
+  - The bundle carries the full trace: `verified / verified_note / hit_count / used_on / engagement / asset / tags / timestamps`.
+  - Import **merges by code** and is **monotonic**: verified/hit_count take the max, an existing `used_on` is kept,
+    empty content never wipes local content; unknown codes are **created as-is, traces included**.
+  - A **preview card** shows the file name, entry count, how many were verified and the export time, with "merge" or
+    "skip existing" modes.
+  - Bad files are rejected with a reason and **zero writes**; entries missing `code/title` are skipped individually.
+  - Path handling reuses `savePoc`'s sanitisation plus `assertPathWithin`; traversal attempts cannot escape `pocs/`.
+- Also fixes a real bug: after importing, the result message was invisible because the refresh helper `query()`
+  clears `msg` internally — the refresh now runs before the message is set.
+
 # 1.0.14
 
 ## 中文
