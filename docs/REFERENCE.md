@@ -51,8 +51,6 @@ dsh-purge/
 
 ---
 
----
-
 ## 本地校验
 
 ```sh
@@ -153,7 +151,48 @@ flowchart LR
 
 ---
 
+## Layout
 
+```
+dsh-purge/
+├── bin/dsh-purge.js
+├── client.js
+├── cordis.patch.yml
+├── docs/
+│   ├── banner.svg
+│   └── preview/
+│       ├── dock-auth.png
+│       ├── dock-clean.png
+│       ├── dock-drill.png
+│       ├── own-servers.png
+│       ├── own-servers-en.png
+│       ├── rules.png
+│       └── settings.png
+├── lib/
+│   ├── redteam/
+│   ├── child-process-hide.mjs
+│   ├── core.js
+│   ├── hide-console.js
+│   ├── identity.js
+│   ├── index.js
+│   ├── restart-web.js
+│   ├── rewind.js
+│   ├── rules.js
+│   ├── skills.js
+│   ├── uninstall-restart.js
+│   ├── uninstall.js
+│   └── update.js
+├── presets/redteam/
+├── skills/redteam/
+├── package.json
+├── screenshots.json
+├── LICENSE
+├── README.md            # Chinese (main, repo landing page)
+├── README.en.md         # English
+└── README.zh-CN.md      # redirect stub (legacy links)
+```
+
+Runtime user files: `$DSH_HOME/prompt-inject.md`, `$DSH_HOME/rules/`, `$DSH_HOME/skills/`, `$DSH_HOME/net-scope-allow.txt`. If `DSH_HOME` is unset, the launcher-adjacent `.dsh` wins over `~/.dsh`. Skills are not part of the `dsh-purge` inject section and do not replace the prompt.
 
 ---
 

@@ -52,8 +52,6 @@
 
 ---
 
----
-
 ## 使用
 
 ```sh
@@ -98,8 +96,6 @@ purge_status   purge_apply   purge_revert
 上面的 `203.0.113.10` 和 `example.com` 只是写法示例，不是放行地址。把它们换成你自己的那一台再保存。
 
 ![自己的服务器](preview/own-servers.png)
-
----
 
 ---
 
@@ -161,8 +157,6 @@ On the Clean page, under Prompt. One host per line, then Save list. Steps are in
 
 ---
 
----
-
 ## Usage
 
 ```sh
@@ -204,8 +198,6 @@ The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harne
 `203.0.113.10` and `example.com` above are only examples of the form. Replace them with your own host before you save.
 
 ![Own servers](preview/own-servers-en.png)
-
----
 
 ---
 
