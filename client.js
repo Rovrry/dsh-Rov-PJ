@@ -6093,7 +6093,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
     /* 本页 JS 的构建标记。打包时由 scripts/build-client.mjs 把 'DEV' 换成 "<版本>+<短哈希>"。
        面板会把它显示在标题旁和「插件」页里：**跟磁盘上的插件版本对不上，就说明浏览器还在跑旧缓存**
        （仓库里这份源码永远是 'DEV'，测试读的就是它）。 */
-    const PANEL_BUILD = 'v1.0.18+28e6d59'
+    const PANEL_BUILD = 'v1.0.19+3fd8dc6'
 
     function PluginTab(props) {
       const refreshKey = props.refreshKey || 0
