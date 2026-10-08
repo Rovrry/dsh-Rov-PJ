@@ -105,6 +105,8 @@ This repository is **a secondary development (fork) based on upstream version `1
 - This fork only carries secondary-development changes on top of the `1.1.62` baseline (version strings, packaging, docs, and later fork features).
 - Upstream fixes pulled in later will be noted here, so the baseline version stays honest.
 
+> 📘 **Before developing on this repository, read [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — it covers which code is generated (hand edits get overwritten), the build scripts, the release steps, and the files you must not touch.
+
 ## Attribution required
 
 **If you borrow this project's name, ideas, code, or prompts, you must credit the author and name the source repository:** [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge).
