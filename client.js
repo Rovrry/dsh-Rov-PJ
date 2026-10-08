@@ -6065,6 +6065,11 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
      * 卸载顺序是有讲究的（回滚本体改动 → 摘依赖 → 删状态 → 可选删数据），
      * 顺序颠倒会留下"本体已经被打过补丁、插件却没了"的中间态 —— 所以这一页把顺序写死并给出可复制命令。
      */
+    /* 本页 JS 的构建标记。打包时由 scripts/build-client.mjs 把 'DEV' 换成 "<版本>+<短哈希>"。
+       面板会把它显示在标题旁和「插件」页里：**跟磁盘上的插件版本对不上，就说明浏览器还在跑旧缓存**
+       （仓库里这份源码永远是 'DEV'，测试读的就是它）。 */
+    const PANEL_BUILD = 'v1.0.16+a58274e'
+
     function PluginTab(props) {
       const refreshKey = props.refreshKey || 0
       const onGoto = props.onGoto
@@ -6095,8 +6100,8 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         setUBusy(true); setUResult(null)
         api({ op: 'pluginUninstall' }).then((r) => {
           setUBusy(false); setUAsk(false)
+          /* 结果就地显示——别跳页，跳走了用户就看不见卸载结果了 */
           setUResult(r && typeof r === 'object' ? r : { ok: false, error: '卸载没有返回' })
-          if (onGoto) onGoto('env')
         }, (e) => { setUBusy(false); setUAsk(false); setUResult({ ok: false, error: String((e && e.message) || e) }) })
       }
 
@@ -6104,6 +6109,8 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       if (!data) return h('div', { className: 'rt-main' }, h('div', { className: 'rt-empty' }, '读取中…'))
       const f = data.footprint || {}
       const steps = data.steps || []
+      /* 本页 JS 的构建标记 vs 磁盘上的插件版本：不一致 = 浏览器还在跑旧缓存 */
+      const buildMismatch = PANEL_BUILD !== 'DEV' && !!f.version && String(PANEL_BUILD).indexOf(String(f.version)) !== 0
 
       const copyBtn = (text, key, label) => h('button', {
         className: 'rt-btn', style: { fontSize: 11 },
@@ -6121,9 +6128,19 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           h('button', { className: 'rt-btn', title: '重新读取安装位置与数据体积', onClick: () => { setData(null); api({ op: 'pluginRemovalPlan' }).then((r) => { if (r && r.ok !== false) setData(r) }, () => {}) } }, '刷新')),
 
         h('div', { style: { flex: 1, minHeight: 0, overflow: 'auto', padding: 12 } },
+          /* 0) 本页代码是不是旧的（浏览器缓存最坑，先摆出来） */
+          buildMismatch
+            ? h('div', { className: 'rt-card', style: { borderLeft: '3px solid #ef4444' } },
+              h('h4', null, '⚠ 本页跑的还是旧代码'),
+              h('div', { style: { fontSize: 12, lineHeight: 1.6 } },
+                '本页 JS 构建 = ' + PANEL_BUILD + '，磁盘上的插件版本 = v' + f.version + '。',
+                '按 Ctrl+Shift+R（Mac：Cmd+Shift+R）硬刷新，面板就会载入新代码；',
+                '如果你看到的页签里**没有「插件」这一页**，那说明整个面板都是旧的，同样按这个组合键。'))
+            : null,
           /* 1) 安装位置与数据 */
           h('div', { className: 'rt-card' },
             h('h4', null, '它装在哪、留了什么'),
+            h('div', { className: 'rt-kv' }, h('b', null, '本页 JS'), h('span', { className: 'rt-mono' }, String(PANEL_BUILD) + (buildMismatch ? '  ← 旧缓存' : '  ✓ 与磁盘一致'))),
             h('div', { className: 'rt-kv' }, h('b', null, '包目录'), h('span', { className: 'rt-mono', style: { wordBreak: 'break-all' } }, f.pluginRoot || '—')),
             h('div', { className: 'rt-kv' }, h('b', null, 'DSH_HOME'), h('span', { className: 'rt-mono' }, f.dshHome || '—')),
             (f.profiles || []).map((p) => h('div', { key: p.name, className: 'rt-kv' },
@@ -8314,6 +8331,11 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         h('div', { className: 'rt-head', onMouseDown: (full || embedded) ? undefined : startDrag, title: (full || embedded) ? undefined : '按住拖动面板' },
           embedded ? null : h('div', { className: 'rt-title' }, h('span', { className: 'rt-dot' }),
             full ? '演练台 · 全面浏览' : '演练台',
+            h('span', {
+              className: 'rt-tag',
+              style: { marginLeft: 6, cursor: 'help' },
+              title: '本页 JS 的构建标记（版本+提交）。跟「插件」页里的磁盘版本不一致 = 浏览器还在用旧缓存，按 Ctrl+Shift+R 硬刷新',
+            }, String(PANEL_BUILD)),
             full ? h('span', { className: 'rt-tag', style: { marginLeft: 6 } }, '独立窗口') : null),
           h('select', {
             className: 'rt-input rt-eng-select',
