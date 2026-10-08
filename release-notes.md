@@ -1,3 +1,39 @@
+# 1.0.19
+
+## 中文
+
+- 版本 **1.0.19**。修一个**真 bug**（不是缓存、不是没重启）：**「插件」页整页报
+  `unknown op: pluginRemovalPlan`**。
+- 根因：1.0.15 加这页时，`pluginRemovalPlan` / `pluginUninstall` 的分支写进了
+  `handlePlatformOp`，但**漏加到函数开头那道 `op !== ...` 白名单** —— 函数一进门就
+  `return undefined`，请求落到 `store-core` 的 dispatch，于是回一句 `unknown op`。
+  症状跟"宿主没重启"一模一样（新界面 + 服务端不认），所以第一轮排查跑偏了。
+- 现在：四道 handler 白名单抽成常量（`PLATFORM_OPS` / `SKILL_OPS` / `AGENTS_OPS` / `UPDATE_OPS`），
+  名单是数据、不是散落的 `!==` 链。
+- 新增测试 **`.devtests/op-coverage.mjs`**：把面板发出的**每个** `op: 'xxx'`（56 个）跟
+  服务端认的 op 合集（91 个）求差集，**缺一个就失败**。这类"客户端发了、服务端没人接"的错以后过不了测试。
+  该测试同时校验：名单里的平台 op 在函数体里都有分支（不许名单是摆设）。
+- 复现命令（对宿主直连，1.0.18 及更早会看到 `unknown op`）：
+  `curl -s -X POST http://127.0.0.1:3080/redteam/api -H 'content-type: application/json' -d '{"op":"pluginRemovalPlan"}'`
+
+## English
+
+- Version **1.0.19**. Fixes a **real bug** (not caching, not a missing restart): the whole
+  "Plugins" page returned `unknown op: pluginRemovalPlan`.
+- Root cause: when the page was added in 1.0.15 the `pluginRemovalPlan` / `pluginUninstall`
+  branches went into `handlePlatformOp`, but were **missing from the `op !== ...` allowlist at the
+  top of that function** — it returned `undefined` immediately, the request fell through to
+  `store-core`'s dispatch, which answered `unknown op`. Indistinguishable from "host not
+  restarted" (new UI + server that does not know the op), which is why the first diagnosis went
+  sideways.
+- Now the four handler allowlists are constants (`PLATFORM_OPS` / `SKILL_OPS` / `AGENTS_OPS` /
+  `UPDATE_OPS`) instead of scattered `!==` chains.
+- New test **`.devtests/op-coverage.mjs`**: diffs every `op: 'xxx'` the panel sends (56) against
+  every op the server handles (91) and **fails if even one has no owner**. It also checks that
+  each platform op in the list actually has a branch in the function body.
+- Reproduce (direct against a host running 1.0.18 or older):
+  `curl -s -X POST http://127.0.0.1:3080/redteam/api -H 'content-type: application/json' -d '{"op":"pluginRemovalPlan"}'`
+
 # 1.0.18
 
 ## 中文
