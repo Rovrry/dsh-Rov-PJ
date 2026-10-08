@@ -17,6 +17,16 @@
 node --check client.js && node --check lib/update.js && echo "语法 OK"
 grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js   # 标记必须在
 node -p "require('./package.json').version"                              # 当前版本
+
+# 版本号一致性（最容易让发布工作流直接失败的一条，务必先查）
+node -e "
+const fs=require('fs');
+const v=require('./package.json').version;
+const first=fs.readFileSync('release-notes.md','utf8').split('\\n')[0].trim();
+if(!/^\\d+\\.\\d+\\.\\d+$/.test(v)) console.log('❌ 版本号不是三段式:',v);
+else if(first!=='# '+v) console.log('❌ 日志首行不一致: 期望 #'+v+' 实际 '+first);
+else console.log('✅ 版本 '+v+' 一致');
+"
 ```
 
 **四条必须知道的硬约定：**
@@ -163,10 +173,10 @@ node scripts/gen-toolkit-doc.mjs --write
 
 ```sh
 # 1. 改版本号
-vim package.json                       # "version": "1.0.8" → "1.0.9"
+vim package.json                       # "version": "X.Y.Z" → 新的三段式版本号
 
 # 2. 同步改动日志首行（必须完全一致，否则工作流失败）
-vim release-notes.md                   # 第一行必须是 "# 1.0.9"
+vim release-notes.md                   # 第一行必须是 "# X.Y.Z"（与上一行完全一致）
 
 # 3. 同步 README 里的展示版本号
 #    README.md 与 README.en.md 各有一处 <strong>Version X.Y.Z</strong>
@@ -175,7 +185,7 @@ vim release-notes.md                   # 第一行必须是 "# 1.0.9"
 git add -A && git commit -m "fix(...): ..."
 git push origin HEAD:master
 
-# 5. 工作流自动完成：打 tag v1.0.9 → 建 Release → 打包 dsh-purge-1.0.9.zip
+# 5. 工作流自动完成：打 tag vX.Y.Z → 建 Release → 打包 dsh-purge-X.Y.Z.zip
 ```
 
 发布工作流的守卫（`.github/workflows/release.yml`，**都别绕**）：
