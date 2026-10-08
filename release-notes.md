@@ -1,3 +1,29 @@
+# 1.0.17
+
+## 中文
+
+- 版本 **1.0.17**。修一个卸载残留：**卸完插件，`dsh plugin ls` 里还列着 `dsh-purge@x.y.z`**。
+- 原因：插件在 profile 的 `package.json` 里注册**两处** —— `dependencies` 和 `dsh.profile.bundles`。
+  卸载器只清了顶层 `bundles`/`plugins`，而 `dsh plugin ls` 读的是 **`dsh.profile.bundles`** 那份，
+  于是依赖删了、文件删了、列表里还挂着。
+- 现在两处一起清，并且：带版本号写法（`dsh-purge@1.0.16`）与对象写法（`{ id }` / `{ name }`）都认；
+  别的插件与**顺序**不动（`bundles` 是启动顺序）；重复执行幂等；没有 `dsh` 段、传 `null` 都不炸。
+- 测试：`.devtests/uninstall-strip.mjs`（11 项，用的是本机卸载前那份 `package.json` 的真实形状）。
+
+## English
+
+- Version **1.0.17**. Fixes an uninstall leftover: after removing the plugin, `dsh plugin ls` still
+  listed `dsh-purge@x.y.z`.
+- Cause: the plugin is registered in the profile `package.json` in **two** places — `dependencies`
+  and `dsh.profile.bundles`. The uninstaller only stripped top-level `bundles`/`plugins`, while
+  `dsh plugin ls` reads `dsh.profile.bundles`, so the dependency and files were gone but the listing
+  stayed.
+- Now both are stripped, and: versioned specs (`dsh-purge@1.0.16`) and object forms (`{ id }` /
+  `{ name }`) are recognised; other plugins and their **order** are untouched (`bundles` is boot
+  order); repeated runs are idempotent; a missing `dsh` section or `null` input does not throw.
+- Test: `.devtests/uninstall-strip.mjs` (11 checks, built from this machine's real pre-uninstall
+  `package.json` shape).
+
 # 1.0.16
 
 ## 中文
