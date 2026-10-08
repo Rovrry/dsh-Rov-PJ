@@ -1,3 +1,39 @@
+# 1.0.16
+
+## 中文
+
+- 版本 **1.0.16**。这一版只做一件事：**让你一眼看出"面板跑的到底是不是新代码"**。
+- **① 演练台标题旁现在显示构建标记**，例如 `v1.0.16+ed8b051`：
+  - 它是**编译进 JS 的**（打包时由 `scripts/build-client.mjs` 把 `PANEL_BUILD='DEV'` 换成「版本+短提交」），
+    所以显示什么就证明**浏览器里真正在跑的就是那份代码**；
+  - 源码里未提交的改动会让标记带上 `+dirty`，本地临时构建不会被误认成正式产物。
+- **② 「插件」页把两个版本摆在一起对**：
+  - 新增一行「本页 JS」= 浏览器手里的构建标记，并和磁盘上的插件版本自动比对：
+    不一致就弹红色卡片「⚠ 本页跑的还是旧代码」，写明按 `Ctrl+Shift+R`（Mac `Cmd+Shift+R`）硬刷新；
+  - 页签里**没有「插件」这一页**本身也是同一个结论 —— 整个面板都是旧的，硬刷新即可。
+- **③ 顺手修**：点「一键卸载本插件」后不再自动跳到别的页签（跳走就看不见卸载结果了），
+  结果与「要重启 dsh」的提示就地留着。
+- 为什么加这个：插件是**宿主进程启动时加载**、客户端 bundle 的地址带 `?rev=<文件元数据哈希>`
+  且 `cache-control: immutable`，所以"文件已更新"和"页面在跑新代码"是两件事。
+  以前只能靠肉眼猜「你是不是没重启 / 没刷新」，现在有一行字能对质。
+
+## English
+
+- Version **1.0.16**. One job: **make it obvious whether the panel is running the new code**.
+- **① The drill console title now shows a build stamp**, e.g. `v1.0.16+ed8b051`:
+  - it is **compiled into the JS** (`scripts/build-client.mjs` replaces `PANEL_BUILD='DEV'` with
+    "version+short sha" at build time), so whatever it shows is provably the code the **browser** is running;
+  - uncommitted source changes append `+dirty`, so a local scratch build cannot be mistaken for a release.
+- **② The "Plugin" tab compares the two versions side by side**: a new "本页 JS / this page" row shows the
+  browser's build stamp and checks it against the on-disk plugin version; a mismatch raises a red
+  "⚠ this page still runs old code" card telling you to hard-refresh (`Ctrl+Shift+R`, `Cmd+Shift+R` on Mac).
+  Not seeing the "Plugin" tab at all means the same thing — the whole panel is stale.
+- **③ Also fixed**: one-click uninstall no longer jumps to another tab afterwards (you would lose the result);
+  the outcome and the "restart dsh" hint stay right there.
+- Why: the plugin is loaded when the **host process starts**, and the client bundle URL carries
+  `?rev=<file-metadata hash>` with `cache-control: immutable` — so "the file changed" and
+  "the page is running the new code" are two different things. This used to be guesswork; now one line settles it.
+
 # 1.0.15
 
 ## 中文
