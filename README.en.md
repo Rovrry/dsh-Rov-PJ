@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.0.2</strong></p>
+<p align="center"><strong>Version 1.0.3</strong></p>
 
 <p align="center">
   <em>Local official DeepSeek Harness cybersecurity red-team plugin. Clean host policy, and ship a built-in drill console. Swap prompts per model. Default prompt for Chinese models — 小码酱. Please star ⭐</em>
@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">中文</a>（主） | <strong>English</strong>（current） | <a href="README.zh-CN.md">中文副本</a>
+  <a href="README.md">中文</a>（主） | <strong>English</strong>（current）
 </p>
 
 ---
@@ -32,7 +32,7 @@
 | Item | Note |
 |---|---|
 | This repository | <https://github.com/Rovrry/dsh-Rov-PJ> |
-| Current version | 1.0.2 (this repository's own version number) |
+| Current version | 1.0.3 (this repository's own version number) |
 
 **Copyright and origin**: this project is a secondary development of an open-source project;
 the original copyright belongs to its author - Copyright (c) 2026 小杨, MIT license, upstream
@@ -692,9 +692,9 @@ dsh-purge/
 ├── package.json
 ├── screenshots.json
 ├── LICENSE
-├── README.md            # 中文（主，仓库首页）
+├── README.md            # Chinese (main, repo landing page)
 ├── README.en.md         # English
-└── README.zh-CN.md      # 中文副本
+└── README.zh-CN.md      # redirect stub (legacy links)
 ```
 
 Runtime user files: `$DSH_HOME/prompt-inject.md`, `$DSH_HOME/rules/`, `$DSH_HOME/skills/`, `$DSH_HOME/net-scope-allow.txt`. If `DSH_HOME` is unset, the launcher-adjacent `.dsh` wins over `~/.dsh`. Skills are not part of the `dsh-purge` inject section and do not replace the prompt.

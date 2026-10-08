@@ -1,4 +1,25 @@
-# 1.0.2
+# 1.0.3
+
+## 中文
+
+- 版本 **1.0.3**。
+- **去掉冗余的「中文副本」**：`README.zh-CN.md` 原先与 `README.md` 内容完全重复，只会让人困惑；
+  现改为一个轻量跳转页，仅用于兼容旧链接。
+- 语言切换栏统一为「中文 | English」两项，不再出现重复入口。
+- 目录结构树中的该文件说明同步更正；英文版目录树注释统一为英文。
+- `lib/update.js` 不再把该跳转页随更新覆盖到目标目录（仍随包发布，保留在 `package.json` 的 files 中）。
+
+## English
+
+- Version **1.0.3**.
+- **Removed the redundant "Chinese copy"**: `README.zh-CN.md` duplicated `README.md` verbatim,
+  which was only confusing. It is now a lightweight redirect page kept for legacy links.
+- The language switcher is now just "中文 | English", with no duplicate entry.
+- The file-tree description was corrected, and the English tree comments were unified to English.
+- `lib/update.js` no longer copies that redirect page into the target directory on update
+  (it is still shipped in the package via `package.json` `files`).
+
+# 1.0.3
 
 ## 中文
 

@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.0.2</strong></p>
+<p align="center"><strong>Version 1.0.3</strong></p>
 
 <p align="center">
   <em>本机官方 DeepSeek Harness 网络安全红队评测插件。清洗宿主策略，并带内嵌演练台。不同模型可换不同提示词。默认提示词面向国模「小码酱」。求 Star 收藏 ⭐</em>
@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <strong>中文</strong>（当前） | <a href="README.en.md">English</a> | <a href="README.zh-CN.md">中文副本</a>
+  <strong>中文</strong>（当前） | <a href="README.en.md">English</a>
 </p>
 
 ---
@@ -32,7 +32,7 @@
 | 项目 | 说明 |
 |---|---|
 | 本仓库 | <https://github.com/Rovrry/dsh-Rov-PJ> |
-| 当前版本 | 1.0.2（本仓库独立版本号） |
+| 当前版本 | 1.0.3（本仓库独立版本号） |
 
 **版权与来源**：本项目基于开源项目二次开发，原始版权归其作者所有 ——
 Copyright (c) 2026 小杨，MIT 协议，上游仓库 <https://github.com/YuJunZhiXue/dsh-purge>。
@@ -683,7 +683,7 @@ dsh-purge/
 ├── LICENSE
 ├── README.md            # 中文（主，仓库首页）
 ├── README.en.md         # English
-└── README.zh-CN.md      # 中文副本
+└── README.zh-CN.md      # 跳转页（旧链接兼容）
 ```
 
 运行时用户文件：`$DSH_HOME/prompt-inject.md`、`$DSH_HOME/rules/`、`$DSH_HOME/skills/`、`$DSH_HOME/net-scope-allow.txt`。未设 `DSH_HOME` 时，优先用 dsh 安装目录旁边的 `.dsh`，再退回 `~/.dsh`。Skill 不进 `dsh-purge` 注入段，也不顶替提示词。

@@ -48,7 +48,7 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
 |---|---|---|
 | **`README.md`** | 中文 | **主文档**，仓库首页显示的就是它 |
 | `README.en.md` | 英文 | 英文版 |
-| `README.zh-CN.md` | 中文 | `README.md` 的**兼容副本**，为旧链接保留 |
+| `README.zh-CN.md` | 中文 | **跳转页**，仅为旧链接保留，指向 `README.md` |
 
 **章节结构**（顶部四章是面向使用者的门面，改动时保持编号连贯）：
 
@@ -61,10 +61,9 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
 
 **维护规则：**
 
-1. `README.md` 与 `README.zh-CN.md` 必须**内容完全一致**，改完主文档后同步：
-   ```bash
-   cp README.md README.zh-CN.md
-   ```
+1. **只维护 `README.md` 与 `README.en.md` 两份正文。** `README.zh-CN.md` 是固定的跳转页，
+   不需要同步、不要往里写正文，也不要把它放进任何语言切换栏（它和自己指向的文件重复，
+   出现在页面上只会让人困惑）。
 2. 改动主文档的**章节标题**时，同步更新「目录」里的锚点，以及文中指向该章节的链接。
    GitHub 锚点会去掉标点与 emoji，但**保留中文**并把空格转成连字符，例如
    `## 四、使用教程` → `#四使用教程`；带 `⚠️` 的标题因含变体选择符会多出一个连字符。
