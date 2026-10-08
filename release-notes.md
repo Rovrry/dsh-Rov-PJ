@@ -1,3 +1,41 @@
+# 1.0.14
+
+## 中文
+
+- 版本 **1.0.14**。修 1.0.13 引入的一个界面缺陷：**「一键卸载」看起来没反应**。
+- **原因（三条一起犯，所以像"按钮坏了"）**：
+  1. 反馈卡片（装前检测 / 卸载确认 / 批量结果）渲染在滚动面板的**顶部**，
+     而按钮在页面**下方** —— 点了以后卡片出现在看不见的地方；
+  2. 确认按钮只在顶部卡片里，用户眼前那一行**没有任何变化**；
+  3. 有待确认的卡片时，**所有行**的按钮都被 `disabled` —— 再点一次、或点别的工具，**彻底没反应**。
+- **改法**：
+  - 反馈区改成 **sticky 常驻面板顶部**：滚到哪儿都看得见；
+  - **就地确认**：点「一键卸载」后，「确认删除 / 取消」直接出现在**那一行**，
+    并写明「删 `toolkit/xxx`（N 个文件，M MB）」；
+  - 待确认时**不再禁用其它行**，点别的工具会直接改确认目标；
+  - 每行都会**就地显示结果**：失败是红 ✗（带真实原因）、成功是绿 ✓，
+    不再只有顶部消息区一个出口。
+- 顺手修一个小文案：`frpc` / `frps` 共用 `toolkit/frp` 目录，按钮提示里现在显示**真实目录**而不是工具 id。
+
+## English
+
+- Version **1.0.14**. Fixes a UI defect introduced in 1.0.13: **one-click uninstall appeared to do nothing**.
+- **Three causes at once** (which is why it looked like a dead button):
+  1. the feedback cards (precheck / uninstall confirm / batch result) render at the **top** of the
+     scrolling pane while the button sits at the **bottom** — the card appeared off-screen;
+  2. the confirm button lived only in that top card, so the row in front of the user changed **not at all**;
+  3. while a confirm was pending, **every row's** button was `disabled` — clicking again, or clicking
+     another tool, did **nothing at all**.
+- **Fixes**:
+  - the feedback area is now **sticky at the top of the pane** — visible wherever you scrolled to;
+  - **inline confirmation**: after clicking uninstall, **Confirm delete / Cancel** appear **in that row**,
+    spelling out "delete `toolkit/xxx` (N files, M MB)";
+  - a pending confirm **no longer disables other rows** — clicking another tool simply re-targets it;
+  - every row now shows its own result: red ✗ with the real reason, green ✓ on success, instead of
+    relying on the single message area at the top.
+- Small copy fix: `frpc` / `frps` share the `toolkit/frp` directory; the button tooltip now shows the
+  **real directory** instead of the tool id.
+
 # 1.0.13
 
 ## 中文

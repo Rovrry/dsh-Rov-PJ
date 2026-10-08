@@ -5898,6 +5898,9 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       /* sudo 密码：只活在这次页面会话的内存里 —— 不写 config.json、不进日志、关页面即弃 */
       const [sudoPassword, setSudoPassword] = React.useState('')
       const [sudoState, setSudoState] = React.useState(null)
+      /* 行内提示：这一行的按钮为什么没成功（顶部的消息区在滚动后可能看不见） */
+      const [rowNote, setRowNote] = React.useState(null)
+      const noteFor = (id, text) => setRowNote({ id, text: String(text || '') })
 
       const loadHost = () => {
         api({ op: 'platformHostProfile' }).then((r) => {
@@ -5923,11 +5926,16 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 
       const startInstall = (id) => {
         setMsg(null); setToolResult(null); setPrecheck(null); setUninstallConfirm(null); setBusyTool(id)
+        setRowNote(null)
         api({ op: 'platformToolPreflight', id, sudoPassword: sudoArg() }).then((pre) => {
           setBusyTool('')
-          if (!pre || pre.ok === false) { setMsg({ err: (pre && pre.error) || '装前检测失败' }); return }
+          if (!pre || pre.ok === false) {
+            noteFor(id, (pre && pre.error) || '装前检测失败')
+            setMsg({ err: (pre && pre.error) || '装前检测失败' })
+            return
+          }
           setPrecheck(pre)
-        }, (e) => { setBusyTool(''); setMsg({ err: String((e && e.message) || e) }) })
+        }, (e) => { setBusyTool(''); noteFor(id, String((e && e.message) || e)); setMsg({ err: String((e && e.message) || e) }) })
       }
 
       const confirmInstall = (pre, force) => {
@@ -5999,20 +6007,24 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 
       /* 卸载：先问一遍"会删掉什么"（干跑，不动文件），确认后再删 */
       const askUninstall = (id) => {
-        setMsg(null); setToolResult(null); setPrecheck(null); setBusyTool(id)
+        setMsg(null); setToolResult(null); setPrecheck(null); setBusyTool(id); setRowNote(null)
         api({ op: 'platformToolUninstall', id, dryRun: true }).then((r) => {
           setBusyTool('')
-          if (!r) { setMsg({ err: '卸载预检没有返回' }); return }
-          if (r.ok !== true) { setMsg({ err: r.error || '这个工具不能从面板卸载' }); return }
+          if (!r) { noteFor(id, '卸载预检没有返回'); setMsg({ err: '卸载预检没有返回' }); return }
+          if (r.ok !== true) {
+            noteFor(id, r.error || '这个工具不能从面板卸载')
+            setMsg({ err: r.error || '这个工具不能从面板卸载' })
+            return
+          }
           setUninstallConfirm(r)
-        }, (e) => { setBusyTool(''); setMsg({ err: String((e && e.message) || e) }) })
+        }, (e) => { setBusyTool(''); noteFor(id, String((e && e.message) || e)); setMsg({ err: String((e && e.message) || e) }) })
       }
 
       const doUninstall = (info) => {
-        setBusyTool(info.id); setMsg(null)
+        setBusyTool(info.id); setMsg(null); setRowNote(null)
         api({ op: 'platformToolUninstall', id: info.id }).then((r) => {
           setBusyTool(''); setUninstallConfirm(null)
-          if (!r) { setMsg({ err: '卸载请求没有返回' }); return }
+          if (!r) { noteFor(info.id, '卸载请求没有返回'); setMsg({ err: '卸载请求没有返回' }); return }
           setToolResult(r.ok ? {
             ok: true, id: r.id, label: r.label, targetDir: r.targetDir,
             installedPath: '', log: '已删除 ' + r.targetDir + '（' + (r.files || 0) + ' 个文件）'
@@ -6021,8 +6033,8 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
               + (r.stillFound ? '\n仍能在 ' + r.stillSource + ' 找到另一个副本：' + r.stillFound : ''),
           } : r)
           if (r.ok) { setMsg({ ok: '已卸载 ' + (r.label || r.id) + '（删除 ' + (r.files || 0) + ' 个文件）' }); refreshAfterChange() }
-          else setMsg({ err: r.error || '卸载没成功' })
-        }, (e) => { setBusyTool(''); setMsg({ err: String((e && e.message) || e) }) })
+          else { noteFor(info.id, r.error || '卸载没成功'); setMsg({ err: r.error || '卸载没成功' }) }
+        }, (e) => { setBusyTool(''); noteFor(info.id, String((e && e.message) || e)); setMsg({ err: String((e && e.message) || e) }) })
       }
 
       const save = () => {
@@ -6114,6 +6126,8 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       /* 工具是否"装在工具箱里"：只有这种才给一键卸载（别处的副本插件一律不动） */
       const toolkitRoot = ((envReport && envReport.toolkitDir) || defaultToolkit || '').replace(/[\\/]+$/, '')
       const insideToolkit = (p) => !!p && !!toolkitRoot && String(p).replace(/[\\/]+$/, '').toLowerCase().startsWith(toolkitRoot.toLowerCase())
+      /* 工具实际落在哪个子目录（frpc/frps 共用 frp，标题里要说对） */
+      const dirOf = (p) => String(p || '').replace(/[\\/][^\\/]*$/, '')
       const installable = ((envReport && envReport.missingTools) || []).filter((t) => !t.optional)
       const fmtBytes = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : (n >= 1024 ? (n / 1024).toFixed(1) + ' KB' : String(n || 0) + ' B'))
       const checkIcon = (ok) => (ok ? '✓' : '✗')
@@ -6246,6 +6260,9 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
                     }, copied === ('rt_' + rt.id) ? '已复制' : '复制安装命令')) : null)),
                 h('div', { style: { fontSize: 11.5, opacity: 0.85, marginTop: 4 } },
                   '缺 Java 时冰蝎（Behinder）与哥斯拉（Godzilla）都起不来。标记「可选」的不影响主流程。'))),
+        /* 动作反馈区（装前检测 / 卸载确认 / 批量 / 结果）：sticky 常驻顶部 ——
+           按钮在页面下方，反馈在顶部看不见 = 用户以为"点了没反应"。 */
+        (precheck || uninstallConfirm || batch || toolResult) ? h('div', { style: { position: 'sticky', top: 0, zIndex: 6 } },
         precheck ? h('div', {
           className: 'rt-card',
           style: { margin: '0 0 8px', borderLeft: '3px solid var(--dsw-alias-brand-primary, #1a73e8)' },
@@ -6373,7 +6390,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
             h('pre', {
               className: 'rt-mono',
               style: { fontSize: 10.5, padding: '6px 8px', background: 'rgba(128,128,128,0.1)', borderRadius: 4, overflowX: 'auto', whiteSpace: 'pre-wrap', maxHeight: 260, overflowY: 'auto', margin: '4px 0 0' },
-            }, toolResult.log)) : null) : null,
+            }, toolResult.log)) : null) : null) : null,
           h('div', { className: 'rt-card' },
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
               h('h4', { style: { margin: 0 } }, '工具统一存放目录'),
@@ -6518,11 +6535,26 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
               }),
               h('div', { style: { display: 'flex', gap: 6, alignItems: 'center', marginTop: 3, flexWrap: 'wrap' } },
                 t.path ? h('div', { className: 'rt-mono', style: { fontSize: 10.5, opacity: 0.8, wordBreak: 'break-all', flex: 1 } }, t.path) : null,
-                t.path && insideToolkit(t.path)
+                /* 确认就地做：用户就在这一行点的，别让他去顶部找卡片 */
+                (uninstallConfirm && uninstallConfirm.id === t.id)
+                  ? h('span', { style: { fontSize: 11 } },
+                    '删 ' + uninstallConfirm.targetDir + '（' + (uninstallConfirm.files || 0) + ' 个文件，' + fmtBytes(uninstallConfirm.bytes || 0) + '）？')
+                  : null,
+                (uninstallConfirm && uninstallConfirm.id === t.id)
+                  ? h('button', {
+                    className: 'rt-btn rt-btn-primary',
+                    disabled: busyTool === t.id,
+                    onClick: () => doUninstall(uninstallConfirm),
+                  }, busyTool === t.id ? '删除中…' : '确认删除')
+                  : null,
+                (uninstallConfirm && uninstallConfirm.id === t.id)
+                  ? h('button', { className: 'rt-btn', onClick: () => setUninstallConfirm(null) }, '取消')
+                  : null,
+                t.path && insideToolkit(t.path) && !(uninstallConfirm && uninstallConfirm.id === t.id)
                   ? h('button', {
                     className: 'rt-btn',
-                    disabled: !!batch || busyTool === t.id || !!uninstallConfirm,
-                    title: '删除 ' + toolkitRoot + '/' + t.id + '（只删工具箱里这一份）',
+                    disabled: !!batch || busyTool === t.id,
+                    title: '删除 ' + dirOf(t.path) + '（只删工具箱里这一份）',
                     onClick: () => askUninstall(t.id),
                   }, busyTool === t.id ? '预检中…' : '一键卸载')
                   : null,
@@ -6535,7 +6567,14 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
                     disabled: !!batch || busyTool === t.id,
                     onClick: () => startInstall(t.id),
                   }, busyTool === t.id ? '检测中…' : '一键安装')
-                  : null)))),
+                  : null),
+              rowNote && rowNote.id === t.id
+                ? h('div', { style: { fontSize: 11, color: '#c62828', marginTop: 3 } }, '✗ ' + rowNote.text)
+                : null,
+              (toolResult && toolResult.id === t.id && !rowNote)
+                ? h('div', { style: { fontSize: 11, color: toolResult.ok ? '#2e7d32' : '#c62828', marginTop: 3 } },
+                  (toolResult.ok ? '✓ ' : '✗ ') + ((toolResult.ok ? '已完成' : (toolResult.error || '没成功')) + '').slice(0, 300))
+                : null))),
           h('div', { className: 'rt-card' },
             h('h4', null, '备注'),
             h('textarea', {
