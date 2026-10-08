@@ -1,4 +1,32 @@
-# 1.0.3
+# 1.0.4
+
+## 中文
+
+- 版本 **1.0.4**。
+- **仓库首页大幅精简**：838 行 -> 302 行，只保留三块 —— 项目来源、安装教程、免责声明。
+- 安装与使用教程的完整内容移到 **[docs/INSTALL.md](docs/INSTALL.md)**（各宿主差异、
+  手动安装、交给助手安装、卸载等），首页只留四条注意事项与一行命令。
+- 免责声明的完整内容移到 **[docs/DISCLAIMER.md](docs/DISCLAIMER.md)**（零容忍条款与
+  10 条合规细则全文），首页保留摘要与责任归属。
+- **移除赞赏地址**（USDT / Solana / Ethereum / Bitcoin）与结尾致谢，中英两版一并移除。
+- 保留 `strict-legal--compliance-disclaimer` 锚点，避免外部旧链接失效。
+
+## English
+
+- Version **1.0.4**.
+- **Repository landing page greatly condensed**: 838 lines -> 315 lines, keeping only three
+  blocks - project origin, installation, and disclaimer.
+- The full installation and usage tutorial moved to **[docs/INSTALL.md](docs/INSTALL.md)**
+  (per-host differences, manual install, assistant-assisted install, uninstall); the landing
+  page keeps four key notes and a one-line command.
+- The full disclaimer moved to **[docs/DISCLAIMER.md](docs/DISCLAIMER.md)** (zero-tolerance
+  terms and all 10 compliance rules); the landing page keeps a summary and the allocation of
+  responsibility.
+- **Removed the donation addresses** (USDT / Solana / Ethereum / Bitcoin) and the closing
+  acknowledgement, from both the Chinese and English pages.
+- Kept the `strict-legal--compliance-disclaimer` anchor so existing external links keep working.
+
+# 1.0.4
 
 ## 中文
 
