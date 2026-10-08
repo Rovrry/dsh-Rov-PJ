@@ -19,3 +19,6 @@ Thumbs.db
 scripts/tmp-*.mjs
 scripts/test-*.mjs
 .scratch/
+
+# 本地接力档案（给你和助手自己看的内部交接记录，不对外发布）
+HANDOFF.md
