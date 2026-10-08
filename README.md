@@ -4,7 +4,21 @@
 
 <h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.1.62</strong></p>
+<p align="center"><strong>Version 1.1.62</strong> · based on upstream <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62</p>
+
+> [!IMPORTANT]
+> ## 🔀 Secondary development notice
+>
+> **This repository ([Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ)) is a secondary development (fork) of [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge), based on upstream version `1.1.62`.**
+>
+> - **Upstream project**: <https://github.com/YuJunZhiXue/dsh-purge> — author **YuJunZhiXue**
+> - **Upstream baseline**: **`v1.1.62`** (commit the fork started from), **MIT license**
+> - **This repository**: <https://github.com/Rovrry/dsh-Rov-PJ> — maintained by **Rovrry** for secondary development
+> - **Fork changes**: version, packaging and docs are rewritten here; the code and all feature design belong to the upstream author
+> - **Bug attribution**: bugs in upstream code, patches and default prompts belong to upstream; bugs from this fork's changes belong to this repository
+> - **Upstream first**: if a bug or improvement also affects upstream, please file it upstream — do not report it here as an upstream defect
+>
+> Full credit for the original work goes to the upstream author. See [Attribution required](#attribution-required) below.
 
 <p align="center">
   <em>Local official DeepSeek Harness cybersecurity red-team plugin. Clean host policy, and ship a built-in drill console. Swap prompts per model. Default prompt for Chinese models — 小码酱. Please star ⭐</em>
@@ -36,6 +50,7 @@
 ## Contents
 
 - [What this is](#what-this-is)
+- [Upstream and secondary development](#upstream-and-secondary-development)
 - [Attribution required](#attribution-required)
 - [Supported hosts](#supported-hosts)
 - [Install](#install)
@@ -69,6 +84,26 @@ It only touches the official `@deepseek-ai` packages and local config on the use
 ---
 
 ## Non-profit public project. Commercial sale, paid resale, and profit from illegal or gray-market activity are forbidden. For technical reference only.
+
+## Upstream and secondary development
+
+This repository is **a secondary development (fork) based on upstream version `1.1.62`**, not an original project.
+
+| Item | Value |
+|---|---|
+| Upstream project | [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) |
+| Upstream author | YuJunZhiXue |
+| **Upstream version this fork is based on** | **`1.1.62`** |
+| Upstream license | MIT |
+| This repository | [Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ) |
+| Fork maintainer | Rovrry |
+| Fork purpose | Local secondary development, evaluation and customization |
+
+**Scope of credit:**
+
+- The original code, patch set, default prompt, drill console, and overall design all come from the upstream author.
+- This fork only carries secondary-development changes on top of the `1.1.62` baseline (version strings, packaging, docs, and later fork features).
+- Upstream fixes pulled in later will be noted here, so the baseline version stays honest.
 
 ## Attribution required
 

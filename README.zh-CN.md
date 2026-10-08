@@ -4,7 +4,21 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.1.62</strong></p>
+<p align="center"><strong>Version 1.1.62</strong> · 基于上游 <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62 二次开发</p>
+
+> [!IMPORTANT]
+> ## 🔀 二次开发声明
+>
+> **本仓库（[Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ)）是对 [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) 的二次开发（fork），基于上游版本 `1.1.62`。**
+>
+> - **上游项目**：<https://github.com/YuJunZhiXue/dsh-purge>，作者 **YuJunZhiXue**
+> - **上游基线版本**：**`v1.1.62`**（本 fork 的起点提交），**MIT 协议**
+> - **本仓库**：<https://github.com/Rovrry/dsh-Rov-PJ>，由 **Rovrry** 维护，用于二次开发
+> - **改动范围**：本仓库仅改动版本号、打包与文档，代码与全部功能设计均归上游作者所有
+> - **问题归属**：上游代码、补丁与默认提示词的问题请反馈给上游；本 fork 自身改动引入的问题由本仓库负责
+> - **上游优先**：若缺陷或改进同样影响上游，请优先向上游提 issue，不要在本仓库当作上游问题上报
+>
+> 原项目版权与全部荣誉归上游作者所有。详见下方 [署名要求](#署名要求)。
 
 <p align="center">
   <em>本机官方 DeepSeek Harness 网络安全红队评测插件。清洗宿主策略，并带内嵌演练台。不同模型可换不同提示词。默认提示词面向国模「小码酱」。求 Star 收藏 ⭐</em>
@@ -36,6 +50,7 @@
 ## 目录
 
 - [介绍](#介绍)
+- [上游与二次开发](#上游与二次开发)
 - [署名要求](#署名要求)
 - [适配范围](#适配范围)
 - [安装](#安装)
@@ -69,6 +84,26 @@ Harness 不只是把问题交给模型。它还会在运行时改提示词、审
 ---
 
 ## 📌 非盈利公益项目，严禁任何主体用于商业售卖、付费倒卖或黑灰产牟利，仅供技术参考。
+
+## 上游与二次开发
+
+本仓库是**基于上游版本 `1.1.62` 的二次开发（fork）**，不是原创项目。
+
+| 项目 | 内容 |
+|---|---|
+| 上游项目 | [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) |
+| 上游作者 | YuJunZhiXue |
+| **本 fork 基于的上游版本** | **`1.1.62`** |
+| 上游协议 | MIT |
+| 本仓库 | [Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ) |
+| 二次开发维护者 | Rovrry |
+| 二次开发目的 | 在本机做二次开发、评测与定制 |
+
+**署名与归属说明：**
+
+- 原始代码、补丁集、默认提示词、演练台以及整体设计，均来自上游作者。
+- 本 fork 只在上游 `1.1.62` 基线上做二次开发改动（版本号、打包、文档，以及后续的本 fork 功能）。
+- 后续若同步上游修复，会在此处注明，保证基线版本可追溯。
 
 ## 署名要求
 
