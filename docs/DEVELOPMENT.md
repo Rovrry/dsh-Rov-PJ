@@ -50,6 +50,15 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
 | `README.en.md` | 英文 | 英文版 |
 | `README.zh-CN.md` | 中文 | `README.md` 的**兼容副本**，为旧链接保留 |
 
+**章节结构**（顶部四章是面向使用者的门面，改动时保持编号连贯）：
+
+```
+一、📦 项目来源      ← 只保留版权与来源一行，不要展开成上游说明页
+二、⚠️ 安装必读      ← 四条关键注意事项
+三、🚀 快速开始      ← 四步流程
+四、使用教程         ← 原「安装」全章，含各宿主细节
+```
+
 **维护规则：**
 
 1. `README.md` 与 `README.zh-CN.md` 必须**内容完全一致**，改完主文档后同步：
@@ -57,6 +66,8 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
    cp README.md README.zh-CN.md
    ```
 2. 改动主文档的**章节标题**时，同步更新「目录」里的锚点，以及文中指向该章节的链接。
+   GitHub 锚点会去掉标点与 emoji，但**保留中文**并把空格转成连字符，例如
+   `## 四、使用教程` → `#四使用教程`；带 `⚠️` 的标题因含变体选择符会多出一个连字符。
 3. 三个文件的 `<strong>Version X.Y.Z</strong>` 展示版本号要一起改（发布新版本时）。
 4. 新增 README 文件时，记得同时登记到两处，否则发布/更新会漏掉它：
    - `package.json` 的 `files` 数组

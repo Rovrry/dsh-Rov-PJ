@@ -1,4 +1,31 @@
-# 1.0.1
+# 1.0.2
+
+## 中文
+
+- 版本 **1.0.2**。
+- **README 版式重做**：删除顶部「二次开发声明」大段与「上游与二次开发」「署名要求」两章，
+  页面以本仓库为主体。
+- 「上游仓库」压缩为「一、项目来源」，仅保留版权与来源一行（MIT 协议要求保留）。
+- 章节重排为「一、项目来源 / 二、安装必读 / 三、快速开始 / 四、使用教程」。
+- **免责声明补充两项**：标明本项目由 AI 人工智能大模型协助二次开发创作；
+  明确使用者违法违规使用的后果与法律责任由其本人独立承担。
+- 修正删除章节后遗留的失效链接与目录锚点。
+
+## English
+
+- Version **1.0.2**.
+- **README restructured**: removed the large top "secondary development notice" block plus the
+  "Upstream and secondary development" and "Attribution required" chapters, so the page reads as
+  this repository's own project.
+- "Upstream repository" became "1. Project origin", keeping only the single copyright and origin
+  line (required by the MIT license).
+- Sections renumbered: 1. Project origin / 2. Read before installing / 3. Quick start / 4. Tutorial.
+- **Disclaimer extended**: states that the project is a secondary development created with the
+  assistance of AI large language models, and that all liability for illegal or non-compliant use
+  rests solely with the user.
+- Fixed dead links and TOC anchors left behind by the removed chapters.
+
+# 1.0.2
 
 ## 中文
 

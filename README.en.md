@@ -4,21 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.0.1</strong> · based on upstream <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62</p>
-
-> [!IMPORTANT]
-> ## 🔀 Secondary development notice
->
-> **This repository ([Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ)) is a secondary development (fork) of [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge), based on upstream version `1.1.62`.**
->
-> - **Upstream project**: <https://github.com/YuJunZhiXue/dsh-purge> — author **YuJunZhiXue**
-> - **Upstream baseline**: **`v1.1.62`** (commit the fork started from), **MIT license**
-> - **This repository**: <https://github.com/Rovrry/dsh-Rov-PJ> — maintained by **Rovrry** for secondary development
-> - **Fork changes**: version, packaging and docs are rewritten here; the code and all feature design belong to the upstream author
-> - **Bug attribution**: bugs in upstream code, patches and default prompts belong to upstream; bugs from this fork's changes belong to this repository
-> - **Upstream first**: if a bug or improvement also affects upstream, please file it upstream — do not report it here as an upstream defect
->
-> Full credit for the original work goes to the upstream author. See [Attribution required](#attribution-required) below.
+<p align="center"><strong>Version 1.0.2</strong></p>
 
 <p align="center">
   <em>Local official DeepSeek Harness cybersecurity red-team plugin. Clean host policy, and ship a built-in drill console. Swap prompts per model. Default prompt for Chinese models — 小码酱. Please star ⭐</em>
@@ -41,29 +27,22 @@
 
 ---
 
-## 📦 Upstream repository
+## 1. 📦 Project origin
 
-> This repository is a **secondary development (fork)**, not an original project. The original
-> code and all feature design belong to the upstream author.
-
-| Item | Address / version |
+| Item | Note |
 |---|---|
-| **Upstream repository** | **<https://github.com/YuJunZhiXue/dsh-purge>** |
-| Upstream author | [YuJunZhiXue](https://github.com/YuJunZhiXue) |
-| **Upstream version this fork is based on** | **v1.1.62** |
-| This repository (the one you are reading) | <https://github.com/Rovrry/dsh-Rov-PJ> |
-| This fork's own version number | Starts at **1.0.0**, independent of upstream |
-| Upstream license | MIT |
+| This repository | <https://github.com/Rovrry/dsh-Rov-PJ> |
+| Current version | 1.0.2 (this repository's own version number) |
 
-- The upstream code, patch set, default prompt, and drill-console design **all belong to the
-  upstream author**.
-- This fork only carries secondary-development changes; for problems that exist upstream,
-  please report them upstream first.
-- Full attribution details: [Upstream and secondary development](#upstream-and-secondary-development).
+**Copyright and origin**: this project is a secondary development of an open-source project;
+the original copyright belongs to its author - Copyright (c) 2026 小杨, MIT license, upstream
+repository <https://github.com/YuJunZhiXue/dsh-purge>. Everything added in this repository
+(versioning, packaging, documentation, UI and interaction changes) was produced by this
+repository's maintainer with the assistance of AI large language models.
 
 ---
 
-## ⚠️ Read before installing
+## 2. ⚠️ Read before installing
 
 Please read these four points first — they prevent almost every install failure.
 
@@ -95,11 +74,11 @@ dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/re
 ```
 
 Other cases (`dsh` not on PATH, already inside the repo, manual install without git) are covered
-in the full [Install](#install) chapter.
+in the full [Tutorial](#4-使用教程) chapter.
 
 ---
 
-## 🚀 Quick start
+## 3. 🚀 Quick start
 
 ```sh
 # 1. Install (pick the host you are using)
@@ -118,7 +97,7 @@ dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/h
 | **Drill** | After authorization: assets, skills, and the local environment (only for a host you manage, an offline target, or a written authorized exercise) |
 
 If nothing seems to happen after installing, you most likely skipped step 3 (Apply). See
-[Install](#install) and [Notes](#notes) first.
+[Tutorial](#4-使用教程) and [Notes](#notes) first.
 
 ---
 
@@ -132,14 +111,12 @@ If nothing seems to happen after installing, you most likely skipped step 3 (App
 
 ## Contents
 
-- [Upstream repository](#-upstream-repository)
-- [Read before installing](#️-read-before-installing)
-- [Quick start](#-quick-start)
+- [Project origin](#1--project-origin)
+- [Read before installing](#2--read-before-installing)
+- [Quick start](#3--quick-start)
 - [What this is](#what-this-is)
-- [Upstream and secondary development](#upstream-and-secondary-development)
-- [Attribution required](#attribution-required)
 - [Supported hosts](#supported-hosts)
-- [Install](#install)
+- [Tutorial](#4-使用教程)
 - [Preview](#preview)
 - [Usage](#usage)
 - [Own servers](#own-servers)
@@ -171,34 +148,6 @@ It only touches the official `@deepseek-ai` packages and local config on the use
 
 ## Non-profit public project. Commercial sale, paid resale, and profit from illegal or gray-market activity are forbidden. For technical reference only.
 
-## Upstream and secondary development
-
-This repository is **a secondary development (fork) based on upstream version `1.1.62`**, not an original project.
-
-| Item | Value |
-|---|---|
-| Upstream project | [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) |
-| Upstream author | YuJunZhiXue |
-| **Upstream version this fork is based on** | **`1.1.62`** |
-| Upstream license | MIT |
-| This repository | [Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ) |
-| Fork maintainer | Rovrry |
-| Fork purpose | Local secondary development, evaluation and customization |
-
-**Scope of credit:**
-
-- The original code, patch set, default prompt, drill console, and overall design all come from the upstream author.
-- This fork only carries secondary-development changes on top of the `1.1.62` baseline (version strings, packaging, docs, and later fork features).
-- Upstream fixes pulled in later will be noted here, so the baseline version stays honest.
-
-> 📘 **Before developing on this repository, read [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — it covers which code is generated (hand edits get overwritten), the build scripts, the release steps, and the files you must not touch.
-
-## Attribution required
-
-**If you borrow this project's name, ideas, code, or prompts, you must credit the author and name the source repository:** [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge).
-
-Using them without attribution, hiding the source, or passing them off as your own will be pursued.
-
 ---
 
 <a id="strict-legal--compliance-disclaimer"></a>
@@ -209,7 +158,9 @@ Using them without attribution, hiding the source, or passing them off as your o
 
 <font color="red">
 
-**Disclaimer:** This is a non-profit open-source project. It follows applicable laws and the rules of the platforms it uses, and is intended only for learning and research. Do not use it for any illegal or non-compliant purpose; the user bears any resulting consequences.
+**AI secondary-development notice:** This project is a **secondary development and creation carried out with the assistance of AI large language models**. It is provided under an open-source license on an "as is" basis; the author gives no warranty of completeness, security or fitness, and does not endorse or vouch for how anyone uses it.
+
+**Allocation of responsibility:** Users must comply with the laws and platform rules that apply to them. **All consequences and legal liability arising from any illegal or non-compliant use of this project (including but not limited to unauthorized attacks, intrusion, data theft, sabotage, or generating illegal content) are borne solely by the user, and are unrelated to the project author.**
 
 **Zero-tolerance statement:** This project opposes and forbids any illegal activity. The authors do not support, encourage, or assist unauthorized network attacks, exploit use, data theft, unlawful intrusion into computer information systems, or generation of illegal or prohibited content. **Anyone who uses this project for crime is solely responsible under the law. The authors have no liability.**
 
@@ -231,7 +182,7 @@ Using them without attribution, hiding the source, or passing them off as your o
 7. **The user bears all responsibility.** The project is provided under the MIT license as-is. The authors make no warranty of completeness, security, or fitness. **Users independently bear all civil, administrative, and criminal liability** for download, deploy, run, modify, distribute, and all resulting inputs and outputs. Authors and contributors bear no direct, indirect, or joint liability for abuse.
 8. **The license ends on breach.** Anyone who uses this project for illegal attacks, malicious activity, or other violations has their open-source license **automatically and irrevocably terminated** from the moment of the violation. They must stop using the project, permanently destroy all copies and derivatives, and accept legal sanctions.
 9. **No affiliation.** This is an independent open-source security-eval research project. It has no employment, commercial, authorization, or endorsement relationship with DeepSeek or its affiliates. "Official" here only means the eval target is the official DeepSeek Harness package on the user's machine. It does **not** mean DeepSeek developed, approved, or warrants this plugin.
-10. **Attribution is required.** If you borrow this project's name, ideas, code, or prompts, you must credit the author and name this repository. Failure to attribute will be pursued. See [Attribution required](#attribution-required).
+10. **Attribution.** If you borrow this project's name, ideas, code, or prompts, you must credit it and name this repository. See [Project origin](#1--project-origin).
 
 </font>
 
@@ -253,7 +204,7 @@ The plugin version is **1.0.0**. 1.1.45 is skipped; it has bugs.
 
 ---
 
-## Install
+## 4. Tutorial
 
 Only official `dsh web` and the official desktop EXE are maintained. Install and patch them **separately**. Install only the host you have open. The host must be **dsh 0.2**. Community Desktop is not maintained; ask for it in one issue.
 
