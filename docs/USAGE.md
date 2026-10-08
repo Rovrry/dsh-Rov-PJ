@@ -43,6 +43,7 @@
 | dsh-purge | 会话标题旁的按钮，打开或收起右侧栏 |
 | 清洗 | 原来的规则设定：补丁、提示词、规则集、Skill |
 | 演练台 | 授权后的资产、技能与环境页。未授权时按钮标「未授权」 |
+| 环境适配 | 红队工具箱页：宿主环境（平台 / 发行版 / 包管理器 / 权限 / 出网）、运行时依赖检测、工具统一目录；**每个缺失工具都能一键安装**（先做环境检测），工具箱里的工具能**一键卸载** |
 | 白 / 墨 | 设置卡片外观 |
 | 补丁 | 分组查看状态，应用、还原或卸载 |
 | 提示词 | 编辑 `prompt-inject.md`，作为会话覆盖段 |
@@ -148,6 +149,7 @@ On the Clean page, under Prompt. One host per line, then Save list. Steps are in
 | dsh-purge | button beside the session title; opens or collapses the dock |
 | Clean | the old Rules page: patches, prompt, rule sets, skills |
 | Drill | assets, skills, and environment after authorization. The tab says Unauthorized until then |
+| Environment | the toolkit page: host environment (platform / distro / package manager / privileges / network), runtime checks, and the unified toolkit directory. Every missing tool has a **one-click install** (with an environment precheck first); tools inside the toolkit can be **removed with one click** |
 | Light / Ink | card appearance |
 | Patches | grouped status, Apply, Restore, or Uninstall |
 | Prompt | edit `prompt-inject.md` as the session override |

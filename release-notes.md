@@ -1,3 +1,58 @@
+# 1.0.12
+
+## 中文
+
+- 版本 **1.0.12**。
+- **新增：环境适配页「一键安装」与「一键卸载」**（每个缺失工具一行按钮）。
+  - 点「一键安装」**先做装前环境检测**，逐项给结论：平台与发行版
+    （Windows / Kali / Ubuntu / Debian / Arch / Fedora / Alpine / openSUSE / macOS）、
+    包管理器（apt / dnf / pacman / apk / zypper / brew / winget）、权限（root / sudo 免密 / sudo 需密码）、
+    工具依赖的运行环境（Python / Java / Go…）、装机本身要用的系统命令（curl / wget / unzip / tar / git / pipx）、
+    以及出网是否通。
+  - **检测通过才执行**，并把「要跑的完整脚本」展开给你看；检测不过就不动手，
+    改成把缺失项的安装命令摆出来让你复制。
+  - sudo 类命令一律改写成 `sudo -n`：**不会挂在密码提示上**。本机 sudo 需密码时，
+    面板直接拦下并说明「插件不带交互终端」。
+  - 装完**自动复检**：能在本机解析到该可执行文件才算成功 —— 退出码 0 不算数。
+  - **一键卸载**只删工具箱里该工具的那一个子目录，删前先干跑报「会删几个文件 / 多大」。
+    工具来自 `binDirs`、`PATH` 或你手填的绝对路径时**一律不删**（面板会说明原因）；
+    目录不存在、目标在工具箱之外，也都拒绝，不会出现"提示成功其实没删"。
+  - 顶部「一键安装缺失（N）」支持批量：**逐个**做装前检测，通过才装，不过的跳过并列原因，不硬来。
+  - 新增「宿主环境」卡片：平台 / 发行版 / 包管理器 / 权限 / 下载解压命令 / 出网，一眼看清这台机器装得动什么。
+- **红线调整（说清楚，别误读）**：以前是「插件完全不下载、只给文本」，现在是
+  「**只在你点按钮时**才在本机执行获取命令」。插件在**启动、装包、更新**时依旧不发起任何下载 ——
+  这条没变，它才是避免被代码托管平台判为「安装后自动下载渗透二进制」的关键。
+- 缺失工具列表不再只显示前 6 个，全列出来（1.0.11 遗留的体验问题）。
+
+## English
+
+- Version **1.0.12**.
+- **New: one-click install / one-click uninstall in the Environment page.**
+  - Clicking **Install** runs an **environment precheck first**, item by item: platform and distro
+    (Windows / Kali / Ubuntu / Debian / Arch / Fedora / Alpine / openSUSE / macOS), package manager
+    (apt / dnf / pacman / apk / zypper / brew / winget), privileges (root / passwordless sudo / sudo with
+    password), the tool's own runtime needs (Python / Java / Go …), the system commands the install itself
+    uses (curl / wget / unzip / tar / git / pipx), and whether the host can reach the network.
+  - The install **only runs when the precheck passes**; the full script is shown before you confirm.
+    If the precheck fails, nothing is executed — you get the missing pieces as copyable commands instead.
+  - `sudo` commands are rewritten to `sudo -n`, so the plugin **never hangs on a password prompt**.
+    When sudo needs a password, the panel blocks it and says why.
+  - After installing, the plugin **re-checks**: the tool counts as installed only when it can be resolved
+    on this host. A zero exit code is not enough.
+  - **Uninstall** removes only that tool's own subdirectory inside the toolkit, and only after a dry run
+    that reports how many files and how much data will go. Tools resolved from `binDirs`, `PATH`, or a path
+    you typed are **never** touched. Missing directories and out-of-toolkit targets are refused too,
+    so it never reports success without deleting anything.
+  - **Install all missing (N)** at the top runs the precheck per tool, installs only the ones that pass,
+    and lists why the others were skipped.
+  - A new **Host environment** card shows platform, distro, package manager, privileges, download helpers,
+    and network reachability at a glance.
+- **Red line, restated:** previously "text only, the plugin never downloads". Now it is
+  "the plugin runs the fetch commands **only when you click the button**". It still initiates **no download
+  at start-up, install, or update time** — that property is what keeps the package from being flagged as
+  "downloads pentest binaries after install".
+- The missing-tools list no longer stops at the first six entries.
+
 # 1.0.11
 
 ## 中文
