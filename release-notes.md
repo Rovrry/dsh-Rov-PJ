@@ -1,3 +1,41 @@
+# 1.0.9
+
+## 中文
+
+- 版本 **1.0.9**。
+- **新增：`docs/DEVELOPMENT.md` 大幅扩写**，专门解决「换一个窗口/换一个助手就接不上」的问题。
+  新增内容包括：给下一次对话的开场指引（四条硬约定 + 三个最容易踩的坑）、五分钟地图
+  （产物 vs 源、两层客户端代码的关系）、改代码→发版全流程、演练台的挂载方式与前后端桥接
+  （槽位清单、`/redteam/api` 分发链、平台类 op 全清单、`__dshPurgeDrill` 全局桥）、
+  验证与常见坑对照表（7 条真实踩过的坑）、以及「验真习惯」。
+- **修复：「插件内检查更新」不会同步 `scripts/`、`skills/`、`presets/`。**
+  `lib/update.js` 的 `COPY_NAMES` 只列了 `lib/bin/docs/client.js` 等条目，
+  而这三项是**运行时从包根读取**的（技能库读 `skills/redteam`，
+  预设读 `presets/redteam`，安装脚本读 `scripts/redteam-setup.sh`）。
+  结果是走插件内更新的人，技能/预设/脚本永远停在旧版 ——
+  发布包里有、更新时却不覆盖。
+  现在三者已加入 `COPY_NAMES`；同时把「目录型条目先整目录替换」的判断从写死的
+  `lib|docs|bin` 改为按 `COPY_DIRS` 集合，避免以后加目录时漏掉、导致被删的旧文件残留。
+
+## English
+
+- Version **1.0.9**.
+- **New: `docs/DEVELOPMENT.md` substantially expanded** so development can be picked up in a fresh
+  session/assistant. It now covers: an opening guide for the next conversation (four hard rules and
+  the three most-likely pitfalls), a five-minute orientation map (generated vs source, how the two
+  client layers relate), the full change-to-release flow, how the drill console mounts and talks to
+  the backend (slot list, the `/redteam/api` dispatch chain, the full platform op list, and the
+  `__dshPurgeDrill` global bridge), a verification and pitfalls table (7 real bugs), and a
+  "verify for real" habit section.
+- **Fix: the in-plugin updater did not sync `scripts/`, `skills/`, or `presets/`.**
+  `COPY_NAMES` in `lib/update.js` listed only `lib/bin/docs/client.js` and similar, while those three
+  are **read at runtime from the package root** (the skill library reads `skills/redteam`, presets
+  read `presets/redteam`, the installer reads `scripts/redteam-setup.sh`). Anyone updating from
+  inside the plugin kept stale skills/presets/scripts — present in the release archive, never
+  overwritten by the updater. All three are now in `COPY_NAMES`, and the "replace whole directory
+  first" check now uses a `COPY_DIRS` set instead of a hardcoded `lib|docs|bin`, so future directory
+  entries cannot silently leave deleted files behind.
+
 # 1.0.8
 
 ## 中文

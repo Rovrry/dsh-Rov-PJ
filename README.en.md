@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.0.8</strong></p>
+<p align="center"><strong>Version 1.0.9</strong></p>
 
 <p align="center">
   <em>Local official DeepSeek Harness cybersecurity red-team plugin. Clean host policy, and ship a built-in drill console. Swap prompts per model. Default prompt for Chinese models — 小码酱. Please star ⭐</em>
@@ -32,7 +32,7 @@
 | Item | Note |
 |---|---|
 | This repository | <https://github.com/Rovrry/dsh-Rov-PJ> |
-| Current version | 1.0.8 (this repository's own version number) |
+| Current version | 1.0.9 (this repository's own version number) |
 | License | MIT |
 
 **Copyright and origin**: this project is a secondary development of an open-source project;
@@ -73,6 +73,8 @@ Four things to know:
 | **[Installation](docs/INSTALL.md#english)** | Three-step apply, per-host differences, manual install, assistant-assisted install, uninstall |
 | [Interface and usage](docs/USAGE.md#english) | UI preview, commands and chat directives, own servers |
 | [Technical reference](docs/REFERENCE.md#english) | Layout, how it works, restore, path detection, releases, notes |
+| **[Toolkit](docs/TOOLKIT.md)** | Unified tool directory, runtime requirements (Python/Java etc.), official fetch commands |
+| **[Development](docs/DEVELOPMENT.md)** | Notes for secondary development: generated vs source files, build flow, release steps, pitfalls |
 | **[Disclaimer](docs/DISCLAIMER.md)** | Zero-tolerance terms and all 10 compliance rules |
 
 ---

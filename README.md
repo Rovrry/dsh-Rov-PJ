@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.0.8</strong></p>
+<p align="center"><strong>Version 1.0.9</strong></p>
 
 <p align="center">
   <em>本机官方 DeepSeek Harness 网络安全红队评测插件。清洗宿主策略，并带内嵌演练台。不同模型可换不同提示词。默认提示词面向国模「小码酱」。求 Star 收藏 ⭐</em>
@@ -32,7 +32,7 @@
 | 项目 | 说明 |
 |---|---|
 | 本仓库 | <https://github.com/Rovrry/dsh-Rov-PJ> |
-| 当前版本 | 1.0.8（本仓库独立版本号） |
+| 当前版本 | 1.0.9（本仓库独立版本号） |
 | 授权协议 | MIT |
 
 **版权与来源**：本项目基于开源项目二次开发，原始版权归其作者所有 ——
@@ -68,6 +68,7 @@ dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/re
 | [界面与使用](docs/USAGE.md) | 界面预览、命令与聊天指令、自己的服务器 |
 | [技术参考](docs/REFERENCE.md) | 目录结构、工作原理、还原、路径探测、版本与更新、说明 |
 | **[工具箱](docs/TOOLKIT.md)** | 工具统一存放目录、运行环境依赖（Python/Java 等）、官方获取命令 |
+| **[开发文档](docs/DEVELOPMENT.md)** | 二次开发注意事项：产物与源、构建流程、发版步骤、常见坑 |
 | **[免责声明](docs/DISCLAIMER.md)** | 零容忍条款与 10 条合规细则全文 |
 
 ---
