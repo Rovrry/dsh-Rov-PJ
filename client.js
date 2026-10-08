@@ -2561,10 +2561,22 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			return detectHostTheme();
 		}
 
+		function ensurePurgeCss() {
+			if (typeof document === "undefined") return;
+			let uiTag = document.querySelector('style[data-dsh-purge-ui="1"]');
+			if (!uiTag && document.head) {
+				uiTag = document.createElement("style");
+				uiTag.setAttribute("data-dsh-purge-ui", "1");
+				uiTag.textContent = PURGE_CSS;
+				document.head.append(uiTag);
+			}
+		}
+
 		function SettingsRoot(props) {
 			const t = typeof props.t === "function" ? props.t : ((key) => key);
 			const [theme, setTheme] = useState(readTheme);
 			useEffect(() => {
+				ensurePurgeCss();
 				let cancelled = false;
 				let timer = 0;
 				const syncFromHost = () => {
@@ -2595,7 +2607,6 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			}, []);
 			translate = t;
 			return h("div", { className: "dshp-root", "data-theme": theme },
-				h("style", null, PURGE_CSS),
 				h(PurgifySection, null),
 				h(RulesSection, null),
 				h(SkillsSection, null),
@@ -3214,7 +3225,10 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 		function installRewindWatch(ctx) {
 			const sessions = ctx.sessions;
 			if (!sessions) return () => {};
+			let inflight = false;
 			const tick = async () => {
+				if (inflight) return;
+				inflight = true;
 				try {
 					const data = await apiJson("/dsh-purge/rewind");
 					if (!data || !data.sessionId || !data.at || data.at <= rewindSeenAt) return;
@@ -3227,6 +3241,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 					await openRewoundSession(sessions, data.sessionId);
 					scheduleComposerFill(data.sessionId, text);
 				} catch { /* ignore */ }
+				finally { inflight = false; }
 			};
 			const timer = window.setInterval(tick, 1200);
 			return () => window.clearInterval(timer);
@@ -3937,7 +3952,9 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       const [q, setQ] = React.useState('')
       const [qApplied, setQApplied] = React.useState('')
       const [service, setService] = React.useState('')
+      const [serviceApplied, setServiceApplied] = React.useState('')
       const [port, setPort] = React.useState('')
+      const [portApplied, setPortApplied] = React.useState('')
       const [prov, setProv] = React.useState('')
       const [testStatus, setTestStatus] = React.useState('')
       const [priority, setPriority] = React.useState('')
@@ -3955,13 +3972,22 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       const seq = React.useRef(0)
       const onData = props.onData
 
+      /* 输入防抖：避免每敲一个字母就打一次网络请求 */
+      React.useEffect(() => {
+        const timer = setTimeout(() => {
+          setServiceApplied(service)
+          setPortApplied(port)
+        }, 300)
+        return () => clearTimeout(timer)
+      }, [service, port])
+
       React.useEffect(() => {
         if (!eng) return
         const my = ++seq.current
         setState((s) => Object.assign({}, s, { loading: true, error: null }))
         api({
           op: 'assets', engagement: eng, cidr: cidr || undefined, q: qApplied || undefined,
-          service: service || undefined, port: port || undefined,
+          service: serviceApplied || undefined, port: portApplied || undefined,
           provenance: prov || undefined, test_status: testStatus || undefined,
           priority: priority || undefined, scope: scope || undefined,
           state: assetState || undefined, sort: sort, limit: 400,
@@ -3977,7 +4003,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         }, (e) => {
           if (my === seq.current) setState({ loading: false, error: String((e && e.message) || e), total: 0, items: [] })
         })
-      }, [eng, cidr, qApplied, service, port, prov, testStatus, priority, scope, assetState, sort, refreshKey])
+      }, [eng, cidr, qApplied, serviceApplied, portApplied, prov, testStatus, priority, scope, assetState, sort, refreshKey])
 
       React.useEffect(() => {
         if (!eng || view !== 'domain') return
@@ -4058,20 +4084,28 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       if (segInternal.length) sideChildren.push(...segBlock('内网资产', segInternal, 'internal'))
       const side = h('div', { className: 'rt-side' }, sideChildren)
 
+      const applyFilters = () => {
+        setQApplied(q)
+        setServiceApplied(service)
+        setPortApplied(port)
+      }
+
       const toolbar = h('div', { className: 'rt-toolbar' },
         h('input', {
           className: 'rt-input', style: { flex: '1 1 150px' }, placeholder: '搜索 IP / 域名 / 指纹（回车）',
           value: q, onChange: (e) => setQ(e.target.value),
-          onKeyDown: (e) => { if (e.key === 'Enter') setQApplied(q) },
+          onKeyDown: (e) => { if (e.key === 'Enter') applyFilters() },
         }),
-        h('button', { className: 'rt-btn', onClick: () => setQApplied(q) }, '搜索'),
+        h('button', { className: 'rt-btn', onClick: applyFilters }, '搜索'),
         h('input', {
           className: 'rt-input', style: { width: '78px' }, placeholder: '服务',
           value: service, onChange: (e) => setService(e.target.value),
+          onKeyDown: (e) => { if (e.key === 'Enter') applyFilters() },
         }),
         h('input', {
           className: 'rt-input', style: { width: '60px' }, placeholder: '端口',
           value: port, onChange: (e) => setPort(e.target.value),
+          onKeyDown: (e) => { if (e.key === 'Enter') applyFilters() },
         }),
         h('select', { className: 'rt-input', value: scope, onChange: (e) => setScope(e.target.value) },
           h('option', { value: '' }, '内外网不限'),
@@ -4733,30 +4767,41 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       const [grouped, setGrouped] = React.useState(true)
       const collapse = useCollapse('findings:' + eng)
 
-      const load = () => {
+      const vulnSeq = React.useRef(0)
+      const loadVulns = React.useCallback(() => {
         if (!eng) return
+        const my = ++vulnSeq.current
         api({
           op: 'vulns', engagement: eng, severity: sev || undefined,
           status: status || undefined, q: qApplied || undefined, limit: 200,
         }).then((r) => {
+          if (my !== vulnSeq.current) return
           if (!r || r.ok === false) {
             setState({ loading: false, error: (r && r.error) || '查询失败', total: 0, items: [], stats: null })
             return
           }
           setState({ loading: false, error: null, total: r.total, items: r.items || [], stats: r.stats || null })
-        }, (e) => setState({ loading: false, error: String((e && e.message) || e), total: 0, items: [], stats: null }))
+        }, (e) => {
+          if (my === vulnSeq.current) setState({ loading: false, error: String((e && e.message) || e), total: 0, items: [], stats: null })
+        })
+      }, [eng, sev, status, qApplied])
+
+      const loadAux = React.useCallback(() => {
+        if (!eng) return
         api({ op: 'credentials', engagement: eng }).then((r) => setCreds((r && r.items) || []), () => {})
         api({ op: 'access', engagement: eng }).then((r) => setAccesses((r && r.items) || []), () => {})
         api({ op: 'attackFiles', engagement: eng }).then((r) => setFiles((r && r.items) || []), () => {})
-      }
-      React.useEffect(load, [eng, sev, status, qApplied, refreshKey])
+      }, [eng])
+
+      React.useEffect(() => { loadVulns() }, [loadVulns, refreshKey])
+      React.useEffect(() => { loadAux() }, [loadAux, refreshKey])
 
       const setVulnStatus = (id, next) => {
         setMsg(null)
         api({ op: 'updateVuln', engagement: eng, id: id, patch: { status: next } }).then((r) => {
           if (!r || r.ok === false) { setMsg({ err: (r && r.error) || '更新失败' }); return }
           setMsg({ ok: '已更新为「' + (STATUS_LABEL[next] || next) + '」' })
-          load()
+          loadVulns()
         }, (e) => setMsg({ err: String((e && e.message) || e) }))
       }
 
@@ -6568,12 +6613,18 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           isEncryptedShell(w.shell_type) ? null : h('span', { className: 'rt-tag rt-tag-warn' }, '用户连不上'),
           w.privilege ? h('span', { className: 'rt-tag' }, w.privilege) : null,
           h('div', { className: 'rt-spacer' }),
+          copied === 'url' + w.id
+            ? h('span', { className: 'rt-tag', style: { color: '#10b981' } }, '已复制')
+            : h('button', {
+                className: 'rt-btn', style: { padding: '0 6px', fontSize: 11 },
+                onClick: () => copy('url' + w.id, w.url),
+              }, '复制 URL'),
           copied === 'cmd' + w.id
             ? h('span', { className: 'rt-tag', style: { color: '#10b981' } }, '已复制')
             : h('button', {
                 className: 'rt-btn', style: { padding: '0 6px', fontSize: 11 },
                 onClick: () => copy('cmd' + w.id, 'curl -s "' + w.url + '"'),
-              }, '复制 URL'),
+              }, '复制 curl'),
           h('button', {
             className: 'rt-btn', style: { padding: '0 6px', fontSize: 11 },
             onClick: () => markShell(w, 'offline'),
@@ -6857,6 +6908,13 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       }
       React.useEffect(() => { check(true) }, [])
 
+      React.useEffect(() => {
+        if (!open) return undefined
+        const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
+      }, [open])
+
       const apply = () => {
         setBusy(true)
         setMsg(null)
@@ -6900,9 +6958,15 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
               title: '重新检查 npm 上的最新版本',
             }, busy ? '检查中…' : '检查更新'),
         open
-          ? h('div', { className: 'rt-modal', 'aria-hidden': 'true', onClick: () => setOpen(false) },
+          ? h('div', {
+              className: 'rt-modal',
+              role: 'dialog',
+              'aria-modal': 'true',
+              'aria-labelledby': 'rt-version-title',
+              onClick: () => setOpen(false),
+            },
               h('div', { className: 'rt-modal-box', onClick: (e) => e.stopPropagation() },
-                h('h4', { style: { marginTop: 0 } }, '更新 RedTeam 模式'),
+                h('h4', { id: 'rt-version-title', style: { marginTop: 0 } }, '更新 RedTeam 模式'),
                 h('div', { className: 'rt-kv' }, h('b', null, '当前版本'), h('span', null, current || '未知')),
                 h('div', { className: 'rt-kv' }, h('b', null, '最新版本'), h('span', null, latest || '未知')),
                 h('div', { className: 'rt-kv' }, h('b', null, '安装方式'),
@@ -7011,11 +7075,11 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 
       React.useEffect(() => {
         if (embedded) return undefined
-        try { window.localStorage.setItem(RT_GEOM_KEY, JSON.stringify(geom)) } catch (e) { /* 隐私模式 */ }
-      }, [geom, embedded])
-      React.useEffect(() => {
-        if (embedded) return undefined
-        const onResize = () => setGeom((g) => clampRtGeom(g))
+        const onResize = () => setGeom((g) => {
+          const next = clampRtGeom(g)
+          try { window.localStorage.setItem(RT_GEOM_KEY, JSON.stringify(next)) } catch (e) { /* 隐私模式 */ }
+          return next
+        })
         window.addEventListener('resize', onResize)
         return () => window.removeEventListener('resize', onResize)
       }, [embedded])
@@ -7070,11 +7134,29 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         if (e.button !== 0) return
         e.preventDefault()
         e.stopPropagation()
-        const up = () => {
-          window.removeEventListener('mousemove', move)
-          window.removeEventListener('mouseup', up)
+        let raf = 0
+        let lastEv = null
+        const onMove = (ev) => {
+          lastEv = ev
+          if (!raf) {
+            raf = window.requestAnimationFrame(() => {
+              raf = 0
+              if (lastEv) move(lastEv)
+            })
+          }
         }
-        window.addEventListener('mousemove', move)
+        const up = () => {
+          if (raf) { window.cancelAnimationFrame(raf); raf = 0 }
+          window.removeEventListener('mousemove', onMove)
+          window.removeEventListener('mouseup', up)
+          if (!embedded) {
+            setGeom((g) => {
+              try { window.localStorage.setItem(RT_GEOM_KEY, JSON.stringify(g)) } catch (err) { /* ignore */ }
+              return g
+            })
+          }
+        }
+        window.addEventListener('mousemove', onMove)
         window.addEventListener('mouseup', up)
       }
       const startDrag = (e) => {
@@ -7744,6 +7826,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 			try {
 				const xhr = new XMLHttpRequest();
 				xhr.open("POST", "/redteam/api", false);
+				xhr.timeout = 1500;
 				xhr.setRequestHeader("content-type", "application/json");
 				xhr.send(JSON.stringify({ op: "platformEnvAdaptStatus" }));
 				if (xhr.status >= 200 && xhr.status < 300) return JSON.parse(xhr.responseText);
@@ -7803,6 +7886,27 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 				blockAndOpen();
 				return true;
 			}, [blockAndOpen]);
+
+			/* 用户聚焦或键入输入框时提前异步预热门禁状态，消除提交时的同步阻塞 */
+			useEffect(() => {
+				const onComposerActivity = (e) => {
+					if (!isRedteamModeActive()) return;
+					const inComposer = e.target && e.target.closest
+						&& e.target.closest("[data-composer-card], [data-composer-seat], [contenteditable='true'], textarea");
+					if (inComposer) {
+						const cached = cacheRef.current;
+						if (!cached.at || Date.now() - cached.at > 2000) {
+							refresh();
+						}
+					}
+				};
+				document.addEventListener("focusin", onComposerActivity, true);
+				document.addEventListener("input", onComposerActivity, true);
+				return () => {
+					document.removeEventListener("focusin", onComposerActivity, true);
+					document.removeEventListener("input", onComposerActivity, true);
+				};
+			}, [refresh]);
 
 			/* 挂住宿主 SessionInputShell.submit —— 比点按钮启发式可靠 */
 			useEffect(() => {
@@ -7941,6 +8045,37 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 			);
 		}
 
+		class PurgeErrorBoundary extends Component {
+			constructor(props) {
+				super(props);
+				this.state = { error: null };
+			}
+			static getDerivedStateFromError(error) {
+				return { error: error };
+			}
+			componentDidCatch(error) {
+				try { console.error("[dsh-purge] 面板渲染异常:", error); } catch { /* ignore */ }
+			}
+			render() {
+				if (this.state.error) {
+					const msg = (this.state.error && this.state.error.message) || String(this.state.error);
+					return h("div", { className: "dshp-panel", style: { margin: 16 } },
+						h("h4", { style: { color: "var(--dshp-bad, #ef4444)", margin: "0 0 8px" } }, "面板加载出错"),
+						h("div", { style: { fontSize: 12, color: "var(--dshp-mute)", marginBottom: 12, wordBreak: "break-all" } }, msg),
+						h(Btn, {
+							kind: "primary",
+							tiny: true,
+							onClick: () => {
+								this.setState({ error: null });
+								if (typeof this.props.onReset === "function") this.props.onReset();
+							},
+						}, "重试"),
+					);
+				}
+				return this.props.children;
+			}
+		}
+
 		function PurgeDock() {
 			const t = useT();
 			const st = useDock();
@@ -7975,12 +8110,15 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 				return () => { styleTag.remove(); widthTag.remove(); };
 			}, []);
 			useEffect(() => {
-				saveDockGeom(geom);
 				const tag = document.querySelector('style[data-dsh-purge-dock-w="1"]');
 				if (tag) tag.textContent = ":root{--dshp-dock-w:" + geom.w + "px;--dshp-dock-h:" + geom.h + "px}";
-			}, [geom]);
+			}, [geom.w, geom.h]);
 			useEffect(() => {
-				const onResize = () => setGeom((g) => clampDockGeom(g));
+				const onResize = () => setGeom((g) => {
+					const next = clampDockGeom(g);
+					saveDockGeom(next);
+					return next;
+				});
 				window.addEventListener("resize", onResize);
 				return () => window.removeEventListener("resize", onResize);
 			}, []);
@@ -7993,89 +8131,78 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 				if (id === "drill") { requestDrill("tab"); return; }
 				setDock({ tab: "clean", authOpen: false, pending: "tab" });
 			};
-			const startDrag = (e) => {
+			const trackDockPointer = (e, updateFn) => {
 				if (e.button !== 0) return;
-				if (e.target && e.target.closest && e.target.closest("button,a,input,select,textarea,label")) return;
 				e.preventDefault();
+				e.stopPropagation();
+				let rafId = 0;
+				let latestEv = null;
+				const onMove = (ev) => {
+					latestEv = ev;
+					if (!rafId) {
+						rafId = window.requestAnimationFrame(() => {
+							rafId = 0;
+							if (latestEv) updateFn(latestEv);
+						});
+					}
+				};
+				const onUp = () => {
+					if (rafId) {
+						window.cancelAnimationFrame(rafId);
+						rafId = 0;
+					}
+					window.removeEventListener("mousemove", onMove);
+					window.removeEventListener("mouseup", onUp);
+					setGeom((current) => {
+						saveDockGeom(current);
+						return current;
+					});
+				};
+				window.addEventListener("mousemove", onMove);
+				window.addEventListener("mouseup", onUp);
+			};
+			const startDrag = (e) => {
+				if (e.target && e.target.closest && e.target.closest("button,a,input,select,textarea,label")) return;
 				const sx = e.clientX;
 				const sy = e.clientY;
 				const ox = geom.x;
 				const oy = geom.y;
-				const move = (ev) => setGeom((g) => clampDockGeom({ x: ox + (ev.clientX - sx), y: oy + (ev.clientY - sy), w: g.w, h: g.h }));
-				const up = () => {
-					window.removeEventListener("mousemove", move);
-					window.removeEventListener("mouseup", up);
-				};
-				window.addEventListener("mousemove", move);
-				window.addEventListener("mouseup", up);
+				trackDockPointer(e, (ev) => setGeom((g) => clampDockGeom({ x: ox + (ev.clientX - sx), y: oy + (ev.clientY - sy), w: g.w, h: g.h })));
 			};
 			const startResize = (e) => {
-				if (e.button !== 0) return;
-				e.preventDefault();
-				e.stopPropagation();
 				const sx = e.clientX;
 				const sy = e.clientY;
 				const ow = geom.w;
 				const oh = geom.h;
-				const move = (ev) => setGeom((g) => clampDockGeom({ x: g.x, y: g.y, w: ow + (ev.clientX - sx), h: oh + (ev.clientY - sy) }));
-				const up = () => {
-					window.removeEventListener("mousemove", move);
-					window.removeEventListener("mouseup", up);
-				};
-				window.addEventListener("mousemove", move);
-				window.addEventListener("mouseup", up);
+				trackDockPointer(e, (ev) => setGeom((g) => clampDockGeom({ x: g.x, y: g.y, w: ow + (ev.clientX - sx), h: oh + (ev.clientY - sy) })));
 			};
 			const startResizeLeft = (e) => {
-				if (e.button !== 0) return;
-				e.preventDefault();
-				e.stopPropagation();
 				const sx = e.clientX;
 				const ox = geom.x;
 				const ow = geom.w;
-				const move = (ev) => {
+				trackDockPointer(e, (ev) => {
 					const dx = ev.clientX - sx;
 					setGeom((g) => clampDockGeom({ x: ox + dx, y: g.y, w: ow - dx, h: g.h }));
-				};
-				const up = () => {
-					window.removeEventListener("mousemove", move);
-					window.removeEventListener("mouseup", up);
-				};
-				window.addEventListener("mousemove", move);
-				window.addEventListener("mouseup", up);
+				});
 			};
 			const startResizeRight = (e) => {
-				if (e.button !== 0) return;
-				e.preventDefault();
-				e.stopPropagation();
 				const sx = e.clientX;
 				const ow = geom.w;
-				const move = (ev) => setGeom((g) => clampDockGeom({ x: g.x, y: g.y, w: ow + (ev.clientX - sx), h: g.h }));
-				const up = () => {
-					window.removeEventListener("mousemove", move);
-					window.removeEventListener("mouseup", up);
-				};
-				window.addEventListener("mousemove", move);
-				window.addEventListener("mouseup", up);
+				trackDockPointer(e, (ev) => setGeom((g) => clampDockGeom({ x: g.x, y: g.y, w: ow + (ev.clientX - sx), h: g.h })));
 			};
 			const startResizeBottom = (e) => {
-				if (e.button !== 0) return;
-				e.preventDefault();
-				e.stopPropagation();
 				const sy = e.clientY;
 				const oh = geom.h;
-				const move = (ev) => setGeom((g) => clampDockGeom({ x: g.x, y: g.y, w: g.w, h: oh + (ev.clientY - sy) }));
-				const up = () => {
-					window.removeEventListener("mousemove", move);
-					window.removeEventListener("mouseup", up);
-				};
-				window.addEventListener("mousemove", move);
-				window.addEventListener("mouseup", up);
+				trackDockPointer(e, (ev) => setGeom((g) => clampDockGeom({ x: g.x, y: g.y, w: g.w, h: oh + (ev.clientY - sy) })));
 			};
-			const body = st.tab === "clean"
+			const innerBody = st.tab === "clean"
 				? h(SettingsRoot, { t })
 				: (readDrillAuth() && __dshPurgeDrill.Panel
 					? h(__dshPurgeDrill.Panel, { embedded: true })
 					: h("div", { style: { padding: 16, color: "var(--dsw-alias-label-secondary)" } }, t("dock.unauthorized")));
+			const body = h(PurgeErrorBoundary, {
+				onReset: () => setDock({ tab: "clean" }),
+			}, innerBody);
 			const panel = h("div", {
 				className: "dshp-dock",
 				"data-theme": dockTheme === "white" ? "white" : "dusk",
@@ -8142,6 +8269,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 			const [host, setHost] = useState(null);
 			useEffect(() => {
 				let dead = false;
+				let rafId = null;
 				const ensure = () => {
 					if (dead || typeof document === "undefined") return;
 					const row = document.querySelector('[class*="heroWorkspaceRow"]');
@@ -8157,16 +8285,32 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 					}
 					setHost((prev) => (prev === el ? prev : el));
 				};
+				const scheduleEnsure = () => {
+					if (rafId != null) return;
+					rafId = (typeof window !== "undefined" && window.requestAnimationFrame)
+						? window.requestAnimationFrame(() => {
+							rafId = null;
+							ensure();
+						})
+						: setTimeout(() => {
+							rafId = null;
+							ensure();
+						}, 16);
+				};
 				ensure();
 				const obs = typeof MutationObserver !== "undefined"
-					? new MutationObserver(() => ensure())
+					? new MutationObserver(() => scheduleEnsure())
 					: null;
 				if (obs) obs.observe(document.body, { childList: true, subtree: true });
-				const iv = setInterval(ensure, 1000);
+				const iv = setInterval(ensure, 1500);
 				return () => {
 					dead = true;
 					if (obs) obs.disconnect();
 					clearInterval(iv);
+					if (rafId != null) {
+						if (typeof window !== "undefined" && window.cancelAnimationFrame) window.cancelAnimationFrame(rafId);
+						else clearTimeout(rafId);
+					}
 				};
 			}, []);
 			if (!host) return null;
@@ -8193,6 +8337,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 			const [host, setHost] = useState(null);
 			useEffect(() => {
 				let dead = false;
+				let rafId = null;
 				const ensure = () => {
 					if (dead || typeof document === "undefined") return;
 					const row = document.querySelector("[data-conversation-tabs]");
@@ -8208,16 +8353,32 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 					}
 					setHost((prev) => (prev === el ? prev : el));
 				};
+				const scheduleEnsure = () => {
+					if (rafId != null) return;
+					rafId = (typeof window !== "undefined" && window.requestAnimationFrame)
+						? window.requestAnimationFrame(() => {
+							rafId = null;
+							ensure();
+						})
+						: setTimeout(() => {
+							rafId = null;
+							ensure();
+						}, 16);
+				};
 				ensure();
 				const obs = typeof MutationObserver !== "undefined"
-					? new MutationObserver(() => ensure())
+					? new MutationObserver(() => scheduleEnsure())
 					: null;
 				if (obs) obs.observe(document.body, { childList: true, subtree: true });
-				const iv = setInterval(ensure, 1000);
+				const iv = setInterval(ensure, 1500);
 				return () => {
 					dead = true;
 					if (obs) obs.disconnect();
 					clearInterval(iv);
+					if (rafId != null) {
+						if (typeof window !== "undefined" && window.cancelAnimationFrame) window.cancelAnimationFrame(rafId);
+						else clearTimeout(rafId);
+					}
 				};
 			}, []);
 			if (!host) return null;
