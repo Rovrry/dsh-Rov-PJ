@@ -1,3 +1,32 @@
+# 1.0.7
+
+## 中文
+
+- 版本 **1.0.7**。
+- **修复：按规范装好工具却检测不到。** 工具解析器的目录查找只覆盖
+  `toolkit/` 根目录与 `bin`/`Bins`/`tools`/`Tools` 几个固定子目录，
+  **不查 `toolkit/<工具名>/`** —— 而后者正是 1.0.6 推荐的统一布局。
+  结果就是用户照文档把工具放到 `toolkit/nuclei/nuclei`，面板却显示"未找到"。
+  现在查找会逐个下一级子目录再找一遍（`lib/redteam/platform-config.js` 的 `findInDir`）。
+- 影响面：1.0.6 引入统一目录约定后，任何按该约定摆放的工具都不会被识别；
+  工具放在 `toolkit/` 根目录的老做法不受影响，所以问题不一定会暴露。
+- 验证：用真实 Release 二进制按新布局装了 13 个工具，修复前识别 **0/22**，
+  修复后识别 **13/22**（其余 9 个是需手动安装的，符合预期）。
+
+## English
+
+- Version **1.0.7**.
+- **Fix: tools installed per the documented layout were not detected.** The tool resolver only
+  searched the `toolkit/` root plus the fixed `bin`/`Bins`/`tools`/`Tools` subdirectories, and
+  never looked inside `toolkit/<tool>/` — which is exactly the unified layout recommended in
+  1.0.6. Users following the docs (`toolkit/nuclei/nuclei`) saw "not found" in the panel.
+  The resolver now also walks one level of subdirectories
+  (`findInDir` in `lib/redteam/platform-config.js`).
+- Impact: any tool placed per the layout introduced in 1.0.6 was invisible. The older habit of
+  dropping binaries directly into `toolkit/` still worked, so the bug did not always surface.
+- Verified with real Release binaries installed in the new layout: **0/22** detected before the
+  fix, **13/22** after (the remaining 9 require manual installation, as expected).
+
 # 1.0.6
 
 ## 中文
