@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
 
-<p align="center"><strong>Version 1.1.62</strong> · based on upstream <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62</p>
+<p align="center"><strong>Version 1.0.0</strong> · based on upstream <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62</p>
 
 > [!IMPORTANT]
 > ## 🔀 Secondary development notice
@@ -25,8 +25,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/YuJunZhiXue/dsh-purge/stargazers"><img src="https://img.shields.io/github/stars/YuJunZhiXue/dsh-purge?logo=github&label=Stars" alt="GitHub stars"></a>
-  <a href="https://github.com/YuJunZhiXue/dsh-purge/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-65a30d?style=flat" alt="MIT license"></a>
+  <a href="https://github.com/Rovrry/dsh-Rov-PJ/stargazers"><img src="https://img.shields.io/github/stars/Rovrry/dsh-Rov-PJ?logo=github&label=Stars" alt="GitHub stars"></a>
+  <a href="https://github.com/Rovrry/dsh-Rov-PJ/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-65a30d?style=flat" alt="MIT license"></a>
   <a href="https://awesome-dsh-plugin.com"><img src="https://awesome-dsh-plugin.com/badge.svg" alt="awesome · DSH plugin"></a>
   <a href="https://deepseek.stream/plugins/dsh-purge"><img src="https://img.shields.io/badge/Hub-dsh--purge-1a73e8" alt="DeepSeek Harness Hub"></a>
   <a href="https://www.deepseek.com/harness/"><img src="https://img.shields.io/badge/dsh-0.2.0--rc.2-blue" alt="DSH"></a>
@@ -161,7 +161,7 @@ This release supports **DeepSeek Harness 0.2** only (official desktop **0.2.0-rc
 | Official Harness 0.1.x | Not supported |
 | Any other version | Unmatched patches stay pending or skipped; do not expect them to work |
 
-The plugin version is **1.1.62**. 1.1.45 is skipped; it has bugs.
+The plugin version is **1.0.0**. 1.1.45 is skipped; it has bugs.
 
 ---
 
@@ -195,7 +195,7 @@ Web **Apply / Restart / Uninstall** affect Web only. Desktop controls affect the
 Official `dsh` must be on PATH. If it is not, install the official CLI or use manual install.
 
 ```sh
-dsh plugin --profile web add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz
+dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 ```
 
 If this directory is already a clone:
@@ -219,7 +219,7 @@ Not maintained. Only official Web and the official desktop EXE are supported. If
 If the **official DeepSeek Harness desktop client** is installed, use the command or the button (`dsh://`). Community Desktop is not maintained; do not use this protocol to install it. Current support is **0.2.0-rc.2** only.
 
 ```sh
-dsh plugin --profile desktop add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz
+dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 ```
 
 Official desktop 0.2 loads the `desktop` profile. Do not use `default`, and do not use `git+https://github.com/yujunzhixue/dsh-purge.git`. That git address runs `git ls-remote` first. Ignore the allowBuilds hint after it fails.
@@ -227,13 +227,13 @@ Official desktop 0.2 loads the `desktop` profile. Do not use `default`, and do n
 <p align="center">
   <a href="https://deepseek.stream/plugins/dsh-purge"><strong>🌐 Open Hub page</strong></a>
   &nbsp;·&nbsp;
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.62&repo=YuJunZhiXue%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FYuJunZhiXue%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>🚀 Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>🚀 Install in desktop client</strong></a>
 </p>
 
 🔗 **Raw protocol URL:**
 
 ```
-dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.62&repo=YuJunZhiXue%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FYuJunZhiXue%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz
+dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz
 ```
 
 <details>
@@ -249,10 +249,10 @@ export function installDshPurgeToDesktop() {
   const params = new URLSearchParams({
     id: 'dsh-purge',
     name: 'dsh-purge',
-    version: '1.1.62',
-    repo: 'YuJunZhiXue/dsh-purge',
+    version: '1.0.0',
+    repo: 'Rovrry/dsh-Rov-PJ',
     permissions: '系统提示词注入, 本机补丁, 设置页',
-    downloadUrl: 'https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz',
+    downloadUrl: 'https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz',
   });
 
   const deepLink = `dsh://plugin/install?${params.toString()}`;
@@ -268,7 +268,7 @@ export function installDshPurgeToDesktop() {
 **HTML link:**
 
 ```html
-<a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.62&repo=YuJunZhiXue%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FYuJunZhiXue%2Fdsh-purge%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz">
+<a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz">
   🚀 Install in desktop client
 </a>
 ```
@@ -279,10 +279,10 @@ export function installDshPurgeToDesktop() {
 |---|---|---|
 | id | `dsh-purge` | Plugin id |
 | name | `dsh-purge` | Display name |
-| version | `1.1.62` | Semver |
-| repo | `YuJunZhiXue/dsh-purge` | GitHub repo |
+| version | `1.0.0` | Semver |
+| repo | `Rovrry/dsh-Rov-PJ` | GitHub repo |
 | permissions | `系统提示词注入, 本机补丁, 设置页` | Requested permissions |
-| downloadUrl | `https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz` | GitHub source archive |
+| downloadUrl | `https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz` | GitHub source archive |
 
 </details>
 
@@ -312,7 +312,7 @@ Install the DeepSeek Harness plugin `dsh-purge`. Confirm the host first and inst
 If `dsh` is not on PATH, tell the user and stop.
 
 ```sh
-dsh plugin --profile web add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz
+dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 ```
 
 If this directory is already a clone, use `dsh plugin --profile web add .`.
@@ -324,7 +324,7 @@ Not maintained. Do not install it. Ask for it in one issue.
 **Official Harness desktop EXE**
 
 ```sh
-dsh plugin --profile desktop add https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz
+dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 ```
 
 Official desktop 0.2 loads the `desktop` profile. Do not use `default`, and do not use `git+https://github.com/yujunzhixue/dsh-purge.git`. That git address runs `git ls-remote` first. Ignore the allowBuilds hint after it fails.
@@ -412,17 +412,17 @@ With git:
 
 ```sh
 mkdir -p "$DSH_HOME/plugins"
-git clone https://github.com/YuJunZhiXue/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
+git clone https://github.com/Rovrry/dsh-Rov-PJ.git "$DSH_HOME/plugins/dsh-purge"
 ```
 
-Without git, download [master.tar.gz](https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz), extract it, rename `dsh-purge-master` to `dsh-purge`, and place that folder under `plugins`. PowerShell example (set `$home` to the path from step 1):
+Without git, download [master.tar.gz](https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz), extract it, rename `dsh-purge-master` to `dsh-purge`, and place that folder under `plugins`. PowerShell example (set `$home` to the path from step 1):
 
 ```powershell
 $home = $(if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $env:USERPROFILE ".dsh" })
 $plugins = Join-Path $home "plugins"
 New-Item -ItemType Directory -Force -Path $plugins | Out-Null
 $tmp = Join-Path $env:TEMP "dsh-purge-master.tar.gz"
-Invoke-WebRequest -Uri "https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz" -OutFile $tmp
+Invoke-WebRequest -Uri "https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz" -OutFile $tmp
 tar -xzf $tmp -C $plugins
 $src = Join-Path $plugins "dsh-purge-master"
 $dst = Join-Path $plugins "dsh-purge"
@@ -787,7 +787,7 @@ If nothing is found, set `DSH_BASE` / `DSH_DESKTOP_INSTALL`. No files are change
 
 ## Releases
 
-What changed, and the zip, are on [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases). To publish, bump the version in `package.json`, write Chinese and English notes in `release-notes.md`, and push `master`. Pushing the same version again does not publish another package.
+What changed, and the zip, are on [Releases](https://github.com/Rovrry/dsh-Rov-PJ/releases). To publish, bump the version in `package.json`, write Chinese and English notes in `release-notes.md`, and push `master`. Pushing the same version again does not publish another package.
 
 ## Notes
 

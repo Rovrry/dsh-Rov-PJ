@@ -1,7 +1,7 @@
 {
   "name": "dsh-purge",
-  "version": "1.1.62",
-  "description": "【基于上游 YuJunZhiXue/dsh-purge v1.1.62 二次开发】DeepSeek Harness 网络安全红队工具：本机官方 Harness 受控评测与清洗，内嵌演练台；不同模型可换不同提示词；默认提示词面向国模「小码酱」。本 fork 仓库：https://github.com/Rovrry/dsh-Rov-PJ",
+  "version": "1.0.0",
+  "description": "【基于上游 YuJunZhiXue/dsh-purge 二次开发，上游基线版本见仓库 README】DeepSeek Harness 网络安全红队工具：本机官方 Harness 受控评测与清洗，内嵌演练台；不同模型可换不同提示词；默认提示词面向国模「小码酱」。本 fork 仓库：https://github.com/Rovrry/dsh-Rov-PJ",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
