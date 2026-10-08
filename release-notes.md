@@ -1,4 +1,33 @@
-# 1.0.4
+# 1.0.5
+
+## 中文
+
+- 版本 **1.0.5**。
+- **仓库首页只剩三块**：302 行 -> 90 行，仅保留项目来源、安装教程、免责声明。
+- 界面预览、目录结构、使用、本地校验、工作原理、还原、路径探测、更新、说明等技术章节
+  全部移入 `docs/`：
+  - 新增 **[docs/USAGE.md](docs/USAGE.md)**：界面预览、使用命令、自己的服务器（中英双语）
+  - 新增 **[docs/REFERENCE.md](docs/REFERENCE.md)**：目录结构、工作原理、还原、路径探测、
+    版本与更新、说明（中英双语）
+- 首页安装章节改为「四条注意事项 + 一行命令 + 文档索引表」，指向四份详细文档。
+- 四份文档统一顶部导航与 `<a id="english"></a>` 英文入口，中英互链不再断。
+
+## English
+
+- Version **1.0.5**.
+- **The repository landing page now has three blocks only**: 302 lines -> 90 lines, keeping
+  just project origin, installation, and the disclaimer.
+- The preview, layout, usage, local checks, how-it-works, restore, path detection, releases and
+  notes chapters all moved into `docs/`:
+  - New **[docs/USAGE.md](docs/USAGE.md)**: UI preview, commands, own servers (bilingual).
+  - New **[docs/REFERENCE.md](docs/REFERENCE.md)**: layout, how it works, restore, path
+    detection, releases, notes (bilingual).
+- The landing page installation section is now "four notes + one command + a docs index table"
+  pointing at the four detailed documents.
+- All four documents share one top navigation and an `<a id="english"></a>` English entry, so
+  Chinese/English cross-links no longer break.
+
+# 1.0.5
 
 ## 中文
 

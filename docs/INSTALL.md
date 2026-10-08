@@ -2,7 +2,13 @@
 
 > 本文件是 [README](../README.md) 的安装与使用教程详细版。
 
-[← 返回仓库首页](../README.md) | [免责声明](DISCLAIMER.md)
+[← 返回仓库首页](../README.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [免责声明](DISCLAIMER.md)
+
+<a id="english"></a>
+
+> **English**: this tutorial is written in Chinese. The quick version in English is in the
+> [English README](../README.en.md). For the full steps, use a translator on this
+> page - the command in the README is all you need in most cases.
 
 ---
 
