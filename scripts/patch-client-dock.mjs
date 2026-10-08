@@ -169,14 +169,28 @@ const dockBlock = `
 			return st;
 		}
 
+		/**
+		 * 进「全面浏览」：让演练台在**当前窗口内**全屏。
+		 *
+		 * 早先这里是 window.open 同一 URL 加 #redteam-full 开新窗口。实测新窗口要重新
+		 * 加载整个 dsh 前端，演练台依赖的槽位挂不上，用户只看到一个普通 dsh 页面。
+		 * 现在直接调演练台自己的 setUI（build-client.mjs 已把它暴露到 __dshPurgeDrill）。
+		 */
+		function enterDrillFull() {
+			try {
+				if (__dshPurgeDrill && __dshPurgeDrill.setUI) __dshPurgeDrill.setUI({ open: true, full: true });
+			} catch { /* ignore */ }
+			try {
+				if (window.location.hash !== "#redteam-full") window.location.hash = "redteam-full";
+			} catch { /* ignore */ }
+		}
+
 		function requestDrill(kind) {
 			const pending = kind || "tab";
 			if (readDrillAuth()) {
 				setDock({ open: true, tab: "drill", authOpen: false, pending: "tab" });
 				try { if (__dshPurgeDrill && __dshPurgeDrill.setUI) __dshPurgeDrill.setUI({ open: true }); } catch { /* ignore */ }
-				if (pending === "full") {
-					try { window.open(window.location.href.split("#")[0] + "#redteam-full", "_blank", "noopener"); } catch { /* ignore */ }
-				}
+				if (pending === "full") enterDrillFull();
 				return;
 			}
 			setDock({ open: true, tab: "drill", authOpen: true, pending: pending });
@@ -262,9 +276,7 @@ const dockBlock = `
 								const kind = props.pending || "tab";
 								setDock({ authOpen: false, open: true, tab: "drill", pending: "tab" });
 								try { if (__dshPurgeDrill && __dshPurgeDrill.setUI) __dshPurgeDrill.setUI({ open: true }); } catch { /* ignore */ }
-								if (kind === "full") {
-									try { window.open(window.location.href.split("#")[0] + "#redteam-full", "_blank", "noopener"); } catch { /* ignore */ }
-								}
+								if (kind === "full") enterDrillFull();
 							},
 						}, okLabel),
 					),
@@ -381,6 +393,48 @@ if (!client.includes("function PurgeDock()")) {
 	const anchor = "\t\tfunction installRewindUi(ctx) {";
 	if (!client.includes(anchor)) throw new Error("installRewindUi not found");
 	client = client.replace(anchor, dockBlock + "\t\tfunction installRewindUi(ctx) {");
+} else {
+	/* 已打过补丁的旧版本：上面的守卫会整体跳过，于是本次的改动进不去。
+	   这里做一次定点迁移 —— 把「全面浏览开新窗口」改成「当前窗口内全屏」。
+	   幂等：只在旧写法还在、新写法还没有时动手。 */
+	const staleOpen =
+		'try { window.open(window.location.href.split("#")[0] + "#redteam-full", "_blank", "noopener"); } catch { /* ignore */ }';
+	if (client.includes(staleOpen) && !client.includes("function enterDrillFull()")) {
+		const helperAnchor = "\t\tfunction requestDrill(kind) {";
+		if (!client.includes(helperAnchor)) throw new Error("requestDrill not found (migration)");
+		const HELPER = [
+			"\t\t/**",
+			"\t\t * 进「全面浏览」：让演练台在**当前窗口内**全屏。",
+			"\t\t *",
+			"\t\t * 早先这里是 window.open 同一 URL 加 #redteam-full 开新窗口。实测新窗口要重新",
+			"\t\t * 加载整个 dsh 前端，演练台依赖的槽位挂不上，用户只看到一个普通 dsh 页面。",
+			"\t\t * 现在直接调演练台自己的 setUI（build-client.mjs 已把它暴露到 __dshPurgeDrill）。",
+			"\t\t */",
+			"\t\tfunction enterDrillFull() {",
+			"\t\t\ttry {",
+			"\t\t\t\tif (__dshPurgeDrill && __dshPurgeDrill.setUI) __dshPurgeDrill.setUI({ open: true, full: true });",
+			"\t\t\t} catch { /* ignore */ }",
+			"\t\t\ttry {",
+			'\t\t\t\tif (window.location.hash !== "#redteam-full") window.location.hash = "redteam-full";',
+			"\t\t\t} catch { /* ignore */ }",
+			"\t\t}",
+			"",
+		].join("\n");
+		client = client.replace(helperAnchor, HELPER + helperAnchor);
+		// 两处调用点：requestDrill 内 与 授权弹窗确认后
+		client = client.replace(
+			'\t\t\t\tif (pending === "full") {\n\t\t\t\t\t' + staleOpen + "\n\t\t\t\t}",
+			'\t\t\t\tif (pending === "full") enterDrillFull();',
+		);
+		client = client.replace(
+			'\t\t\t\t\t\t\t\tif (kind === "full") {\n\t\t\t\t\t\t\t\t\t' + staleOpen + "\n\t\t\t\t\t\t\t\t}",
+			'\t\t\t\t\t\t\t\tif (kind === "full") enterDrillFull();',
+		);
+		if (client.includes(staleOpen)) {
+			throw new Error("migration incomplete: stale window.open remains");
+		}
+		console.log("patched: 全面浏览 改为当前窗口内全屏（迁移旧补丁）");
+	}
 }
 
 // 4) Replace apply() settings.section with dock slots

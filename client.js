@@ -3787,7 +3787,15 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 .rt-md{flex:1;overflow:auto;margin:0;padding:14px 16px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;
   line-height:1.65;white-space:pre-wrap;word-break:break-word;background:var(--dsw-alias-bg-base)}
 .rt-weblink{display:block;font-size:11.5px;margin-top:1px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}`    /* ---------------------------------------------------------- 桥接与状态 */
-    /** 是否在「全面浏览」独立窗口里（URL hash 标记，复用同一套界面代码）。 */
+    /**
+     * URL hash 是否是「全面浏览」标记。
+     *
+     * 兼容保留：老链接 `…/#redteam-full` 仍能直接进全屏。但**不再是主路径** ——
+     * 早先的做法是 window.open 同一个 URL 加 hash，在新窗口里复用整套界面代码。
+     * 实测那个新窗口里演练台根本不渲染（新窗口要重新加载整个 dsh 前端，面板所在
+     * 的槽位没有挂上），用户只看到一个普通的 dsh 页面。现在改为**当前窗口内全屏**，
+     * 状态放在 ui.full 里（见下），hash 只作为进入时的附带标记与老链接兼容。
+     */
     const isFullWindow = () => {
       try { return String(window.location.hash || '') === '#redteam-full' } catch { return false }
     }
@@ -3798,7 +3806,8 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       body: JSON.stringify(req),
     }).then((res) => res.json())
 
-    let ui = { open: true, tab: 'assets' }
+    /* full：演练台是否以「全面浏览」形式占满当前窗口（不再开新窗口）。 */
+    let ui = { open: true, tab: 'assets', full: isFullWindow() }
     const subs = new Set()
     const setUI = (patch) => {
       ui = Object.assign({}, ui, patch)
@@ -7380,20 +7389,23 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         ['knowledge', '知识库'],
         ['skills', '技能库'],
       ]
-      const full = isFullWindow()
-      const openFull = () => {
-        try { window.open(window.location.href.split('#')[0] + '#redteam-full', '_blank', 'noopener') } catch (e) { setErr('无法打开新窗口：' + ((e && e.message) || e)) }
-      }
+      const full = !!st.full
+      /* 退全屏：清 hash，不 reload —— reload 会丢掉面板里的当前页签与筛选。 */
       const exitFull = () => {
-        /* 优先关掉脚本打开的窗口；关不掉就退回带侧栏的普通界面 */
-        try { window.close() } catch (e) { /* 非脚本打开的窗口无法关闭 */ }
+        setUI({ full: false })
         try {
-          if (window.location.hash) {
+          if (window.location.hash === '#redteam-full') {
             window.location.hash = ''
-            window.location.reload()
           }
         } catch (e) { /* ignore */ }
       }
+      /* 全屏时锁住宿主滚动条，避免背景页面跟着滚（看上去像"页面在动"）。 */
+      React.useEffect(() => {
+        if (!full) return undefined
+        const prev = document.body.style.overflow
+        document.body.style.overflow = 'hidden'
+        return () => { document.body.style.overflow = prev }
+      }, [full])
       React.useEffect(() => {
         if (!full) return undefined
         const onKey = (e) => { if (e.key === 'Escape') exitFull() }
@@ -7433,7 +7445,25 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       else body = h('div', { className: 'rt-empty' }, '未知页签')
 
       const shellProps = full
-        ? { className: 'rt-full', style: { display: 'flex' } }
+        ? {
+            className: 'rt-full',
+            /* 关键样式全部内联：宿主可能有自己的层叠上下文，
+               单靠 .rt-full 的 position:fixed 不一定压得住，这里用足够高的
+               z-index + 实底背景，保证整窗覆盖。 */
+            style: {
+              position: 'fixed',
+              inset: '0',
+              right: '0',
+              bottom: '0',
+              width: 'auto',
+              height: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              zIndex: 2147483000,
+              background: 'var(--dsw-alias-bg-base, #1b1b1f)',
+              color: 'var(--dsw-alias-label-primary, #e6e6e6)',
+            },
+          }
         : embedded
           ? { className: 'rt-dock rt-embedded', 'data-open': '1', style: { width: '100%', display: 'flex' } }
           : {
@@ -7477,7 +7507,6 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           embedded ? null : h(VersionBar, null),
           full ? h('button', { className: 'rt-btn', title: '回到带侧栏的普通界面（或按 Esc）', onClick: exitFull }, '退出全面浏览') : null,
           embedded ? null : h('button', { className: 'rt-btn', title: '刷新名册、快照与当前页面数据', onClick: refreshAll }, '刷新'),
-          (full || embedded) ? null : h('button', { className: 'rt-btn', title: '在新浏览器窗口打开完整控制台', onClick: openFull }, '全面浏览'),
           (full || embedded) ? null : h('button', { className: 'rt-btn', title: '收起面板', onClick: () => setUI({ open: false }) }, '收起')),
         /* 页签栏用标准 tablist/tab 角色：读屏软件据此播报「第几个页签、是否选中」。
            键盘用户 Tab 进来后可用 Enter/Space 切换（由 clickable 提供）。 */
@@ -7530,16 +7559,36 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       }, '⛨ RedTeam')
     }
 
-    /** 侧栏「全面浏览」：在新浏览器窗口打开完整控制台（当前窗口不受影响）。 */
+    /**
+     * 侧栏「全面浏览」：让演练台占满当前窗口。
+     *
+     * 不再开新窗口 —— 新窗口要重新加载整个 dsh 前端，演练台面板依赖的槽位
+     * 没能挂上，用户只看到一个普通 dsh 页面。页内全屏没有这个依赖，也不会被弹窗拦截。
+     */
     function FullButton(props) {
-      const open = () => {
-        try { window.open(window.location.href.split('#')[0] + '#redteam-full', '_blank', 'noopener') } catch { /* 被浏览器拦截 */ }
+      const st = useUI()
+      const on = !!st.full
+      const toggle = () => {
+        if (on) {
+          setUI({ full: false })
+          try {
+            if (window.location.hash === '#redteam-full') window.location.hash = ''
+          } catch { /* ignore */ }
+          return
+        }
+        setUI({ open: true, full: true })
+        try {
+          if (window.location.hash !== '#redteam-full') window.location.hash = 'redteam-full'
+        } catch { /* ignore */ }
       }
       return h('button', {
-        className: 'rt-icon-btn',
-        title: '全面浏览：在新窗口打开完整控制台（当前窗口不受影响；新窗口内按 Esc 退出）',
-        onClick: open,
-      }, h('span', { style: { fontSize: 14 } }, '⛶'), props.wide ? h('span', null, '全面浏览') : null)
+        className: 'rt-icon-btn' + (on ? ' on' : ''),
+        'aria-pressed': on ? 'true' : 'false',
+        title: on
+          ? '退出全面浏览：回到带侧栏的普通界面（也可按 Esc）'
+          : '全面浏览：让演练台占满当前窗口（按 Esc 或再点一次退出）',
+        onClick: toggle,
+      }, h('span', { style: { fontSize: 14 } }, on ? '⛷' : '⛶'), props.wide ? h('span', null, on ? '退出全屏' : '全面浏览') : null)
     }
 
     /* ---------------------------------------------------------- 插件入口 */
@@ -7641,6 +7690,21 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 			return st;
 		}
 
+		/**
+		 * 进「全面浏览」：让演练台在**当前窗口内**全屏。
+		 *
+		 * 早先这里是 window.open 同一 URL 加 #redteam-full 开新窗口。实测新窗口要重新
+		 * 加载整个 dsh 前端，演练台依赖的槽位挂不上，用户只看到一个普通 dsh 页面。
+		 * 现在直接调演练台自己的 setUI（build-client.mjs 已把它暴露到 __dshPurgeDrill）。
+		 */
+		function enterDrillFull() {
+			try {
+				if (__dshPurgeDrill && __dshPurgeDrill.setUI) __dshPurgeDrill.setUI({ open: true, full: true });
+			} catch { /* ignore */ }
+			try {
+				if (window.location.hash !== "#redteam-full") window.location.hash = "redteam-full";
+			} catch { /* ignore */ }
+		}
 		function requestDrill(kind) {
 			const pending = kind || "tab";
 			const openEnv = () => {
@@ -7654,9 +7718,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 				setDock({ open: true, tab: "drill", authOpen: false, pending: "tab" });
 				try { if (__dshPurgeDrill && __dshPurgeDrill.setUI) __dshPurgeDrill.setUI({ open: true }); } catch { /* ignore */ }
 				if (pending === "env") openEnv();
-				if (pending === "full") {
-					try { window.open(window.location.href.split("#")[0] + "#redteam-full", "_blank", "noopener"); } catch { /* ignore */ }
-				}
+				if (pending === "full") enterDrillFull();
 				return;
 			}
 			/* 未授权：直接切到演练台页签并弹出授权窗（不再停在清洗页，避免像「没触发」） */
@@ -7845,9 +7907,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 								if (kind === "env") {
 									try { if (__dshPurgeDrill && __dshPurgeDrill.setUI) __dshPurgeDrill.setUI({ open: true, tab: "env" }); } catch { /* ignore */ }
 								}
-								if (kind === "full") {
-									try { window.open(window.location.href.split("#")[0] + "#redteam-full", "_blank", "noopener"); } catch { /* ignore */ }
-								}
+								if (kind === "full") enterDrillFull();
 							},
 						}, okLabel),
 					),

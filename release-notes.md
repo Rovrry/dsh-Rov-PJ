@@ -1,3 +1,47 @@
+# 1.0.8
+
+## 中文
+
+- 版本 **1.0.8**。
+- **修复：点「全面浏览」会重新开出一个 dsh web 页面，而看不到演练台。**
+  原实现是 `window.open(当前 URL + "#redteam-full")` —— 等价于在新窗口里
+  重新加载**整个 dsh 前端**，演练台面板依赖的槽位在新窗口里没有挂上，
+  结果新窗口只是一个普通的 dsh 页面。
+  现在改为**在当前窗口内全屏**：不依赖新窗口加载、不会触发弹窗拦截，
+  按 Esc、点右上角「退出全面浏览」或再点一次侧栏按钮都能退出。
+- 全屏覆盖改用内联样式（`position:fixed` + 最高 `z-index` + 实底背景），
+  不再只靠 `.rt-full` 那个 CSS 类 —— 宿主可能有自己的层叠上下文，
+  单靠类名不一定压得住，这是"看着像普通页面"的另一半原因。
+- 全屏时锁住宿主滚动条，避免背景页面跟着滚。
+- 退出全屏不再 `location.reload()`（旧实现会 reload），因此不会丢掉
+  面板里当前的页签与筛选条件。
+- 侧栏「全面浏览」按钮改成可来回切换，并有选中态。
+- 迁移：`scripts/patch-client-dock.mjs` 原先用「`PurgeDock` 已存在就整块跳过」
+  做幂等，导致**已打过旧补丁的宿主升级时新代码进不去**。现在补了一段定点迁移，
+  把旧的 `window.open` 写法换成新写法（幂等，且替换不全会直接报错而不是静默跳过）。
+  验证：迁移前 `window.open` 3 处 → 迁移后 0 处（仅注释保留说明）。
+- 兼容：带 `#redteam-full` 的老链接仍会直接进全屏。
+
+## English
+
+- Version **1.0.8**.
+- **Fix: clicking "全面浏览" (Full view) opened another dsh web page instead of the drill console.**
+  It used `window.open(currentURL + "#redteam-full")`, which reloads the **entire dsh frontend**
+  in a new window. The drill panel's host slots are not mounted there, so the new window was just
+  an ordinary dsh page. Full view now happens **in the current window** — no new-window load, no
+  popup blocking. Exit with Esc, the top-right button, or by clicking the sidebar button again.
+- The fullscreen overlay now uses inline styles (`position:fixed`, maximum `z-index`, opaque
+  background) instead of relying on the `.rt-full` class alone: the host may establish its own
+  stacking context, which is the other reason it could look like a plain page.
+- Host scroll is locked while full view is open.
+- Exiting no longer calls `location.reload()`, so the active tab and filters are preserved.
+- The sidebar "全面浏览" button now toggles, with a selected state.
+- Migration: `scripts/patch-client-dock.mjs` previously skipped the whole dock block when
+  `PurgeDock` already existed, so **hosts patched by an older version never received new code**.
+  A targeted migration now rewrites the old `window.open` call (idempotent, and it throws instead
+  of silently skipping if the rewrite is incomplete). Verified: 3 `window.open` sites → 0.
+- Compatibility: old `#redteam-full` links still open full view directly.
+
 # 1.0.7
 
 ## 中文
