@@ -6,10 +6,14 @@ role: recon
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 ## 方法
 1. 响应头：`Server`、`X-Powered-By`、`Set-Cookie` 特征。
 2. 页面特征：favicon 哈希、静态资源路径、报错页、robots.txt。
-3. 主动探测：nuclei 技术识别模板 `nuclei -u <url> -tags tech`；HTTP 存活与技术栈汇总用 `~/.local/bin/pd-httpx -l urls.txt -tech-detect -title -status-code -web-server`（**ProjectDiscovery 版必须用 pd-httpx，`/usr/bin/httpx` 是 Python 库的 CLI**）。
+3. 主动探测：nuclei 技术识别模板 `nuclei -u <url> -tags tech`；HTTP 存活与技术栈汇总用 `${TOOLKIT}/httpx/httpx -l urls.txt -tech-detect -title -status-code -web-server`（**ProjectDiscovery 版必须用 pd-httpx，`/usr/bin/httpx` 是 Python 库的 CLI**）。
 4. 大网段批量指纹用技能 `gogo-intranet`（`gogo -i <cidr> -p top2 -v --af`，主动指纹要加 `-v`）。
 5. 版本比对：从指纹推断产品与版本，为漏洞检测做准备。
 

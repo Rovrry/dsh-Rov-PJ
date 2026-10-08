@@ -2,7 +2,7 @@
 
 > 本文件是 [README](../README.md) 的安装与使用教程详细版。
 
-[← 返回仓库首页](../README.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [免责声明](DISCLAIMER.md)
+[← 返回仓库首页](../README.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [工具箱](TOOLKIT.md) | [免责声明](DISCLAIMER.md)
 
 <a id="english"></a>
 
@@ -391,6 +391,31 @@ pnpm install
 - `profiles/<名>/node_modules/dsh-purge` 指向 `plugins/dsh-purge`
 
 还没有这个按钮时，多半是改错了另一份 `.dsh`，或改了 `web` 却在桌面端里等。回到第 1 步核对路径，不要在两份主目录各改一半。
+
+### 装好插件之后：准备演练工具
+
+插件装好只是**第一步**。红队模式要用的安全工具（nmap / nuclei / fscan / gogo / 冰蝎…）**不在本插件里**，
+也不由本插件下载——需要你自己放到统一目录。
+
+**存放位置**（默认，可在演练台「环境适配」里改）：
+
+```
+$DSH_HOME/redteam/toolkit/<工具名>/
+```
+
+**怎么知道缺什么**：打开 `dsh-purge → 环境适配`，上方两块就是检测结果：
+
+- **运行时依赖检测** —— Python / Java / Go / Node 等，缺哪个直接复制安装命令
+- **工具统一存放目录** —— 每个缺失工具的目标路径、官方来源、可复制的获取命令
+
+也可以在聊天里让智能体跑 `redteam_preflight`，它会一次列出缺口与对应命令。
+
+> ⚠️ **最容易漏的一项**：冰蝎（Behinder）与哥斯拉（Godzilla）是 **Java 图形界面程序**。
+> 只装了 Python/Node 的机器上 `java -jar` 会直接报错，需要额外装 JRE。
+> 面板会把它标成「必需」并给出 `sudo apt install -y default-jre`。
+
+完整的工具清单、版本、运行环境与分平台命令见 **[工具箱](TOOLKIT.md)**。
+
 
 ### 卸载
 

@@ -2,7 +2,7 @@
 
 > 本文件是 [README](../README.md) 中免责声明的完整版。使用本项目前请完整阅读。
 
-[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md)
+[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [工具箱](TOOLKIT.md)
 
 <a id="english"></a>
 

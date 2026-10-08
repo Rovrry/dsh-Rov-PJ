@@ -6,6 +6,10 @@ role: recon
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # 外部信息收集流水线（ProjectDiscovery）
 
 把"一个域名"变成"一份带标题、技术栈、端口的存活资产清单"，是信息收集阶段的标准动作。
@@ -15,13 +19,13 @@ enabled: true
 
 | 工具 | 路径 | 版本 | 作用 |
 | --- | --- | --- | --- |
-| subfinder | `$DSH_HOME/redteam/toolkit/subfinder/subfinder` | v2.16.0 | 被动子域枚举（多源聚合） |
-| dnsx | `$DSH_HOME/redteam/toolkit/dnsx/dnsx` | v1.3.1 | 批量解析、DNS 爆破、泛解析过滤 |
-| naabu | `$DSH_HOME/redteam/toolkit/naabu/naabu` | v2.6.1 | 高速端口扫描（SYN 需 root，否则 `-scan-type c`） |
-| httpx | `$DSH_HOME/redteam/toolkit/httpx/httpx`（包装器 `~/.local/bin/pd-httpx`） | v1.12.0 | HTTP 存活/标题/技术栈/状态码 |
+| subfinder | `${TOOLKIT}/subfinder/subfinder` | v2.16.0 | 被动子域枚举（多源聚合） |
+| dnsx | `${TOOLKIT}/dnsx/dnsx` | v1.3.1 | 批量解析、DNS 爆破、泛解析过滤 |
+| naabu | `${TOOLKIT}/naabu/naabu` | v2.6.1 | 高速端口扫描（SYN 需 root，否则 `-scan-type c`） |
+| httpx | `${TOOLKIT}/httpx/httpx`（包装器 `${TOOLKIT}/httpx/httpx`） | v1.12.0 | HTTP 存活/标题/技术栈/状态码 |
 | katana | ❌ 未安装（如需抓取用技能 `browser-automation`） | — | 爬虫抓页面与接口 |
-| ksubdomain | `$DSH_HOME/redteam/toolkit/ksubdomain/ksubdomain` | v0.7 | 无状态子域爆破（比 dnsx 爆破快） |
-| OneForAll | `$DSH_HOME/redteam/toolkit/oneforall/OneForAll-0.4.5/`（源码，需 `.venv`） | v0.4.5 | 子域收集全家桶（字典大，慢但全） |
+| ksubdomain | `${TOOLKIT}/ksubdomain/ksubdomain` | v0.7 | 无状态子域爆破（比 dnsx 爆破快） |
+| OneForAll | `${TOOLKIT}/oneforall/OneForAll-0.4.5/`（源码，需 `.venv`） | v0.4.5 | 子域收集全家桶（字典大，慢但全） |
 
 > ⚠️ **`/usr/bin/httpx` 是 Python httpx 库的 CLI，不是 ProjectDiscovery 的**——必须用 `pd-httpx` 或绝对路径。
 
@@ -29,7 +33,7 @@ enabled: true
 
 ```bash
 mkdir -p runs
-TK=$DSH_HOME/redteam/toolkit
+TK=${TOOLKIT}
 D=example.com
 
 # ① 子域枚举（被动，多源）

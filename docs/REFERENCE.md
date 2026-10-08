@@ -2,7 +2,7 @@
 
 > [README](../README.md) 的技术参考章节：目录结构、命令、工作原理、还原、路径探测等。
 
-[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [免责声明](DISCLAIMER.md)
+[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [工具箱](TOOLKIT.md) | [免责声明](DISCLAIMER.md)
 
 ---
 
@@ -136,7 +136,7 @@ flowchart LR
 
 ---
 
-[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [免责声明](DISCLAIMER.md)
+[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [工具箱](TOOLKIT.md) | [免责声明](DISCLAIMER.md)
 
 ---
 ---

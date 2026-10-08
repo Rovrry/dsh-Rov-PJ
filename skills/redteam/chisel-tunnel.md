@@ -6,6 +6,10 @@ role: internal
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # chisel（HTTP 隧道 / 端口转发）
 
 > **先加载 VPS 配置**：本技能里所有 `$REDTEAM_VPS_HOST` / `$VPS_USER` 都来自本机配置，
@@ -32,7 +36,7 @@ enabled: true
 
 | 文件 | 路径 |
 | --- | --- |
-| chisel（Linux amd64，服务端与客户端同一个二进制） | `$DSH_HOME/redteam/toolkit/chisel/chisel`（v1.12.0） |
+| chisel（Linux amd64，服务端与客户端同一个二进制） | `${TOOLKIT}/chisel/chisel`（v1.12.0） |
 
 已同步到 VPS 载荷目录：`http://$REDTEAM_VPS_HOST:9100/`（目标可 `curl` 直接拉）。
 
@@ -41,7 +45,7 @@ enabled: true
 ```bash
 # 1) 我方 VPS 起服务端（tmux 里跑，别让 SSH 断开杀掉）
 tmux new -s chisel
-$DSH_HOME/redteam/toolkit/chisel/chisel server -p 9443 --reverse --socks5
+${TOOLKIT}/chisel/chisel server -p 9443 --reverse --socks5
 #    --reverse  允许客户端注册反向隧道
 #    --socks5   开启内置 SOCKS5（客户端连上后该端口即可用）
 #    可选加固：--auth user:pass   加认证，避免被扫到白用

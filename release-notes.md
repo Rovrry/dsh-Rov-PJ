@@ -1,4 +1,59 @@
-# 1.0.5
+# 1.0.6
+
+## 中文
+
+- 版本 **1.0.6**。
+- **工具目录统一**：所有外部工具固定放在 `${TOOLKIT}`（默认 `$DSH_HOME/redteam/toolkit`）
+  下的「一个工具一个子目录」；技能正文不再写死绝对路径，改用 `${TOOLKIT}` 指代根目录。
+  修掉了同一目录 `$DSH_HOME/...` 与 `~/.dsh/...` 两种写法混用、以及 httpx 包装器散落在
+  `~/.local/bin` 的问题（13 份技能、49 处路径）。
+- **新增运行时环境检测**：`redteam_preflight` 与面板「环境适配」现在会检查
+  Python / Java / Go / Node / git / proxychains / Chromium。缺 Java 时冰蝎与哥斯拉
+  根本起不来，此前完全检测不到。
+- **新增工具清单与官方获取命令**：`lib/redteam/toolkit-catalog.js` 收录 22 个工具，
+  含核对版本、运行环境、官方发布页与分平台（Linux / macOS / Windows）命令。
+  工具清单从 15 项扩到 22 项 —— 补上了此前技能在用、但预检根本没查的
+  naabu / dirsearch / OneForAll / Behinder / Godzilla / AntSword / katana。
+- **面板「环境适配」新增两块**：运行时依赖检测（缺失项一键复制安装命令）、
+  工具统一存放目录（每个缺失工具显示目标路径、官方来源、可复制的获取命令）。
+- **preflight 返回新增** `environment`（运行时与工具总览）与 `tool_commands`
+  （缺失工具的完整获取文本：建目录 → 获取 → 验证）；可用 `tool_commands: false`
+  只看清单，或用 `tool_limit` 限制条数。
+- 新增 **[docs/TOOLKIT.md](docs/TOOLKIT.md)**：工具目录约定、22 个工具清单、
+  运行环境依赖表、常见问题（含 `httpx` 与 Python httpx 库重名的坑）。
+- 首页文档索引与各文档导航加入「工具箱」入口；`docs/INSTALL.md` 增加
+  「装好插件之后：准备演练工具」一节。
+- **红线不变**：本插件不替用户下载或安装任何安全工具，所有命令都只是文本，
+  由用户自己核对、自己执行。
+
+## English
+
+- Version **1.0.6**.
+- **Unified toolkit layout**: every external tool lives under `${TOOLKIT}`
+  (default `$DSH_HOME/redteam/toolkit`) in its own per-tool subdirectory. Skill documents no
+  longer hardcode absolute paths; they reference the root as `${TOOLKIT}`. This fixes the mix of
+  `$DSH_HOME/...` and `~/.dsh/...` spellings and the httpx wrapper that lived outside the toolkit
+  (13 skill files, 49 paths).
+- **New runtime dependency detection**: `redteam_preflight` and the "environment adapt" panel now
+  check Python / Java / Go / Node / git / proxychains / Chromium. Without Java, Behinder and
+  Godzilla cannot start at all — previously undetectable.
+- **New tool catalog with official fetch commands**: `lib/redteam/toolkit-catalog.js` covers 22
+  tools with verified versions, runtime requirements, official release pages and per-platform
+  (Linux / macOS / Windows) commands. The catalog grew from 15 to 22 entries, adding naabu,
+  dirsearch, OneForAll, Behinder, Godzilla, AntSword and katana, which skills used but preflight
+  never checked.
+- **Two new panel blocks** in "environment adapt": runtime dependency detection (one-click copy of
+  the install command) and the unified toolkit directory (target path, official source and a
+  copyable fetch command per missing tool).
+- **preflight now returns** `environment` (runtime and tool overview) and `tool_commands`
+  (complete fetch text per missing tool: create dir → fetch → verify). Use `tool_commands: false`
+  for the list only, or `tool_limit` to cap the count.
+- New **[docs/TOOLKIT.md](docs/TOOLKIT.md)**: directory convention, the 22-tool table, the runtime
+  dependency table, and FAQ (including the `httpx` vs. Python httpx name clash).
+- The landing page docs index and every document navigation gained a "toolkit" entry;
+  `docs/INSTALL.md` gained a "after installing the plugin: prepare drill tools" section.
+- **The red line is unchanged**: this plugin never downloads or installs any security tool for the
+  user. Every command is text only, for the user to review and run themselves.
 
 ## 中文
 

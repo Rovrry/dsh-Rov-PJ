@@ -5835,6 +5835,10 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       const [msg, setMsg] = React.useState(null)
       const [busy, setBusy] = React.useState(false)
       const [folderPath, setFolderPath] = React.useState('')
+      /* 环境检测报告：运行时依赖 + 工具统一目录；复制命令文本按需惰性取 */
+      const [envReport, setEnvReport] = React.useState(null)
+      const [setupCache, setSetupCache] = React.useState({})
+      const [copied, setCopied] = React.useState('')
 
       const applyDraftFrom = (r) => {
         const c = (r && r.config) || {}
@@ -5860,6 +5864,15 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
         }, (e) => { setBusy(false); setErr(String((e && e.message) || e)) })
       }
       React.useEffect(load, [refreshKey])
+
+      /* 环境检测：运行时依赖 + 工具统一目录 + 缺失工具。与配置读取分开，
+         这样工具还没配好也能看到"缺什么、装到哪、怎么装"。 */
+      const loadEnvReport = () => {
+        api({ op: 'platformEnvironmentReport' }).then((r) => {
+          if (r && r.ok) setEnvReport(r)
+        }, () => { /* 忽略：拿不到就不显示检测结果 */ })
+      }
+      React.useEffect(loadEnvReport, [refreshKey])
 
       const save = () => {
         if (!draft) return
@@ -5902,6 +5915,44 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 
       const setTool = (id, value) => setDraft((d) => d ? Object.assign({}, d, { tools: Object.assign({}, d.tools, { [id]: value }) }) : d)
       const setEnv = (key, value) => setDraft((d) => d ? Object.assign({}, d, { env: Object.assign({}, d.env, { [key]: value }) }) : d)
+
+      /* 复制到剪贴板：优先 Clipboard API，非安全上下文回退 execCommand。 */
+      const copyText = (key, text) => {
+        const done = () => {
+          setCopied(key)
+          setTimeout(() => setCopied((c) => (c === key ? '' : c)), 1800)
+        }
+        const fallback = () => {
+          try {
+            const ta = document.createElement('textarea')
+            ta.value = text
+            ta.setAttribute('readonly', '')
+            ta.style.position = 'fixed'
+            ta.style.top = '-1000px'
+            document.body.appendChild(ta)
+            ta.select()
+            document.execCommand('copy')
+            document.body.removeChild(ta)
+            done()
+          } catch { /* 复制不了就让用户手动选文本 */ }
+        }
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, fallback)
+            return
+          }
+        } catch { /* 落到回退方案 */ }
+        fallback()
+      }
+      /* 取某工具的安装文本（带缓存，避免每次渲染都打后端） */
+      const setupOf = (id) => {
+        const hit = setupCache[id]
+        if (hit) return hit
+        api({ op: 'platformToolSetup', id }).then((r) => {
+          if (r && r.ok) setSetupCache((c) => Object.assign({}, c, { [id]: r }))
+        }, () => { /* 忽略：拿不到就不显示命令 */ })
+        return null
+      }
 
       const runtime = (data && data.runtime) || {}
       const adapt = (data && data.adapt) || {}
@@ -5952,6 +6003,88 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           h('div', { className: 'rt-mono', style: { fontSize: 11 } }, 'NO_PROXY=' + (data.egress.no_proxy || '(空)')),
           h('div', { style: { marginTop: 6, opacity: 0.85 } }, data.egress.note || '')) : null,
         !draft ? h('div', { className: 'rt-empty' }, '加载中…') : h('div', null,
+          h('div', { className: 'rt-card' },
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
+              h('h4', { style: { margin: 0 } }, '运行时依赖检测'),
+              envReport
+                ? h('span', { className: 'rt-tag' + (envReport.missingRuntimes.length ? ' rt-tag-warn' : ' rt-tag-live') },
+                  envReport.missingRuntimes.length ? ('缺 ' + envReport.missingRuntimes.length + ' 项') : '齐备')
+                : null,
+              h('div', { className: 'rt-spacer' }),
+              h('button', { className: 'rt-btn', onClick: loadEnvReport }, '重新检测')),
+            !envReport
+              ? h('div', { style: { fontSize: 12, opacity: 0.8 } }, '检测中…')
+              : h('div', null,
+                envReport.runtimes.map((rt) => h('div', {
+                  key: rt.id,
+                  style: { marginBottom: 10, paddingBottom: 8, borderBottom: '1px solid rgba(128,128,128,0.15)' },
+                },
+                  h('div', { style: { display: 'flex', gap: 8, alignItems: 'center' } },
+                    h('span', { className: 'rt-tag' + (rt.found ? ' rt-tag-live' : (rt.optional ? '' : ' rt-tag-warn')) },
+                      rt.found ? '已装' : (rt.optional ? '可选' : '缺')),
+                    h('span', { style: { fontWeight: 600 } }, rt.label),
+                    h('span', { className: 'rt-mono', style: { fontSize: 10.5, opacity: 0.8 } }, rt.version || '')),
+                  rt.need ? h('div', { style: { fontSize: 11.5, opacity: 0.85, marginTop: 2 } }, '用于：' + rt.need) : null,
+                  (!rt.found && rt.install) ? h('div', { style: { marginTop: 4 } },
+                    h('div', { className: 'rt-mono', style: { fontSize: 11, padding: '4px 6px', background: 'rgba(128,128,128,0.1)', borderRadius: 4, whiteSpace: 'pre-wrap' } }, rt.install),
+                    h('button', {
+                      className: 'rt-btn', style: { marginTop: 4 },
+                      onClick: () => copyText('rt_' + rt.id, rt.install),
+                    }, copied === ('rt_' + rt.id) ? '已复制' : '复制安装命令')) : null)),
+                h('div', { style: { fontSize: 11.5, opacity: 0.85, marginTop: 4 } },
+                  '缺 Java 时冰蝎（Behinder）与哥斯拉（Godzilla）都起不来。标记「可选」的不影响主流程。'))),
+          h('div', { className: 'rt-card' },
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
+              h('h4', { style: { margin: 0 } }, '工具统一存放目录'),
+              envReport ? h('span', { className: 'rt-tag' + (envReport.missingTools.length ? ' rt-tag-warn' : ' rt-tag-live') },
+                envReport.foundCount + '/' + envReport.total) : null,
+              h('div', { className: 'rt-spacer' }),
+              envReport ? h('button', {
+                className: 'rt-btn',
+                onClick: () => copyText('rt_tkdir', envReport.toolkitDir),
+              }, copied === 'rt_tkdir' ? '已复制' : '复制根目录') : null),
+            h('div', { style: { fontSize: 11.5, opacity: 0.85, marginBottom: 6 } },
+              '所有工具都放同一个根目录下的「一个工具一个子目录」。技能正文里的 ${TOOLKIT} 就指这个根；改 toolkitDir 即可整体搬家。'),
+            envReport ? h('div', { className: 'rt-mono', style: { fontSize: 11, marginBottom: 8, wordBreak: 'break-all' } },
+              envReport.toolkitDir) : null,
+            !envReport
+              ? h('div', { style: { fontSize: 12, opacity: 0.8 } }, '检测中…')
+              : (envReport.missingTools.length === 0
+                ? h('div', { style: { fontSize: 12 } }, '全部工具都已找到，无需安装。')
+                : h('div', null,
+                  h('div', { style: { fontSize: 11.5, opacity: 0.85, marginBottom: 6 } },
+                    '缺失的工具（缺运行时的排前面，最多显示 6 个）：'),
+                  envReport.missingTools.slice(0, 6).map((t) => {
+                    const st = setupOf(t.id)
+                    return h('div', {
+                      key: t.id,
+                      style: { marginBottom: 10, paddingBottom: 8, borderBottom: '1px solid rgba(128,128,128,0.15)' },
+                    },
+                      h('div', { style: { display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
+                        h('span', { style: { fontWeight: 600 } }, t.label),
+                        t.version ? h('span', { className: 'rt-tag' }, t.version) : null,
+                        t.optional ? h('span', { className: 'rt-tag' }, '可选') : null,
+                        (t.blockedBy && t.blockedBy.length)
+                          ? h('span', { className: 'rt-tag rt-tag-warn' }, '先装 ' + t.blockedBy.map((b) => b.label).join(' / '))
+                          : null),
+                      h('div', { className: 'rt-mono', style: { fontSize: 10.5, opacity: 0.8, marginTop: 2, wordBreak: 'break-all' } }, t.targetDir),
+                      t.page ? h('div', { style: { fontSize: 10.5, opacity: 0.7, marginTop: 1 } }, '官方来源：' + t.page) : null,
+                      st
+                        ? h('div', { style: { marginTop: 4 } },
+                          h('button', {
+                            className: 'rt-btn',
+                            onClick: () => copyText('rt_tool_' + t.id, st.text),
+                          }, copied === ('rt_tool_' + t.id) ? '已复制' : '复制安装命令'),
+                          h('details', { style: { marginTop: 4 } },
+                            h('summary', { style: { cursor: 'pointer', fontSize: 11.5, opacity: 0.85 } }, '查看命令'),
+                            h('pre', {
+                              className: 'rt-mono',
+                              style: { fontSize: 10.5, padding: '6px 8px', background: 'rgba(128,128,128,0.1)', borderRadius: 4, overflowX: 'auto', whiteSpace: 'pre-wrap', margin: '4px 0 0' },
+                            }, st.text)))
+                        : h('div', { style: { fontSize: 11, opacity: 0.7, marginTop: 3 } }, '命令读取中…'))
+                  })))),
+            h('div', { style: { fontSize: 11, opacity: 0.75, marginTop: 6 } },
+              '命令由本插件生成，请你自己执行 —— 本插件不替用户下载或安装任何安全工具。'),
           h('div', { className: 'rt-card' },
             h('h4', null, '平台与目录'),
             h('div', { style: { display: 'grid', gap: 8 } },

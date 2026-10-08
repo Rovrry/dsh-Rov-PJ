@@ -6,6 +6,10 @@ role: exploit
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # VPS 中转与反弹 Shell（<你的VPS_IP>）
 
 自建公网 VPS 作为**反弹 Shell 落地端 + 载荷投递点 + 内网中转跳板**。目标只需要能访问互联网，
@@ -25,9 +29,9 @@ enabled: true
 ```
 主机    : <你的VPS_IP>（腾讯云，Ubuntu 24.04，2C2G，主机名 <VPS 主机名>）
 用户    : ubuntu（sudo 免密）
-私钥    : ~/.dsh/redteam/toolkit/vps/id_rsa          ← 权限 600，不要复制进仓库/聊天
+私钥    : ${TOOLKIT}/vps/id_rsa          ← 权限 600，不要复制进仓库/聊天
 可用端口: 9000-9999                                   ← 云安全组只放了这一段
-工具脚本: ~/.dsh/redteam/toolkit/vps/vps.sh
+工具脚本: ${TOOLKIT}/vps/vps.sh
 ```
 
 **密钥纪律**：私钥只在上面这个路径。任何情况下不要把私钥内容写进技能文件、报告、仓库或对话。
@@ -38,7 +42,7 @@ enabled: true
 ## 快速开始
 
 ```bash
-VPS=~/.dsh/redteam/toolkit/vps/vps.sh
+VPS=${TOOLKIT}/vps/vps.sh
 
 $VPS status                 # 看 VPS 状态、剩余端口、现有会话
 $VPS listen                 # 自动挑一个空闲端口开监听（也可 $VPS listen 9000）

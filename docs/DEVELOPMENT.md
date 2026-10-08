@@ -66,6 +66,7 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
 | `docs/USAGE.md` | 界面预览、使用命令、自己的服务器 | 中英双语 |
 | `docs/REFERENCE.md` | 目录结构、本地校验、工作原理、还原、路径探测、版本与更新、说明 | 中英双语 |
 | `docs/DISCLAIMER.md` | 零容忍条款与 10 条合规细则全文 | 中文（顶部有英文入口） |
+| `docs/TOOLKIT.md` | 工具统一存放目录、运行环境依赖、官方获取命令 | 中文（表格**生成**，勿手改） |
 
 **双语文件约定**：`USAGE.md` / `REFERENCE.md` 用 `<a id="english"></a>` 分隔中英两部分，
 导航栏互相引用该锚点。新增英文内容时保持这个锚点存在，否则英文 README 的链接会断。
@@ -103,6 +104,7 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
 |---|---|---|
 | `npm run build:client` | 把 `lib/redteam/client.js` 抽成片段，替换 `client.js` 的标记区间 | **要求标记已存在**，否则报 `client.js missing drill markers` |
 | `node scripts/patch-client-dock.mjs` | 把 `client.js` 改成右侧双页签，并嵌入演练台 UI 骨架、`docs/drill-auth-legal.html` | 会创建标记区间，是 `build:client` 的前置 |
+| `node scripts/gen-toolkit-doc.mjs --write` | 从 `lib/redteam/toolkit-catalog.js` 生成 `docs/TOOLKIT.md` 的两张表 | 表格夹在 `<!-- TOOLKIT_TABLE_BEGIN -->` / `<!-- RUNTIME_TABLE_BEGIN -->` 标记之间，改工具清单后必须重跑 |
 | `npm run embed-prompt` | 从 `lib/default-prompt-inject.md` 生成 `lib/asset-table.js` | ⚠️ **本仓库跑不了**：该 md 是本地未发布文件，见下方说明 |
 
 ### 构建顺序
@@ -188,7 +190,30 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
 
 ---
 
-## 七、署名与边界
+## 七、工具目录与运行时约定
+
+**单一根目录**：所有外部工具放 `${toolkitDir}`（默认 `$DSH_HOME/redteam/toolkit`）下的
+`<工具名>/` 子目录。技能正文**不得写死绝对路径**，统一用 `${TOOLKIT}` 指代根目录，
+并在文件顶部放路径约定说明（见任一已迁移的技能）。
+
+**清单是唯一事实来源**：`lib/redteam/toolkit-catalog.js` 定义每个工具的
+`names`（候选文件名）、`dir`（存放子目录）、`version`、`runtime`（运行环境依赖）、
+`page`（官方发布页）、`get`（分平台获取命令）。改工具或加工具都改这里，然后：
+
+```sh
+node scripts/gen-toolkit-doc.mjs --write   # 同步 docs/TOOLKIT.md 的两张表
+npm run build:client                        # 若同时改了面板
+```
+
+**运行时检测**：`platform-config.js` 的 `detectRuntimes()` 只跑「打印版本号」的只读命令，
+带 5 秒超时，且拒绝含 `| & ; < > \` $` 的命令文本（防注入）。探测**绝不修改本机**。
+
+**红线**：插件不替用户下载或安装任何工具。所有获取命令只是**文本**，
+由 `toolSetupText()` 生成、用户自己复制执行。这条既是安全边界，
+也是避免被代码托管平台判为"安装后自动下载渗透二进制"的前提。
+
+
+## 八、署名与边界
 
 - 二次开发不改变版权归属：原始代码、补丁集、默认提示词、演练台设计**均归上游作者所有**（MIT 协议）。
 - 本仓库的独立版本号（`1.0.0` 起）是 fork 自己的编号，**不要**用它去覆盖或混淆上游的版本号；上游基线始终是 **v1.1.62**，README 中已固定标注。

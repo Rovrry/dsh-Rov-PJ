@@ -2,7 +2,7 @@
 
 > [README](../README.md) 的界面说明与使用章节。安装请先看 [安装与使用教程](INSTALL.md)。
 
-[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [免责声明](DISCLAIMER.md)
+[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [工具箱](TOOLKIT.md) | [免责声明](DISCLAIMER.md)
 
 ---
 
@@ -99,7 +99,7 @@ purge_status   purge_apply   purge_revert
 
 ---
 
-[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [免责声明](DISCLAIMER.md)
+[← 返回仓库首页](../README.md) | [安装教程](INSTALL.md) | [界面与使用](USAGE.md) | [技术参考](REFERENCE.md) | [工具箱](TOOLKIT.md) | [免责声明](DISCLAIMER.md)
 
 ---
 ---

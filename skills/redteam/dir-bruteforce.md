@@ -6,6 +6,10 @@ role: vuln-scan
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # 目录与文件爆破（找入口的主力）
 
 **实战里大部分入口不是 CVE 打进去的，是目录爆破扫出来的**：后台 `/admin`、备份 `www.zip`、配置 `.env`、
@@ -18,7 +22,7 @@ enabled: true
 | --- | --- | --- | --- |
 | **feroxbuster** | `/usr/bin/feroxbuster` | 2.13.1 | Rust，递归爆破最强，自动跟随目录层级，**首选** |
 | **ffuf** | `/usr/bin/ffuf` | 2.1.0-dev | 最快、最灵活，支持多字典/vhost/参数 fuzz |
-| **dirsearch** | `$DSH_HOME/redteam/toolkit/dirsearch/dirsearch` | v0.5.0 | Python。`setup.sh` 不下载，需自行放到该路径 |
+| **dirsearch** | `${TOOLKIT}/dirsearch/dirsearch` | v0.5.0 | Python。`setup.sh` 不下载，需自行放到该路径 |
 | **gobuster** | `/usr/bin/gobuster` | — | 轻量稳定，dir/dns/vhost 三模式 |
 
 ## 一、feroxbuster（首选：递归 + 自动过滤）
@@ -55,7 +59,7 @@ ffuf -u https://target/ -H "Host: FUZZ.example.com" \
 ## 三、dirsearch（字典全，适合补漏）
 
 ```bash
-$DSH_HOME/redteam/toolkit/dirsearch/dirsearch \
+${TOOLKIT}/dirsearch/dirsearch \
   -u https://target.example.com -e php,asp,aspx,jsp,zip,bak,txt,sql,json \
   --random-agent -t 30 --delay 0.1 --exclude-status 404 \
   -r -R 3 --format json -o runs/dirsearch-target.json

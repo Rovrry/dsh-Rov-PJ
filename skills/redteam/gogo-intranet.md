@@ -6,6 +6,10 @@ role: internal
 enabled: true
 ---
 
+> **路径约定**：下文的 `${TOOLKIT}` 指工具根目录 `$DSH_HOME/redteam/toolkit`（可在演练台「环境适配」里改）。
+> 工具一律放 `${TOOLKIT}/<工具名>/`，不要散落到 PATH 或 `~/.local/bin`。
+> 缺什么工具、装到哪、官方获取命令：跑 `redteam_preflight`，或看仓库 `docs/TOOLKIT.md`。
+
 # gogo（内网测绘与指纹引擎）
 
 `gogo` = **高并发、低噪声、高度可配置的测绘引擎**。链式反应出品，专为红队内网场景设计：
@@ -24,9 +28,9 @@ enabled: true
 ## 二进制
 
 ```
-本机 : $DSH_HOME/redteam/toolkit/gogo/gogo                （v2.15.0，4.3MB，自带 3138 条指纹）
-       $DSH_HOME/redteam/toolkit/gogo/gogo_windows_amd64.exe
-       $DSH_HOME/redteam/toolkit/gogo/gogo_linux_arm64
+本机 : ${TOOLKIT}/gogo/gogo                （v2.15.0，4.3MB，自带 3138 条指纹）
+       ${TOOLKIT}/gogo/gogo_windows_amd64.exe
+       ${TOOLKIT}/gogo/gogo_linux_arm64
 VPS  : http://<你的VPS_IP>:9100/gogo                          （技能 vps-reverse-shell 的载荷目录）
 文档 : https://chainreactors.github.io/wiki/gogo/
 模板 : https://github.com/chainreactors/templates
