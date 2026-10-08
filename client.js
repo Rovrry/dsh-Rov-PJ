@@ -5895,6 +5895,9 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       const [toolResult, setToolResult] = React.useState(null)
       const [batch, setBatch] = React.useState(null)
       const [uninstallConfirm, setUninstallConfirm] = React.useState(null)
+      /* sudo 密码：只活在这次页面会话的内存里 —— 不写 config.json、不进日志、关页面即弃 */
+      const [sudoPassword, setSudoPassword] = React.useState('')
+      const [sudoState, setSudoState] = React.useState(null)
 
       const loadHost = () => {
         api({ op: 'platformHostProfile' }).then((r) => {
@@ -5903,12 +5906,24 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
       }
       React.useEffect(loadHost, [refreshKey])
 
+      const checkSudo = () => {
+        if (!sudoPassword) { setSudoState({ err: '先填密码' }); return }
+        setSudoState({ busy: true })
+        api({ op: 'platformSudoCheck', password: sudoPassword }).then((r) => {
+          setSudoState(r && r.ok ? { ok: r.note || '校验通过' } : { err: (r && r.error) || '校验失败' })
+          if (r && r.ok) loadHost()
+        }, (e) => setSudoState({ err: String((e && e.message) || e) }))
+      }
+      const clearSudo = () => { setSudoPassword(''); setSudoState(null) }
+      /* 填了就在请求里带上；没填就是 undefined（后端按 sudo -n 快速失败） */
+      const sudoArg = () => (sudoPassword ? sudoPassword : undefined)
+
       /* 装完/卸完：工具检测 + 宿主画像 + 配置一起刷新（表单会跟着重置，属预期） */
       const refreshAfterChange = () => { loadEnvReport(); loadHost(); load() }
 
       const startInstall = (id) => {
         setMsg(null); setToolResult(null); setPrecheck(null); setUninstallConfirm(null); setBusyTool(id)
-        api({ op: 'platformToolPreflight', id }).then((pre) => {
+        api({ op: 'platformToolPreflight', id, sudoPassword: sudoArg() }).then((pre) => {
           setBusyTool('')
           if (!pre || pre.ok === false) { setMsg({ err: (pre && pre.error) || '装前检测失败' }); return }
           setPrecheck(pre)
@@ -5917,7 +5932,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 
       const confirmInstall = (pre, force) => {
         setBusyTool(pre.id); setMsg(null)
-        api({ op: 'platformToolInstall', id: pre.id, force: force === true }).then((r) => {
+        api({ op: 'platformToolInstall', id: pre.id, force: force === true, sudoPassword: sudoArg() }).then((r) => {
           setBusyTool(''); setPrecheck(null)
           if (!r) { setMsg({ err: '安装请求没有返回' }); return }
           setToolResult(r)
@@ -5950,19 +5965,36 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
             if (reason) skipped.push({ id, reason })
             step(i + 1)
           }
-          api({ op: 'platformToolPreflight', id }).then((pre) => {
+          api({ op: 'platformToolPreflight', id, sudoPassword: sudoArg() }).then((pre) => {
             if (!pre || pre.ok === false) { next((pre && pre.error) || '装前检测失败'); return }
             if (pre.canInstall !== true) {
               next((pre.blockers || []).map((x) => x.detail).join('；') || '装前检测没过')
               return
             }
-            api({ op: 'platformToolInstall', id }).then((r) => {
+            api({ op: 'platformToolInstall', id, sudoPassword: sudoArg() }).then((r) => {
               if (r && r.ok) { installed.push(id); step(i + 1); return }
               next((r && r.error) || '安装失败')
             }, (e) => next(String((e && e.message) || e)))
           }, (e) => next(String((e && e.message) || e)))
         }
         step(0)
+      }
+
+      /* 装上缺的依赖（运行时 / 系统命令）：装前要 sudo 就先校验，装完刷新检测 */
+      const installDep = (kind, id) => {
+        setMsg(null); setToolResult(null); setBusyTool('dep:' + id)
+        api({ op: 'platformDependencyInstall', kind, id, sudoPassword: sudoArg() }).then((r) => {
+          setBusyTool('')
+          if (!r) { setMsg({ err: '依赖安装没有返回' }); return }
+          if (r.ok) {
+            setMsg({ ok: '已装上 ' + r.label + '（' + r.seconds + 's）；重新点「一键安装」继续' })
+            /* 直接重跑一遍当前工具的检测，省得用户再点一次 */
+            if (precheck) startInstall(precheck.id)
+            else { loadHost(); loadEnvReport() }
+          } else {
+            setMsg({ err: r.error || '依赖安装没成功' })
+          }
+        }, (e) => { setBusyTool(''); setMsg({ err: String((e && e.message) || e) }) })
       }
 
       /* 卸载：先问一遍"会删掉什么"（干跑，不动文件），确认后再删 */
@@ -6126,9 +6158,35 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           host.network && host.network.note
             ? h('div', { style: { marginTop: 4, fontSize: 11.5, opacity: 0.85 } }, '出网：' + host.network.note)
             : null,
-          host.privilege && !host.privilege.isRoot && host.privilege.sudo && !host.privilege.passwordless
-            ? h('div', { style: { marginTop: 4, fontSize: 11.5, opacity: 0.85 } },
-              '本机 sudo 要输密码：需要 sudo 的安装（apt 类）插件代跑会挂住，面板会拦下来，改成给你命令自己跑。')
+          host.privilege && !host.privilege.isRoot && host.privilege.sudo
+            ? h('div', { style: { marginTop: 6, paddingTop: 6, borderTop: '1px solid rgba(128,128,128,0.15)' } },
+              h('div', { style: { fontSize: 11.5, opacity: 0.9, marginBottom: 4 } },
+                host.privilege.passwordless
+                  ? '本机 sudo 免密：apt 类工具（nmap / masscan / impacket）可以直接一键装。'
+                  : '本机 sudo 要输密码：填一次密码，apt 类安装（nmap / masscan / impacket）也能由插件代跑。'),
+              !host.privilege.passwordless ? h('div', { style: { display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' } },
+                h('input', {
+                  className: 'rt-input',
+                  type: 'password',
+                  style: { width: 220 },
+                  placeholder: 'sudo 密码',
+                  autoComplete: 'new-password',
+                  value: sudoPassword,
+                  onChange: (e) => { setSudoPassword(e.target.value); setSudoState(null) },
+                  onKeyDown: (e) => { if (e.key === 'Enter') checkSudo() },
+                }),
+                h('button', {
+                  className: 'rt-btn',
+                  disabled: !sudoPassword || !!(sudoState && sudoState.busy),
+                  onClick: checkSudo,
+                }, sudoState && sudoState.busy ? '校验中…' : '校验'),
+                sudoPassword ? h('button', { className: 'rt-btn', onClick: clearSudo }, '清除密码') : null,
+                sudoState && sudoState.ok ? h('span', { className: 'rt-tag rt-tag-live' }, '✓ ' + sudoState.ok) : null,
+                sudoState && sudoState.err ? h('span', { className: 'rt-tag rt-tag-warn' }, '✗ ' + sudoState.err) : null) : null,
+              !host.privilege.passwordless ? h('div', { style: { fontSize: 11, opacity: 0.75, marginTop: 4 } },
+                '密码只活在**这个页面的内存**里：不写 config.json、不进日志、关掉页面就没了。'
+                + '代跑时用临时 askpass 助手（目录与脚本 0700、跑完即删）把密码喂给 sudo —— '
+                + '它不经过命令行参数，也不会出现在安装日志里。校验通过会刷新 sudo 时间戳，15 分钟内后续安装免密。') : null)
             : null) : null,
         h('div', { className: 'rt-card', style: { margin: '0 0 8px', fontSize: 12, lineHeight: 1.6 } },
           adapt.message
@@ -6215,6 +6273,10 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
               h('span', { style: { color: c.ok ? '#2e7d32' : '#c62828', minWidth: 12 } }, checkIcon(c.ok)),
               h('span', { style: { fontWeight: 600, minWidth: 132 } }, c.label),
               h('span', { style: { opacity: 0.9, wordBreak: 'break-word' } }, c.detail)))),
+          precheck.sudo && precheck.sudo.needed && !precheck.sudo.verified && !precheck.sudo.passwordless
+            ? h('div', { style: { marginTop: 6, fontSize: 11.5 } },
+              '这条要 sudo：到上面「宿主环境」卡片的密码框填一次 sudo 密码、点「校验」，再回来重新点「一键安装」就能代跑。')
+            : null,
           (precheck.blockers || []).length > 0 ? h('div', { style: { marginTop: 8, fontSize: 11.5 } },
             h('div', { style: { fontWeight: 600, marginBottom: 4 } }, '拦住安装的条件（补上再点，或直接用下面的命令自己跑）：'),
             precheck.blockers.map((b, i) => h('div', { key: 'blk_' + i, style: { marginBottom: 5 } },
@@ -6230,7 +6292,13 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
                 h('button', {
                   className: 'rt-btn', style: { fontSize: 11 },
                   onClick: () => copyText('fix_' + precheck.id + '_' + i + '_' + j, f.cmd),
-                }, copied === ('fix_' + precheck.id + '_' + i + '_' + j) ? '已复制' : '复制')))))) : null,
+                }, copied === ('fix_' + precheck.id + '_' + i + '_' + j) ? '已复制' : '复制'),
+                f.depKind ? h('button', {
+                  className: 'rt-btn rt-btn-primary', style: { fontSize: 11 },
+                  disabled: !!busyTool || !!batch,
+                  title: '直接装上这个依赖（要 sudo 会先用你填的密码校验）',
+                  onClick: () => installDep(f.depKind, f.depId),
+                }, busyTool === ('dep:' + f.depId) ? '安装中…' : '装上') : null))))) : null,
           (precheck.warnings || []).length > 0 ? h('div', { style: { marginTop: 6, fontSize: 11.5, opacity: 0.85 } },
             precheck.warnings.map((w, i) => h('div', { key: 'warn_' + i }, '提醒：' + w))) : null,
           h('details', { style: { marginTop: 6 } },

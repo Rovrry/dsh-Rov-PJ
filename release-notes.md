@@ -1,3 +1,59 @@
+# 1.0.13
+
+## 中文
+
+- 版本 **1.0.13**。
+- **新增：sudo 密码输入框。** 本机 sudo 要输密码时，apt 类工具（nmap / masscan / impacket）
+  现在也能一键装：在「宿主环境」卡片填一次密码 → 点「校验」→ 再点「一键安装」。
+  - 密码只活在**页面内存**里：不写 `config.json`、不进日志、关掉页面就没了，面板上还有「清除密码」。
+  - 代跑时用**临时 askpass 助手**（目录与脚本 0700、跑完即删）把密码喂给 sudo，
+    密码**不经过命令行参数**，也不会出现在安装日志里。
+  - 用的是 `sudo -A`（而不是 `-S` 灌 stdin）：一次安装里可能有好几条 sudo，`-S` 只喂得动第一条。
+  - 校验走 `sudo -k -v`：先作废旧时间戳再验证，所以**本机已有 sudo 时间戳时也能识破错密码**；
+    校验过会刷新时间戳，随后 15 分钟内的安装直接免密。
+  - 没填密码时行为不变：`sudo -n` 快速失败，不会挂住等输入。
+- **新增：「缺的依赖」也能一键装。** 环境检测里「缺系统命令：pipx」「缺运行环境：Java」
+  这类结论后面多了「装上」按钮，与工具安装同一套机制（sudo 密码、装完复检）。
+- **修复：两条官方资产地址已失效，导致 chisel / ksubdomain 装不上。**
+  chisel 官方发的是 `.gz`（不是 `.tar.gz`）；ksubdomain 的资产叫 `ksubdomain_linux.zip`（不带版本号）。
+  两条都已按官方 Release 的真实资产名改正，并在本机真装验证通过。
+- **修复：安装失败时的提示是错的、没法排查。** 以前不管退出码一律报「脚本跑完了但检测不到」，
+  把 `curl` 的 404 说成"跑完了"。现在按退出码给出方向：404 / 连接失败 / 超时 / 命令找不到 / 权限……
+  并附上真正的最后几行输出。
+- **新增：装前探测官方资产直链。** 点「一键安装」前先 HEAD 一次 Release 直链，
+  官方改过文件名或版本号时**在装之前**就报出来（`checks` 里多一项「官方资产直链」），
+  不再"检测通过 → 装 → 404"。
+
+## English
+
+- Version **1.0.13**.
+- **New: a sudo password field.** When sudo needs a password, apt-based tools
+  (nmap / masscan / impacket) can now be installed with one click: type the password in the
+  **Host environment** card, click **Verify**, then **Install**.
+  - The password lives **in page memory only**: never written to `config.json`, never logged,
+    gone when you close the page. There is also a **Clear password** button.
+  - It is handed to sudo through a **temporary askpass helper** (directory and script mode 0700,
+    deleted right after use). The password **never appears in argv** and never in the install log.
+  - Uses `sudo -A` rather than piping into `sudo -S`: one install can contain several sudo calls,
+    and `-S` only feeds the first one.
+  - Verification uses `sudo -k -v` — the old timestamp is invalidated first, so a wrong password is
+    caught even when a sudo timestamp already exists. A successful check refreshes the timestamp,
+    making the next 15 minutes password-free.
+  - Without a password, behaviour is unchanged: `sudo -n` fails fast instead of hanging.
+- **New: missing dependencies install with one click too.** Findings such as
+  "missing system command: pipx" or "missing runtime: Java" now carry an **Install** button that uses
+  the same machinery (sudo password, post-install re-check).
+- **Fix: two official asset URLs had gone stale, so chisel / ksubdomain could not install.**
+  chisel ships `.gz` (not `.tar.gz`), and ksubdomain's asset is `ksubdomain_linux.zip` (no version in the
+  name). Both corrected against the real release assets and verified by installing them on a real host.
+- **Fix: failure messages were misleading.** Every failure used to be reported as
+  "the script finished but the tool was not found", which turned a curl 404 into "it finished".
+  Messages are now derived from the exit code (404 / connection refused / timeout / command not found /
+  permissions) and include the real trailing output.
+- **New: the official asset URL is probed before installing.** A HEAD request runs before the install,
+  so a renamed asset or version is reported *before* anything is downloaded (a new
+  **Official asset URL** row in the precheck) instead of failing mid-install.
+
 # 1.0.12
 
 ## 中文
