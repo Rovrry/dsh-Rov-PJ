@@ -1,7 +1,7 @@
 # 二次开发注意事项
 
 > 适用对象：在本仓库上继续开发的人（含 AI 编码助手）。
-> 本仓库是 [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) 的**二次开发（fork）**，上游基线版本 **v1.1.62**（详见 README 的「上游与二次开发」）。
+> 本仓库是 [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) 的**二次开发（fork）**，上游基线版本 **v1.1.62**（详见 README 的「一、📦 项目来源」）。
 
 ---
 
@@ -35,7 +35,7 @@ node -p "require('./package.json').version"                              # 当�
    该脚本已内置针对已知改动的**定点迁移**，但**新增改动需要自己补迁移**。
 3. **新增文件没登记** → 发布包和「插件内更新」都不会带上它（见第三、七节两处登记点）。
 
-**当前开发状态（截至 v1.0.8）：**
+**当前开发状态（截至 v1.0.10）：**
 
 - 版本走 fork 自己的编号（`1.0.x`），**与上游 `1.1.x` 是两套编号，不要混淆**。
 - 上游基线固定在 **v1.1.62**，README 里已标注，不要改成上游号。
@@ -393,6 +393,9 @@ grep -rn "~/.dsh/redteam/toolkit\|/redteam/toolkit/" skills/redteam/*.md
 | 5 | 「全面浏览」开出新 dsh 页面，看不到演练台 | `window.open(同 URL + hash)` 等于在新窗口重载整个宿主，槽位没挂上 | 需要"更大视图"时用**页内状态**，不要开新窗口 |
 | 6 | 面板改动一直不生效 | 宿主读的是**已加载的** `client.js` | 装/更新后必须**重开宿主**再点「应用」 |
 | 7 | 文档链接/锚点失效 | 改了标题忘了同步锚点 | 改标题后全文搜一遍引用 |
+| 8 | 命令行卸载「提示完成」，插件文件却原地不动 | `uninstallPurge()` 只把路径收进 `report.cleanup`，真正删除交给重启助手；而助手**先等端口释放**，CLI 没有宿主可结束 → 永远等下去。GUI 路径有 `scheduleCleanupRestart(...)`，**CLI 分支漏了** | 卸载要**自己先删一遍**（`removeCleanupDirs`），残留才交给助手。见第十节 |
+| 9 | 卸载后 `dsh plugin ls` 仍列出插件 | 插件在 `package.json` 里注册**两处**：`dependencies` 和 `dsh.profile.bundles`；`ls` 读的是后者。另有 3 个 pnpm 状态文件 | 卸载要清**全部 六处**；只清 `dependencies` 不够。见第十节 |
+| 10 | 孤儿 `.dshpurge.bak` 永远清不掉 | 清理函数用了 `fsp.readdir`，但 `hostFs.promises` **只暴露 6 个方法、没有 `readdir`**；抛出的 TypeError 被 `try/catch { continue }` 静默吞掉，函数一声不响什么都没做 | **`hostFs.promises` 只有 `readFile/writeFile/mkdir/unlink/rm/copyFile`**，其余一律用同步 API。`catch { continue }` 这种写法必须自查是否吞掉了真错误 |
 
 ### 改「工具清单」的完整流程
 
@@ -415,6 +418,7 @@ npm run build:client                        # 面板里也用到清单
 - 改了**安装/打包** → 把产物下载下来**解包**，逐个确认文件真的在（别只看工作流绿了）。
 - 改了**解析/检测** → 造真实样本跑一遍，并且**做反例回归**（老用法不能被破坏）。
 - 改了**前端** → 至少把状态机抽出来在 Node 里跑一遍；能开浏览器验证最好。
+- 改了**删除/卸载** → 必须**实测删干净了没**，并**构造反例**（内容不同 / 目标缺失时**绝不能删**）。
 
 > 别用「看起来应该对」交差。本仓库历史上第 3、4 条 bug 都是「读代码觉得没问题」的类型，
 > 实跑才发现。
@@ -457,11 +461,98 @@ npm run build:client                        # 若同时改了面板
 
 ---
 
-## 十、署名与边界
+## 十、卸载与还原：机制、六处注册、以及为什么容易「假成功」
+
+> **这一节是踩坑重灾区。** 卸载类改动最容易「提示成功但没生效」，因为失败被吞掉了。
+
+### 两个方向，别搞混
+
+| 方向 | 做什么 | 入口 |
+|---|---|---|
+| **还原（revert）** | 把打过补丁的宿主文件**恢复成原版**（用旁边的 `.dshpurge.bak`） | `dsh-purge --revert` |
+| **卸载（uninstall）** | 还原 + 从 profile **摘掉注册** + **删掉插件文件** | `dsh-purge --uninstall`、GUI 卸载 |
+
+顺序是**先还原、再删文件**。这个顺序不能反：还原依赖插件自己的代码，插件目录先没了就没人还原了。
+
+### 插件在 profile 里的「六处注册」
+
+卸载必须清干净这六处，少一处就会「看起来卸载了但还在」：
+
+```sh
+# ① package.json 的 dependencies        ← 最容易清的一处
+# ② package.json 的 dsh.profile.bundles ← dsh plugin ls 读的是这里！只清①会仍被列出
+# ③ pnpm-lock.yaml
+# ④ node_modules/.modules.yaml          ← pnpm 的安装状态
+# ⑤ node_modules/.pnpm/lock.yaml
+# ⑥ node_modules/.package-map.json
+```
+
+`dsh plugin --profile web ls` 读的是 **②**。所以「`dependencies` 里没有了、`ls` 还列着」是必然现象，不是缓存。
+
+**插件文件 3 处**（这些是插件自己的，删掉不影响用户数据）：
+
+```sh
+~/.dsh/profiles/<profile>/node_modules/dsh-purge      # 插件本体
+~/.dsh/profiles/<profile>/node_modules/.bin/dsh-purge # 软链
+~/.dsh/dsh-purge                                      # 插件数据
+```
+
+**务必保留的用户数据**（不是插件文件）：
+
+```sh
+~/.dsh/redteam                  # 工具目录、config.json、用户装的红队工具
+~/.dsh/.agent-presets/redteam   # 预设，插件会从 presets/ 重新生成
+~/.dsh/prompt-inject.md         # 用户的提示词注入文件
+```
+
+### 为什么 CLI 卸载会「假成功」
+
+```js
+// lib/uninstall.js —— 修复前
+report.cleanup = collectCleanupDirs(profiles, dshHome);  // 只是【收集路径】
+return report;                                           // 然后就返回了，一个文件都没删
+```
+
+真正的删除在重启助手 `lib/uninstall-restart.js` 里，而它：
+
+1. **先等宿主端口释放**（`waitFree()`），超时就 `process.exit(1)`；
+2. 再删目录，然后重启宿主。
+
+GUI 卸载能成功，是因为宿主**自己结束了自己**，端口随即释放。而 CLI 是**另一个进程**，它没有能力结束正在跑的 `dsh web` —— 于是助手一直等，文件一直不删。
+
+**修复**（`removeCleanupDirs`）：卸载时**先立刻删一遍**，删成功的就不再依赖助手，删不掉的留在 `report.cleanup_failed` 交给助手兜底。两种入口都不会再「说完成了但文件还在」。
+
+### 孤儿备份（orphan `.dshpurge.bak`）
+
+`revertAll` 只遍历 `targetFiles(aiBase)` 里的路径。**老版本补丁集打过、新版本已移除**的文件不在清单里，它的 `.bak` 就没人管了 —— 实测在一个真实宿主上留下 5 个。
+
+清理函数 `dropOrphanBackups` 的两条硬规矩：
+
+- **只删与当前文件逐字节相同的备份。** 内容有差异 = 补丁可能还没还原 → **保留**并记进 `errors`。
+- **目标文件不存在时保留备份**，不做任何删除。
+
+扫描范围不能只取 `aiBase`：`targetFiles()` 里有 3 个目标在**兄弟命名空间** `node_modules/@earendil-works/pi-ai/...`（插件确实会打这三个文件）。所以扫描根从**真实目标路径**反推（向上找到以 `@` 开头的 scope 目录），而不是硬编码 `@earendil-works`。
+
+### 写这类代码的三条纪律
+
+1. **`catch { continue }` 是危险写法。** 第 10 条坑就是它把 `TypeError` 吞了，函数静默空转。吞异常前先确认「这里出错确实无所谓」。
+2. **`hostFs.promises` 只有 6 个方法**（`readFile` / `writeFile` / `mkdir` / `unlink` / `rm` / `copyFile`）。要 `readdir`、`statSync`、`existsSync` 等，用 `hostFs` 上的**同步**版本。
+3. **卸载/删除类改动，必须自己验证「删干净了没」**，不能只看函数返回 `ok: true`：
+
+```sh
+# 验证脚本骨架：每一条都断言，不要只看输出「完成」
+find ~/.dsh -name "*.dshpurge.bak" | wc -l          # 期望 0
+grep -c dsh-purge ~/.dsh/profiles/web/package.json  # 期望 0（两处都算）
+dsh plugin --profile web ls | grep -qi purge && echo 仍在 || echo 已清
+```
+
+---
+
+## 十一、署名与边界
 
 - 二次开发不改变版权归属：原始代码、补丁集、默认提示词、演练台设计**均归上游作者所有**（MIT 协议）。
 - 本仓库的独立版本号（`1.0.0` 起）是 fork 自己的编号，**不要**用它去覆盖或混淆上游的版本号；上游基线始终是 **v1.1.62**，README 中已固定标注。
-- 新增功能请在 README 的「上游与二次开发」章节补一句说明，保持基线可追溯。
+- 新增功能请在 README 的「一、📦 项目来源」章节补一句说明，保持基线可追溯。
 - 上游的「非盈利、禁止商业售卖与黑灰产牟利」约束同样适用于本 fork，见 README 的免责声明。
 
 ---

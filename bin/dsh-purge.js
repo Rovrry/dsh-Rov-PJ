@@ -119,13 +119,23 @@ async function main() {
     else console.log("  未检测到已应用补丁，仍会清除插件文件。");
     if (result.override?.removed) console.log(`  已删除 ${result.override.path}`);
     if (result.stripped?.length) console.log(`  已从 profile 移除: ${result.stripped.join(", ")}`);
+    for (const dir of result.cleanup || []) {
+      if ((result.cleanup_failed || []).includes(dir)) console.log(`  ⏳ 待重启后删除: ${dir}`);
+      else console.log(`  已删除 ${dir}`);
+    }
     for (const e of result.errors || []) console.log(`  ⚠ ${e}`);
     if (!result.ok) {
       console.log("  卸载中止：还原失败，插件文件未删除。");
       process.exit(1);
     }
     console.log("");
-    console.log("卸载完成。请重启 dsh。");
+    if (result.cleanup_failed && result.cleanup_failed.length) {
+      /* 有文件被占用，需要重启宿主后再删一次。 */
+      console.log("卸载完成，但有文件被占用。请重启宿主（dsh web / 桌面端）完成清理。");
+    } else {
+      /* 文件已删干净，但仍要重启：宿主进程里还留着已加载的插件代码。 */
+      console.log("卸载完成。插件文件已删除，请重启宿主（dsh web / 桌面端）使其彻底失效。");
+    }
   } else if (mode === "--edit") {
     const r = core.editOverride(state.dsh_home);
     if (!r.ok && r.needCreate) {

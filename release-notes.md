@@ -1,3 +1,79 @@
+# 1.0.10
+
+## 中文
+
+- 版本 **1.0.10**。
+- **修复：命令行卸载「提示卸载完成」，插件文件却原地不动。**
+  `uninstallPurge()` 只把待删路径收进 `report.cleanup`，真正的删除交给重启助手
+  （`lib/uninstall-restart.js`）—— 而那个助手会**先等待宿主端口释放**。
+  GUI 卸载能成功是因为宿主随后就被自己结束了；命令行卸载没有能力结束正在跑的
+  `dsh web`，助手就一直等，文件一直不删。GUI 卸载路由里有 `scheduleCleanupRestart(...)`，
+  **CLI 分支漏了这一行**。
+  现在卸载会**先立刻删一遍**：删成功的就不再依赖助手，删不掉的留在
+  `report.cleanup_failed` 交给助手兜底，命令行输出也会如实区分「已删除」与「待重启后删除」。
+- **修复：卸载后 `dsh plugin ls` 仍然列出本插件。**
+  插件在 profile 的 `package.json` 里注册在**两个地方** —— `dependencies` 和
+  `dsh.profile.bundles`，而 `dsh plugin ls` 读的是后者。只清 `dependencies` 必然仍被列出。
+  此外还有 3 个 pnpm 状态文件（`node_modules/.modules.yaml`、`node_modules/.pnpm/lock.yaml`、
+  `node_modules/.package-map.json`）会保留陈旧条目。
+- **修复：孤儿 `.dshpurge.bak` 备份永远不会被清理。**
+  `revertAll` 只遍历当前补丁清单 `targetFiles(aiBase)`，老版本补丁集打过、新版本已移除的
+  文件不在清单里，它的备份就成了孤儿（实测在一个真实宿主上留下 5 个）。
+  新增 `dropOrphanBackups` 清理它们，并守住安全边界：**只删与当前文件逐字节相同的备份**，
+  内容有差异或目标文件缺失时一律**保留**并报告，绝不误删。
+  扫描范围也从「只看补丁根」扩展到「按真实目标路径反推的兄弟命名空间」
+  （补丁集里有 3 个目标位于 `node_modules/@earendil-works/pi-ai/...`）。
+- **修复：清理函数因用错 API 而静默空转（本次最值得记的坑）。**
+  代码里用了 `fsp.readdir`，但 `fsp` 是 `hostFs.promises` —— 而它**只暴露 6 个方法**
+  （`readFile`/`writeFile`/`mkdir`/`unlink`/`rm`/`copyFile`），**没有 `readdir`**。
+  抛出的 `TypeError` 又被 `try/catch { continue }` 吞掉，函数一声不响什么都没做。
+  现改为使用 `hostFs` 的同步 API。请记住：**`catch { continue }` 必须先确认
+  「这里出错确实无所谓」**，否则它会掩盖真正的错误。
+- **文档：`docs/DEVELOPMENT.md` 新增第十节「卸载与还原」**，把上面这些固化成可查询的资料 ——
+  两个方向（还原 / 卸载）的区别、profile 的六处注册、为什么 CLI 卸载会「假成功」、
+  孤儿备份的安全边界，以及写这类代码的三条纪律。同时坑表补充第 8/9/10 条。
+- 升级提醒：本次改的是**卸载路径**。如果你此前执行过命令行卸载并发现文件残留，
+  请按下方「彻底清理」手动删除后重新安装。保留 `~/.dsh/redteam`（你的工具与配置）即可。
+
+## English
+
+- Version **1.0.10**.
+- **Fix: the CLI uninstall reported success while leaving every plugin file in place.**
+  `uninstallPurge()` only collected paths into `report.cleanup`; the actual deletion was left to the
+  restart helper (`lib/uninstall-restart.js`), which **waits for the host port to free up first**.
+  GUI uninstall works because the host then terminates itself, but the CLI cannot stop a running
+  `dsh web`, so the helper waits forever and nothing is deleted. The GUI route calls
+  `scheduleCleanupRestart(...)`; **the CLI branch never did.** Uninstall now deletes immediately:
+  whatever succeeds no longer depends on the helper, whatever fails lands in
+  `report.cleanup_failed` for the helper to retry, and the CLI prints "deleted" versus
+  "pending restart" truthfully.
+- **Fix: `dsh plugin ls` still listed the plugin after uninstall.**
+  The plugin is registered in **two** places in the profile `package.json` — `dependencies` and
+  `dsh.profile.bundles` — and `dsh plugin ls` reads the latter, so clearing only `dependencies`
+  guarantees it stays listed. Three pnpm state files (`node_modules/.modules.yaml`,
+  `node_modules/.pnpm/lock.yaml`, `node_modules/.package-map.json`) also keep stale entries.
+- **Fix: orphan `.dshpurge.bak` backups were never cleaned up.**
+  `revertAll` only walks the current patch list (`targetFiles(aiBase)`), so files patched by an older
+  patch set and since removed from the list left their backups behind (5 were found on a real host).
+  A new `dropOrphanBackups` removes them under a strict safety rule: **only backups byte-identical to
+  the current file are deleted**; differing content or a missing target means the backup is
+  **preserved** and reported, never silently removed. The scan range also widened from "the patch
+  root only" to "sibling scopes derived from the real target paths", because the patch set includes
+  three targets under `node_modules/@earendil-works/pi-ai/...`.
+- **Fix: a cleanup routine silently did nothing because it used the wrong API (the lesson of this
+  release).** It called `fsp.readdir`, but `fsp` is `hostFs.promises`, which **exposes only six
+  methods** (`readFile`/`writeFile`/`mkdir`/`unlink`/`rm`/`copyFile`) and **no `readdir`**. The
+  resulting `TypeError` was swallowed by `try/catch { continue }`, so the function quietly no-opped.
+  It now uses the synchronous `hostFs` API. Remember: **`catch { continue }` requires being sure that
+  failing here really is harmless**, otherwise it hides real errors.
+- **Docs: `docs/DEVELOPMENT.md` gains section 10, "Uninstall and revert"**, capturing the above as
+  reference material — the two directions (revert vs. uninstall), the six registrations in a profile,
+  why the CLI uninstall "succeeds falsely", the orphan-backup safety boundary, and three rules for
+  writing this kind of code. The pitfalls table gains entries 8/9/10.
+- Upgrade note: this release touches the uninstall path. If you previously ran a CLI uninstall and
+  found leftovers, remove them manually as described below and reinstall. Keep `~/.dsh/redteam`
+  (your tools and config).
+
 # 1.0.9
 
 ## 中文
