@@ -22,3 +22,6 @@ scripts/test-*.mjs
 
 # 本地接力档案（给你和助手自己看的内部交接记录，不对外发布）
 HANDOFF.md
+
+# 本地开发文档（不入库：仓库是对外发布用的，开发笔记只留本地）
+docs/DEVELOPMENT.md

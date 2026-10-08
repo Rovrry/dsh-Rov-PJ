@@ -41,14 +41,28 @@ jobs:
             echo "release-notes.md 第一行必须是 # ${version}，现在是: ${first}"
             exit 1
           fi
+
+          # 只取当前版本那一段当 Release 正文。
+          # release-notes.md 是【全量】变更日志（含 fork 之前的上游历史，共 50+ 个版本），
+          # 早先直接把它整个传进 --notes-file，导致每个 Release 页面下面都挂着
+          # 全部历史版本说明（实测 1016 行 / 87KB），体验很差。
+          # 切法：从 "# ${version}" 这一行起，到下一个 "^# " 版本标题为止，取前 N-1 行。
+          notes="release-notes-${version}.md"
+          awk -v want="# ${version}" '
+            $0 == want { capture = 1 }
+            capture && /^# / && $0 != want { exit }
+            capture { print }
+          ' release-notes.md > "$notes"
+          test -s "$notes" || { echo "切不出 ${tag} 的正文"; exit 1; }
+
           zip="dsh-purge-${version}.zip"
           if git rev-parse -q --verify "refs/tags/${tag}^{}" >/dev/null; then
             commit="$(git rev-parse "refs/tags/${tag}^{}")"
             git archive --format=zip --prefix="dsh-purge-${version}/" --output="$zip" "$commit"
-            gh release create "$tag" --title "$tag" --notes-file release-notes.md
+            gh release create "$tag" --title "$tag" --notes-file "$notes"
           else
             git archive --format=zip --prefix="dsh-purge-${version}/" --output="$zip" HEAD
-            args=(release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file release-notes.md)
+            args=(release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file "$notes")
             case "$version" in
               *beta*|*alpha*|*rc*) args+=(--prerelease) ;;
             esac

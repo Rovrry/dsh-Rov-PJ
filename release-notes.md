@@ -1,3 +1,42 @@
+# 1.0.11
+
+## 中文
+
+- 版本 **1.0.11**。
+- **修复：每个 Release 页面都挂着全部历史版本说明。**
+  发布工作流用 `--notes-file release-notes.md` 把**整份变更日志**当成本次 Release 的正文，
+  而 `release-notes.md` 是全量的（含 fork 之前的上游历史，共 50+ 个版本）。
+  结果是 v1.0.10 的 Release 正文长达 **1016 行 / 87KB、含 54 个版本标题**，
+  往下翻全是旧版本，浏览体验很差。
+  现在改为只截取**当前版本那一段**（从 `# <版本号>` 到下一个 `# ` 标题为止）作为正文。
+  已发布的 v1.0.0 ～ v1.0.10 共 10 个 Release 也都已就地修正（最大的从 1016 行降到 75 行）。
+- **开发文档不再随仓库发布。** `docs/DEVELOPMENT.md`（二次开发注意事项）已从仓库移除，
+  仅保留在本地开发者的工作副本中（已加入 `.gitignore`）。
+  该文档面向本仓库的开发者，不属于用户文档；用户在 README 的文档索引里也不再看到它。
+  原有内容未删除，本地照常可读可编辑。
+  注意：从旧版本升级上来的用户，其安装目录里可能残留一份旧的 `docs/DEVELOPMENT.md`，
+  不影响使用，可手动删除。
+- 本次两个改动都属于**发布/文档层面**，插件的运行时行为没有变化。
+
+## English
+
+- Version **1.0.11**.
+- **Fix: every Release page carried the full release history.**
+  The release workflow passed the entire changelog to `--notes-file release-notes.md`, and that file
+  is cumulative (it includes pre-fork upstream history spanning 50+ versions). The result: the v1.0.10
+  release body was **1016 lines / 87 KB with 54 version headings**, so scrolling past it meant reading
+  every older release. The workflow now extracts only the **current version's section** (from
+  `# <version>` up to the next `# ` heading). All ten already-published releases (v1.0.0 – v1.0.10)
+  were corrected in place as well — the largest went from 1016 lines to 75.
+- **The development document is no longer published with the repository.**
+  `docs/DEVELOPMENT.md` (secondary-development notes) has been removed from the repository and is
+  kept only in the local developer's working copy (added to `.gitignore`). It is written for this
+  repository's developers, not for users, and it is gone from the README documentation index.
+  Nothing was deleted — it remains readable and editable locally.
+  Note: users upgrading from an older version may still have a stale `docs/DEVELOPMENT.md` in their
+  install directory; it is harmless and can be deleted by hand.
+- Both changes are **release/documentation-level only**; plugin runtime behaviour is unchanged.
+
 # 1.0.10
 
 ## 中文
