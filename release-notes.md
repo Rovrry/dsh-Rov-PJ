@@ -1,3 +1,44 @@
+# 1.0.20
+
+## 中文
+
+- 版本 **1.0.20**。两处**没人报、但会让人白折腾**的问题，一起修了。
+- **① 「检查更新」在 GitHub 安装上查的是 npm。** 本插件是 GitHub 分发的（tag tarball），
+  代码却用 `npm view dsh-purge version` 查最新版 —— 结果是：检查永远报错（npm 上没这个包），
+  而如果那个动作真走到 `updateApply`，它会按 npm 上的**同名包**去装，等于把依赖换掉。
+  现在先认来源：`githubSourceOf()` 从 profile 依赖（或包的 `dsh.install.tarball`）解析出仓库，
+  用 `git ls-remote --tags` 取最大的 `vX.Y.Z`，面板给出**可复制的更新命令**（指向 tag tarball ——
+  URL 不可变，不会被 pnpm 缓存喂旧内容）。GitHub 安装下**不出现「一键更新并重启」**：
+  装由你自己执行（这是约定）。
+- **② 空资产库没有任何引导。** 靶标里 0 资产时，列表一片空白 —— 用户会以为"删除按钮没了"。
+  现在空列表直接写清：**没有资产 → 没有行 → 也就没有行尾的 ✕ 删**，以及资产从三处进来
+  （智能体采集 `redteam_asset_add` / 知识库导入 / HTTP 探测写入），再补一句删法。
+- **测试**：新增 `.devtests/ops-live.mjs` —— 把面板发出的 op 挨个**真跑**一遍
+  `handlePlatformOp → handleAgentsOp → handleUpdateOp → handleSkillOp → dispatchAsync` 这条链，
+  断言"有人认领"（1.0.15 的白名单事故就是这样被复现的）；`op-coverage.mjs` 补上 `dispatchAsync`
+  与"release-notes 头一行必须等于 package.json 版本"。五个测试套件全绿。
+
+## English
+
+- Version **1.0.20**. Two unreported problems that would cost the user real time, both fixed.
+- **① "Check for updates" queried npm for a GitHub-distributed plugin.** The check ran
+  `npm view dsh-purge version`; the package is shipped as GitHub tag tarballs, so the check always
+  failed — and had `updateApply` ever run, it would have installed the **unrelated same-named npm
+  package**. Now the source is detected first (`githubSourceOf()` parses the profile dependency or the
+  package's own `dsh.install.tarball`), the newest `vX.Y.Z` tag comes from `git ls-remote --tags`, and
+  the panel shows a **copyable update command** pointing at that tag's tarball (immutable URL, so pnpm
+  cannot serve stale bytes). GitHub installs no longer show "update and restart in one click" —
+  installing stays with you, as agreed.
+- **② An empty asset library gave no guidance.** With 0 assets the table was just blank, which reads as
+  "the delete button is gone". The empty state now says it plainly: **no assets → no rows → no row-level
+  ✕ 删**, lists the three ways assets arrive (agent collection via `redteam_asset_add`, knowledge-base
+  import, HTTP probing), and restates how deletion works.
+- **Tests**: new `.devtests/ops-live.mjs` actually routes every op the panel sends through
+  `handlePlatformOp → handleAgentsOp → handleUpdateOp → handleSkillOp → dispatchAsync` and asserts
+  someone claims it (this reproduces the 1.0.15 allowlist failure); `op-coverage.mjs` now also covers
+  `dispatchAsync` and asserts release-notes' first heading equals `package.json`'s version. All five
+  suites green.
+
 # 1.0.19
 
 ## 中文
