@@ -4,7 +4,7 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.0.0</strong> · 基于上游 <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62 二次开发</p>
+<p align="center"><strong>Version 1.0.1</strong> · 基于上游 <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62 二次开发</p>
 
 > [!IMPORTANT]
 > ## 🔀 二次开发声明
@@ -36,8 +36,75 @@
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> | <a href="README.zh-CN.md">中文</a>
+  <strong>中文</strong>（当前） | <a href="README.en.md">English</a> | <a href="README.zh-CN.md">中文副本</a>
 </p>
+
+---
+
+## 📦 上游仓库
+
+> 本仓库是**二次开发（fork）**，不是原创项目。原始代码与全部功能设计均归上游作者所有。
+
+| 项目 | 地址 / 版本 |
+|---|---|
+| **上游仓库** | **<https://github.com/YuJunZhiXue/dsh-purge>** |
+| 上游作者 | [YuJunZhiXue](https://github.com/YuJunZhiXue) |
+| **本 fork 基于的上游版本** | **v1.1.62** |
+| 本仓库（你现在看的） | <https://github.com/Rovrry/dsh-Rov-PJ> |
+| 本仓库独立版本号 | 从 **1.0.0** 起，与上游版本号无关 |
+| 上游协议 | MIT |
+
+- 上游代码、补丁集、默认提示词、演练台设计**均归上游作者所有**。
+- 本 fork 只做二次开发改动；属于上游本身的问题，请优先反馈给上游。
+- 更完整的归属说明见 [上游与二次开发](#上游与二次开发)。
+
+---
+
+## ⚠️ 安装必读
+
+装之前请先看完这四条，能避免绝大多数安装失败。
+
+1. **只装你正在打开的那一个宿主。** 官方 `dsh web` 用 `web` profile，官方桌面 EXE 用 `desktop` profile，**分开装、分开应用**，不要混用。
+2. **必须是 dsh 0.2。** 官方桌面版为 **0.2.0-rc.2**。**0.1.x 不支持**；宿主版本对不上时，原文会显示待应用或跳过，不会乱改文件。
+3. **装完必须点一次「应用」。** 只把插件写进 profile **还不会**改到 `@deepseek-ai`。正确顺序是：
+   1. 退出并重新打开刚装的那个宿主；
+   2. 点会话标题旁的 **dsh-purge**，在右侧栏 **清洗** 页点 **「应用」**；
+   3. 成功后会自动重启一次；重启完成后**新开一轮对话**，注入才进入当前会话。
+4. **不要用插件市场的一键安装。** 市场页（[DeepSeek Harness Hub](https://deepseek.stream/plugins/dsh-purge)）只看介绍即可；一键安装走的 git 地址会在 `git ls-remote` 失败，其后的 allowBuilds 提示与本包无关（本包没有 `prepare` 脚本）。**请用下面的 `.tar.gz` 命令安装。**
+
+```sh
+# 官方 dsh web
+dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
+
+# 官方桌面 EXE
+dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
+```
+
+其他情况（`dsh` 不在 PATH、目录已在仓库内、无 git 环境的手动安装）见 [安装](#安装) 全章。
+
+---
+
+## 🚀 快速开始
+
+```sh
+# 1. 安装（选你正在用的宿主，二选一）
+dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
+
+# 2. 退出并重新打开宿主，然后点会话标题旁的 dsh-purge
+# 3. 在右侧栏「清洗」页点「应用」——会自动重启一次
+# 4. 重启后新开一轮对话即可生效
+```
+
+点开 **dsh-purge** 后有左右两个页签：
+
+| 页签 | 用途 |
+|---|---|
+| **清洗** | 查看补丁状态，应用 / 还原 / 卸载，编辑提示词与规则集 |
+| **演练台** | 授权后查看资产、技能和本机环境（仅限你有权管理的本机、离线靶标或已书面授权的演练） |
+
+装完发现没有效果，多半是漏了第 3 步「应用」。遇到问题先看 [安装](#安装) 与 [说明](#说明)。
+
+---
 
 > **当前只适配 DeepSeek Harness 0.2**（官方桌面 **0.2.0-rc.2**）。**不支持 0.1.x。** 其它宿主版本对不上的原文会显示待应用或跳过，不会乱改文件。
 >
@@ -49,6 +116,9 @@
 
 ## 目录
 
+- [上游仓库](#-上游仓库)
+- [安装必读](#️-安装必读)
+- [快速开始](#-快速开始)
 - [介绍](#介绍)
 - [上游与二次开发](#上游与二次开发)
 - [署名要求](#署名要求)
@@ -229,13 +299,13 @@ dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/re
 <p align="center">
   <a href="https://deepseek.stream/plugins/dsh-purge"><strong>🌐 打开插件市场页</strong></a>
   &nbsp;·&nbsp;
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>🚀 唤起客户端一键安装</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.1&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>🚀 唤起客户端一键安装</strong></a>
 </p>
 
 🔗 **原生协议链接：**
 
 ```
-dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz
+dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.1&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz
 ```
 
 <details>
@@ -270,7 +340,7 @@ export function installDshPurgeToDesktop() {
 **HTML 静态链接方式：**
 
 ```html
-<a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz">
+<a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.1&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz">
   🚀 唤起客户端一键安装
 </a>
 ```
@@ -659,8 +729,9 @@ dsh-purge/
 ├── package.json
 ├── screenshots.json
 ├── LICENSE
-├── README.md
-└── README.zh-CN.md
+├── README.md            # 中文（主，仓库首页）
+├── README.en.md         # English
+└── README.zh-CN.md      # 中文副本
 ```
 
 运行时用户文件：`$DSH_HOME/prompt-inject.md`、`$DSH_HOME/rules/`、`$DSH_HOME/skills/`、`$DSH_HOME/net-scope-allow.txt`。未设 `DSH_HOME` 时，优先用 dsh 安装目录旁边的 `.dsh`，再退回 `~/.dsh`。Skill 不进 `dsh-purge` 注入段，也不顶替提示词。

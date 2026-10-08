@@ -1,8 +1,38 @@
+# 1.0.1
+
+## 中文
+
+- 版本 **1.0.1**。
+- **README 改为中文优先**：仓库首页默认显示中文，英文版移至 `README.en.md`。
+- README 顶部新增「上游仓库」与「安装必读」两块，安装步骤提到显眼位置。
+- README 补全安装注意事项：装完必须点「应用」、Web 与桌面端分开装、不要用插件市场一键安装。
+- 修正 README 一键安装按钮与深链的仓库地址（原先指向上游，会装成上游版本），并同步 `version` 参数。
+- **演练台前端优化**：服务/端口筛选加 300ms 输入防抖；漏洞列表拆分加载并补竞态保护；
+  面板拖拽改用 requestAnimationFrame 节流。
+- 修正演练台「复制 URL」按钮实际复制的是 curl 命令的问题，拆为「复制 URL」与「复制 curl」。
+- 更新弹窗支持 Esc 关闭，补充 `role="dialog"` 等无障碍属性。
+
+## English
+
+- Version **1.0.1**.
+- **README is now Chinese-first**: the repo landing page shows Chinese; the English
+  version moved to `README.en.md`.
+- Added "Upstream repository" and "Read before installing" blocks near the top of the README.
+- Documented install caveats: you must click Apply after installing, Web and desktop are
+  installed separately, and the Hub one-click install must not be used.
+- Fixed the README one-click install button and deep link, which pointed at the upstream repository, and synced the `version` parameter.
+- **Drill console frontend work**: 300ms debounce on the service/port filters; the vuln list
+  now loads in two parts with a stale-response guard; panel dragging is rAF-throttled.
+- Fixed the "Copy URL" button, which actually copied a curl command; it is now split into
+  "Copy URL" and "Copy curl".
+- The update dialog closes on Escape and has proper `role="dialog"` attributes.
+
 # 1.0.0
 
 ## 中文
 
-- 版本 **1.1.62**。
+- 本 fork 起点：基于上游 **1.1.62** 源码快照建立，版本号独立编为 1.0.0。
+- 上游 1.1.62 的内容：
 - 继续/重试重新打开。
 - 锚点门：首轮输出上限 1024→8192，最多 2 步；已调工具即放开，英文思考过不了 we 锚也不再卡住。
 - 已有预设的锚点配置与包内不一致时同步，不整份覆盖。

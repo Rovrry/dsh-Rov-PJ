@@ -40,7 +40,33 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
 
 ---
 
-## 二、构建脚本
+## 二、README 的三个文件（改文档必看）
+
+仓库首页（GitHub 落地页）显示的是 **`README.md`，内容为中文**。三个文件的分工：
+
+| 文件 | 语言 | 作用 |
+|---|---|---|
+| **`README.md`** | 中文 | **主文档**，仓库首页显示的就是它 |
+| `README.en.md` | 英文 | 英文版 |
+| `README.zh-CN.md` | 中文 | `README.md` 的**兼容副本**，为旧链接保留 |
+
+**维护规则：**
+
+1. `README.md` 与 `README.zh-CN.md` 必须**内容完全一致**，改完主文档后同步：
+   ```bash
+   cp README.md README.zh-CN.md
+   ```
+2. 改动主文档的**章节标题**时，同步更新「目录」里的锚点，以及文中指向该章节的链接。
+3. 三个文件的 `<strong>Version X.Y.Z</strong>` 展示版本号要一起改（发布新版本时）。
+4. 新增 README 文件时，记得同时登记到两处，否则发布/更新会漏掉它：
+   - `package.json` 的 `files` 数组
+   - `lib/update.js` 的 `COPY_NAMES` 数组
+
+> 漏登记的后果：`release.yml` 打出的包和客户端「更新」拉取的内容里不会有该文件。
+
+---
+
+## 三、构建脚本
 
 | 命令 | 作用 | 注意 |
 |---|---|---|
@@ -67,7 +93,7 @@ patch-client-dock.mjs   →   build-client.mjs
 
 ---
 
-## 三、版本号与发版
+## 四、版本号与发版
 
 版本号不是随便写的，**它同时是「检查更新」的触发信号和发布流程的开关**。
 
@@ -101,7 +127,7 @@ const STABLE_REF = "master";
 
 ---
 
-## 四、不要改的文件
+## 五、不要改的文件
 
 | 文件 | 原因 |
 |---|---|
@@ -113,7 +139,7 @@ const STABLE_REF = "master";
 
 ---
 
-## 五、提交前自检
+## 六、提交前自检
 
 ```bash
 node --check client.js            # 前端语法
@@ -131,7 +157,7 @@ grep -n "__DSH_PURGE_DRILL_BEGIN__\|__DSH_PURGE_DRILL_END__" client.js
 
 ---
 
-## 六、署名与边界
+## 七、署名与边界
 
 - 二次开发不改变版权归属：原始代码、补丁集、默认提示词、演练台设计**均归上游作者所有**（MIT 协议）。
 - 本仓库的独立版本号（`1.0.0` 起）是 fork 自己的编号，**不要**用它去覆盖或混淆上游的版本号；上游基线始终是 **v1.1.62**，README 中已固定标注。

@@ -2,26 +2,26 @@
   <img src="docs/banner.svg" alt="dsh-purge" width="720">
 </p>
 
-<h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
+<h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.0.0</strong> · based on upstream <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62</p>
+<p align="center"><strong>Version 1.0.1</strong> · 基于上游 <a href="https://github.com/YuJunZhiXue/dsh-purge">YuJunZhiXue/dsh-purge</a> v1.1.62 二次开发</p>
 
 > [!IMPORTANT]
-> ## 🔀 Secondary development notice
+> ## 🔀 二次开发声明
 >
-> **This repository ([Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ)) is a secondary development (fork) of [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge), based on upstream version `1.1.62`.**
+> **本仓库（[Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ)）是对 [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) 的二次开发（fork），基于上游版本 `1.1.62`。**
 >
-> - **Upstream project**: <https://github.com/YuJunZhiXue/dsh-purge> — author **YuJunZhiXue**
-> - **Upstream baseline**: **`v1.1.62`** (commit the fork started from), **MIT license**
-> - **This repository**: <https://github.com/Rovrry/dsh-Rov-PJ> — maintained by **Rovrry** for secondary development
-> - **Fork changes**: version, packaging and docs are rewritten here; the code and all feature design belong to the upstream author
-> - **Bug attribution**: bugs in upstream code, patches and default prompts belong to upstream; bugs from this fork's changes belong to this repository
-> - **Upstream first**: if a bug or improvement also affects upstream, please file it upstream — do not report it here as an upstream defect
+> - **上游项目**：<https://github.com/YuJunZhiXue/dsh-purge>，作者 **YuJunZhiXue**
+> - **上游基线版本**：**`v1.1.62`**（本 fork 的起点提交），**MIT 协议**
+> - **本仓库**：<https://github.com/Rovrry/dsh-Rov-PJ>，由 **Rovrry** 维护，用于二次开发
+> - **改动范围**：本仓库仅改动版本号、打包与文档，代码与全部功能设计均归上游作者所有
+> - **问题归属**：上游代码、补丁与默认提示词的问题请反馈给上游；本 fork 自身改动引入的问题由本仓库负责
+> - **上游优先**：若缺陷或改进同样影响上游，请优先向上游提 issue，不要在本仓库当作上游问题上报
 >
-> Full credit for the original work goes to the upstream author. See [Attribution required](#attribution-required) below.
+> 原项目版权与全部荣誉归上游作者所有。详见下方 [署名要求](#署名要求)。
 
 <p align="center">
-  <em>Local official DeepSeek Harness cybersecurity red-team plugin. Clean host policy, and ship a built-in drill console. Swap prompts per model. Default prompt for Chinese models — 小码酱. Please star ⭐</em>
+  <em>本机官方 DeepSeek Harness 网络安全红队评测插件。清洗宿主策略，并带内嵌演练台。不同模型可换不同提示词。默认提示词面向国模「小码酱」。求 Star 收藏 ⭐</em>
 </p>
 
 <p align="center">
@@ -36,82 +36,152 @@
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> | <a href="README.zh-CN.md">中文</a>
+  <strong>中文</strong>（当前） | <a href="README.en.md">English</a> | <a href="README.zh-CN.md">中文副本</a>
 </p>
 
-> **Current support is DeepSeek Harness 0.2 only** (official desktop **0.2.0-rc.2**). **0.1.x is not supported.** On other host versions, unmatched originals stay pending or skipped. Nothing is rewritten blindly.
->
-> **Apply writes the prompt and patches, then restarts the host automatically.** After the host comes back, start a new chat — that is when the inject enters the session. If Apply fails (for example patches did not all apply), it does not restart.
->
-> Node.js **≥18**; Windows no-flash import hooks need **Node ≥22** `registerHooks`, older Node still gets file-level `windowsHide` patches. After install, click **Apply** once (a successful Apply restarts for you).
->
-> The Hub page is for reading only: [DeepSeek Harness Hub](https://deepseek.stream/plugins/dsh-purge). Do not use the Hub one-click install, and do not install via `deepseek.stream/api/plugins/download?...`. Hub one-click runs `git+https://github.com/yujunzhixue/dsh-purge.git`, which fails at `git ls-remote`. The allowBuilds hint after that does not apply: this package has no `prepare` script. Install with the `.tar.gz` command below.
+---
 
-## Contents
+## 📦 上游仓库
 
-- [What this is](#what-this-is)
-- [Upstream and secondary development](#upstream-and-secondary-development)
-- [Attribution required](#attribution-required)
-- [Supported hosts](#supported-hosts)
-- [Install](#install)
-- [Preview](#preview)
-- [Usage](#usage)
-- [Own servers](#own-servers)
-- [How it works](#how-it-works)
-- [Restore](#restore)
-- [Releases](#releases)
+> 本仓库是**二次开发（fork）**，不是原创项目。原始代码与全部功能设计均归上游作者所有。
+
+| 项目 | 地址 / 版本 |
+|---|---|
+| **上游仓库** | **<https://github.com/YuJunZhiXue/dsh-purge>** |
+| 上游作者 | [YuJunZhiXue](https://github.com/YuJunZhiXue) |
+| **本 fork 基于的上游版本** | **v1.1.62** |
+| 本仓库（你现在看的） | <https://github.com/Rovrry/dsh-Rov-PJ> |
+| 本仓库独立版本号 | 从 **1.0.0** 起，与上游版本号无关 |
+| 上游协议 | MIT |
+
+- 上游代码、补丁集、默认提示词、演练台设计**均归上游作者所有**。
+- 本 fork 只做二次开发改动；属于上游本身的问题，请优先反馈给上游。
+- 更完整的归属说明见 [上游与二次开发](#上游与二次开发)。
 
 ---
 
-## What this is
+## ⚠️ 安装必读
 
-**dsh-purge** is a cybersecurity red-team plugin for the official [DeepSeek Harness](https://www.deepseek.com/harness/) already installed on your machine.
+装之前请先看完这四条，能避免绝大多数安装失败。
 
-Harness does more than forward a prompt. It rewrites prompts, approval gates, sandbox policy, and session migration at runtime. Asking only “will the model answer” treats a host-layer block as a model refusal. This plugin separates those two layers on your own install, for controlled evaluation and for seeing which default policy is too tight.
+1. **只装你正在打开的那一个宿主。** 官方 `dsh web` 用 `web` profile，官方桌面 EXE 用 `desktop` profile，**分开装、分开应用**，不要混用。
+2. **必须是 dsh 0.2。** 官方桌面版为 **0.2.0-rc.2**。**0.1.x 不支持**；宿主版本对不上时，原文会显示待应用或跳过，不会乱改文件。
+3. **装完必须点一次「应用」。** 只把插件写进 profile **还不会**改到 `@deepseek-ai`。正确顺序是：
+   1. 退出并重新打开刚装的那个宿主；
+   2. 点会话标题旁的 **dsh-purge**，在右侧栏 **清洗** 页点 **「应用」**；
+   3. 成功后会自动重启一次；重启完成后**新开一轮对话**，注入才进入当前会话。
+4. **不要用插件市场的一键安装。** 市场页（[DeepSeek Harness Hub](https://deepseek.stream/plugins/dsh-purge)）只看介绍即可；一键安装走的 git 地址会在 `git ls-remote` 失败，其后的 allowBuilds 提示与本包无关（本包没有 `prepare` 脚本）。**请用下面的 `.tar.gz` 命令安装。**
 
-| You get | What it does |
-|---|---|
-| **dsh-purge dock** | A button beside the session title opens the right dock. Two pages: Clean and Drill |
-| **Clean** | Grouped patch status, Apply / Restore / Uninstall, prompt editor, multiple rule sets |
-| **Drill** | Built into the stable release. After authorization: assets, skills, and the local environment. Only for a host you manage, an offline target, or a written authorized exercise |
-| **Host policy** | Default copy, permission policy, and tool limits. Official capabilities stay. No second invented identity |
-| **On start** | Checks and reapplies. After npm overwrites `node_modules`, you do not hand-edit files |
+```sh
+# 官方 dsh web
+dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 
-No hardcoded drive letters. It looks at `$DSH_HOME`, `.dsh` next to the dsh launcher, then `~/.dsh`. It does not patch the Harness source tree. **Apply** on the **Clean** page of **dsh-purge** is what writes the changes. Identity comes from the encrypted prompt shipped in the plugin, the text the prompt box shows by default. The host prompt file is not read.
+# 官方桌面 EXE
+dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
+```
 
-It only touches the official `@deepseek-ai` packages and local config on the user's machine. It is not a public scanner and not an attack kit for third-party sites. The repo does not ship malware, unauthorized-exploit scripts, or payloads aimed at the public internet.
+其他情况（`dsh` 不在 PATH、目录已在仓库内、无 git 环境的手动安装）见 [安装](#安装) 全章。
 
 ---
 
-## Non-profit public project. Commercial sale, paid resale, and profit from illegal or gray-market activity are forbidden. For technical reference only.
+## 🚀 快速开始
 
-## Upstream and secondary development
+```sh
+# 1. 安装（选你正在用的宿主，二选一）
+dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 
-This repository is **a secondary development (fork) based on upstream version `1.1.62`**, not an original project.
+# 2. 退出并重新打开宿主，然后点会话标题旁的 dsh-purge
+# 3. 在右侧栏「清洗」页点「应用」——会自动重启一次
+# 4. 重启后新开一轮对话即可生效
+```
 
-| Item | Value |
+点开 **dsh-purge** 后有左右两个页签：
+
+| 页签 | 用途 |
 |---|---|
-| Upstream project | [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) |
-| Upstream author | YuJunZhiXue |
-| **Upstream version this fork is based on** | **`1.1.62`** |
-| Upstream license | MIT |
-| This repository | [Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ) |
-| Fork maintainer | Rovrry |
-| Fork purpose | Local secondary development, evaluation and customization |
+| **清洗** | 查看补丁状态，应用 / 还原 / 卸载，编辑提示词与规则集 |
+| **演练台** | 授权后查看资产、技能和本机环境（仅限你有权管理的本机、离线靶标或已书面授权的演练） |
 
-**Scope of credit:**
+装完发现没有效果，多半是漏了第 3 步「应用」。遇到问题先看 [安装](#安装) 与 [说明](#说明)。
 
-- The original code, patch set, default prompt, drill console, and overall design all come from the upstream author.
-- This fork only carries secondary-development changes on top of the `1.1.62` baseline (version strings, packaging, docs, and later fork features).
-- Upstream fixes pulled in later will be noted here, so the baseline version stays honest.
+---
 
-> 📘 **Before developing on this repository, read [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** — it covers which code is generated (hand edits get overwritten), the build scripts, the release steps, and the files you must not touch.
+> **当前只适配 DeepSeek Harness 0.2**（官方桌面 **0.2.0-rc.2**）。**不支持 0.1.x。** 其它宿主版本对不上的原文会显示待应用或跳过，不会乱改文件。
+>
+> **点「应用」会写入提示词和补丁，并自动重启宿主。** 重启完成后新开一轮对话，注入才进当前会话。若应用失败（例如补丁未全部打上），不会自动重启。
+>
+> Node.js **≥18**；Windows 无闪窗需要 **Node ≥22** 的 `registerHooks`，更低版本仍用文件级 `windowsHide`。装完要点一次 **应用**（成功后会自动重启）。
+>
+> 插件市场页只看介绍：[DeepSeek Harness Hub](https://deepseek.stream/plugins/dsh-purge)。不要用市场里的一键安装，也不要用 `deepseek.stream/api/plugins/download?...`。市场一键走的是 `git+https://github.com/yujunzhixue/dsh-purge.git`，会在 `git ls-remote` 失败；后面的 allowBuilds 提示对不上，这个包没有 `prepare` 脚本。安装用下面的 `.tar.gz` 命令。
 
-## Attribution required
+## 目录
 
-**If you borrow this project's name, ideas, code, or prompts, you must credit the author and name the source repository:** [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge).
+- [上游仓库](#-上游仓库)
+- [安装必读](#️-安装必读)
+- [快速开始](#-快速开始)
+- [介绍](#介绍)
+- [上游与二次开发](#上游与二次开发)
+- [署名要求](#署名要求)
+- [适配范围](#适配范围)
+- [安装](#安装)
+- [界面](#界面预览)
+- [使用](#使用)
+- [自己的服务器](#自己的服务器)
+- [工作原理](#工作原理)
+- [还原](#还原)
+- [更新](#更新)
 
-Using them without attribution, hiding the source, or passing them off as your own will be pursued.
+---
+
+## 介绍
+
+**dsh-purge** 是装在本机官方 [DeepSeek Harness](https://www.deepseek.com/harness/) 上的网络安全红队评测插件。
+
+Harness 不只是把问题交给模型。它还会在运行时改提示词、审批门、沙箱和会话格式。只看「模型答不答」，会把宿主拦截误当成模型拒绝。这个插件在你自己的安装里把这两层分开，用来做受控评测，也用来看默认策略该不该收紧。
+
+| 你会用到 | 它做什么 |
+|---|---|
+| **dsh-purge 侧栏** | 会话标题旁的按钮打开右侧栏。里面两页：清洗、演练台 |
+| **清洗** | 分组查看补丁，应用、还原、卸载；编辑提示词和多套规则 |
+| **演练台** | 正式版内置。授权后查看资产、技能和本机环境。只用于你有权管理的本机、离线靶标或已书面授权的演练 |
+| **宿主策略** | 调整默认文案、权限策略和工具上限。官方能力保留，不另写一套身份 |
+| **启动时** | 自动再检查并应用。npm 升级盖掉 `node_modules` 之后不用手改文件 |
+
+不写死盘符。按 `$DSH_HOME`、dsh 启动器旁边的 `.dsh`，再退回 `~/.dsh`。不改 Harness 源码仓库，在 **dsh-purge** 的「清洗」里点「应用」才写入。身份来自插件里的加密提示词，也就是提示词框默认显示的那一份。不读取宿主磁盘上的提示词文件。
+
+本插件只处理使用者本机已安装的官方 `@deepseek-ai` 包和本机配置。它不是公网扫描器，也不是针对第三方站点的攻击套件。仓库内不含木马、未授权渗透脚本或对外攻击载荷。
+
+---
+
+## 📌 非盈利公益项目，严禁任何主体用于商业售卖、付费倒卖或黑灰产牟利，仅供技术参考。
+
+## 上游与二次开发
+
+本仓库是**基于上游版本 `1.1.62` 的二次开发（fork）**，不是原创项目。
+
+| 项目 | 内容 |
+|---|---|
+| 上游项目 | [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge) |
+| 上游作者 | YuJunZhiXue |
+| **本 fork 基于的上游版本** | **`1.1.62`** |
+| 上游协议 | MIT |
+| 本仓库 | [Rovrry/dsh-Rov-PJ](https://github.com/Rovrry/dsh-Rov-PJ) |
+| 二次开发维护者 | Rovrry |
+| 二次开发目的 | 在本机做二次开发、评测与定制 |
+
+**署名与归属说明：**
+
+- 原始代码、补丁集、默认提示词、演练台以及整体设计，均来自上游作者。
+- 本 fork 只在上游 `1.1.62` 基线上做二次开发改动（版本号、打包、文档，以及后续的本 fork 功能）。
+- 后续若同步上游修复，会在此处注明，保证基线版本可追溯。
+
+> 📘 **要在这个仓库上继续开发，请先读 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**：里面写了哪段代码是生成物（手改会丢）、构建脚本、发版步骤和不要动的文件。
+
+## 署名要求
+
+**借用本项目的名称、思路、代码或提示词，必须署名，并写明来源仓库：** [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge)。
+
+不署名、隐瞒来源、改头换面据为己有，作者将依法追究责任。
 
 ---
 
@@ -119,33 +189,33 @@ Using them without attribution, hiding the source, or passing them off as your o
 
 <div>
 
-### ⚠️ <font color="red">Strict legal and compliance disclaimer</font>
+### ⚠️ <font color="red">严正法律免责与合规使用声明</font>
 
 <font color="red">
 
-**Disclaimer:** This is a non-profit open-source project. It follows applicable laws and the rules of the platforms it uses, and is intended only for learning and research. Do not use it for any illegal or non-compliant purpose; the user bears any resulting consequences.
+**免责声明：** 本项目为非营利开源项目，遵守国家法律法规及所在平台的相关规范，仅供学习与研究使用。不得将本项目用于任何违法违规用途；由此产生的后果由使用者自行承担。
 
-**Zero-tolerance statement:** This project opposes and forbids any illegal activity. The authors do not support, encourage, or assist unauthorized network attacks, exploit use, data theft, unlawful intrusion into computer information systems, or generation of illegal or prohibited content. **Anyone who uses this project for crime is solely responsible under the law. The authors have no liability.**
+**【零容忍严正申明】**：本项目坚决反对并严禁任何形式的违法犯罪行为！本项目开发者绝不支持、不鼓励、不协助任何未授权网络攻击、漏洞利用、数据窃取、非法侵入计算机信息系统或生成违法违禁内容的活动。**任何将本项目用于违法犯罪的行为，均与开发者无关，由行为人依法独立承担全部法律责任。**
 
-1. **This repository contains no illegal material.** The published code, docs, patches, and default prompt are **not** malware, backdoors, unauthorized pentest kits, ransomware, credential-stuffing scripts, or attack payloads aimed at the public internet or third-party systems. The project does not supply illegal content and does not incite, organize, or assist crime.
-2. **Local official Harness only.** Security-eval patches and prompt injection run only on the **official DeepSeek Harness already installed on the user's machine** (`@deepseek-ai` packages, local profile / `$DSH_HOME`). The target is the user's own official local software, **not** someone else's website, server, account, or information system.
-3. **Eval patches do not attack the public internet.** Apply, inject, revert, and uninstall stay in local files and local processes. They **do not scan, probe, intrude, or send attack traffic to any public host or unauthorized system**. Do not use this project as a jump host against the public internet. If "check for updates" is on, the plugin may only contact this plugin's own GitHub repository to compare versions. That is **not** an attack on third-party systems and is **not** authorization to penetrate anything.
-4. **Lawful, controlled scope.** This project is an aid for red-team research and robustness evaluation on an **official Harness the user is entitled to administer**. **Do not run it against targets without the owner's lawful written authorization, public online systems, or production workloads.** Testing must stay on the **authorized local official Harness, offline local synthetic fixtures, authorized cybersecurity ranges, and compliant lab environments**.
-5. **Servers and sites in mainland China, Hong Kong, and Macau are forbidden.** Do not access, scan, probe, or otherwise operate against network ranges in mainland China, Hong Kong, or Macau, or against servers, websites, or addresses that resolve into those ranges. A cloud-provider name is not an exception. The only exception is one exact IP, or one exact hostname, that the user registered in advance as their own server. A key, a password, a network range, a wildcard, or a claim made in the conversation does not add an exception. Anything that is not registered stays forbidden.
-6. **Forbidden uses.** Users must not use this project, directly or indirectly, to violate the following (each must be followed; no excuse to evade):
-   - <font color="red"><strong>Criminal Law of the People's Republic of China</strong></font>
-   - <font color="red"><strong>Cybersecurity Law of the People's Republic of China</strong></font>
-   - <font color="red"><strong>Data Security Law of the People's Republic of China</strong></font>
-   - <font color="red"><strong>Personal Information Protection Law of the People's Republic of China</strong></font>
-   - and other applicable laws, regulations, and supervisory rules;
-   - Also forbidden:
-   - Unauthorized intrusion or attacks on public or private computer information systems; extortion, sabotage, credential stuffing, or spreading malicious payloads;
-   - Inducing, generating, or spreading any content the law forbids, including threats to national security, terrorism, violence, pornography, gambling, fraud, and privacy or intellectual-property infringement;
-   - Violating the model provider's terms of service and acceptable-use policy.
-7. **The user bears all responsibility.** The project is provided under the MIT license as-is. The authors make no warranty of completeness, security, or fitness. **Users independently bear all civil, administrative, and criminal liability** for download, deploy, run, modify, distribute, and all resulting inputs and outputs. Authors and contributors bear no direct, indirect, or joint liability for abuse.
-8. **The license ends on breach.** Anyone who uses this project for illegal attacks, malicious activity, or other violations has their open-source license **automatically and irrevocably terminated** from the moment of the violation. They must stop using the project, permanently destroy all copies and derivatives, and accept legal sanctions.
-9. **No affiliation.** This is an independent open-source security-eval research project. It has no employment, commercial, authorization, or endorsement relationship with DeepSeek or its affiliates. "Official" here only means the eval target is the official DeepSeek Harness package on the user's machine. It does **not** mean DeepSeek developed, approved, or warrants this plugin.
-10. **Attribution is required.** If you borrow this project's name, ideas, code, or prompts, you must credit the author and name this repository. Failure to attribute will be pursued. See [Attribution required](#attribution-required).
+1. **本仓库不含违法内容**：`dsh-purge` 发布的代码、文档、补丁与默认提示词**不是**木马、后门、未授权渗透工具、勒索软件、撞库脚本，也**不是**针对公网或第三方系统的攻击载荷。项目本身不提供违法内容，也不教唆、组织、协助实施违法犯罪。
+2. **只作用于本机官方 Harness**：安全评测补丁、提示词注入全部发生在使用者**本机已安装的官方 DeepSeek Harness**（`@deepseek-ai` 包、本机 profile / `$DSH_HOME`）上。对象是使用者自己的官方本地软件，**不是**他人的网站、服务器、账号或信息系统。
+3. **评测补丁不对外网目标联网**：应用补丁、写入注入、回滚、卸载均在本机文件与本机进程内完成，**不对任何公网主机、未授权系统进行扫描、探测、入侵或攻击发包**。不得把本项目当作跳板去打外网。插件若开启「检测更新」，仅可能访问本插件自己的 GitHub 仓库以核对版本，**与对第三方系统的网络攻击无关**，也不能被解释为授权对外渗透。
+4. **合法受控范围限定**：本项目定位为使用者在**自己有权管理的本机官方 Harness**上，进行红队科研与鲁棒性评测的辅助工具。**严禁在未经所有者合法书面授权的目标、公网在线系统或生产业务上运行本项目**。一切测试必须限制在**本机已授权安装的官方 Harness、离线本地合成靶标、授权网络安全演练靶场及合规实验室受控环境**中进行。
+5. **禁止中国大陆、香港、澳门的服务器与网站。** 不得对中国大陆、香港、澳门网段，以及解析进这些网段的服务器、网站或地址进行访问、扫描、探测或任何操作。云厂商的名字不能当作例外。唯一例外是使用者事先登记为自己的服务器的那一个确切 IP，或那一个完整主机名。密钥、密码、网段、通配符，以及对话里的口头说明，都不能增加例外。没有登记的，一律禁止。
+6. **严禁违法与违禁用途**：使用者严禁利用本项目直接或间接从事任何违反下列法律法规的行为（必须逐条遵守，不得以任何理由规避）：
+   - <font color="red"><strong>《中华人民共和国刑法》</strong></font>
+   - <font color="red"><strong>《中华人民共和国网络安全法》</strong></font>
+   - <font color="red"><strong>《中华人民共和国数据安全法》</strong></font>
+   - <font color="red"><strong>《中华人民共和国个人信息保护法》</strong></font>
+   - 以及其他现行有效的法律、行政法规与监管规定；
+   - 同时严禁：
+   - 未经授权渗透、攻击公私机构计算机信息系统，实施勒索、破坏、撞库或传播恶意载荷；
+   - 诱导、生成或传播危害国家安全、恐怖主义、暴力血腥、涉黄涉赌、诈骗、侵犯公民隐私或知识产权等任何法律明令禁止的违法违禁内容；
+   - 违反相关大模型提供商的《服务条款》与《滥用政策》。
+7. **使用者独立承担全部责任**：本项目依据 MIT 开源协议“按现状”提供，开发者不对软件的完整性、安全性与适用性作任何明示或暗示的保证。**使用者应对自身的所有下载、部署、运行、修改、传播行为以及由此产生的全部输入与输出后果承担独立、完全的民事、行政及刑事法律责任**。项目作者与贡献团队绝不承担任何因使用者滥用导致的直接、间接或连带责任。
+8. **违约即终止授权**：任何将本项目用于非法攻击、恶意活动或违规行为的个人或实体，其开源软件使用许可将自违法违规行为发生之日起**自动且不可撤销地立即终止**。该主体须立即停止使用并永久销毁本项目的所有代码、脚本与衍生数据，并依法承担相应法律制裁。
+9. **第三方独立性声明**：本项目属于完全独立的开源安全评测研究项目，与 DeepSeek 官方或其关联主体无任何隶属、商业合作、授权或官方背书关系。文中「官方」仅指评测对象为使用者本机安装的官方 DeepSeek Harness 软件包，**不代表** DeepSeek 官方开发、认可或担保本插件。
+10. **必须署名**：借用本项目的名称、思路、代码或提示词，必须署名并标明本仓库。不署名将依法追究责任。详见 [署名要求](#署名要求)。
 
 </font>
 
@@ -153,99 +223,99 @@ Using them without attribution, hiding the source, or passing them off as your o
 
 ---
 
-## Supported hosts
+## 适配范围
 
-This release supports **DeepSeek Harness 0.2** only (official desktop **0.2.0-rc.2**). **0.1.x is not supported.**
+当前只适配 **DeepSeek Harness 0.2**（官方桌面以 **0.2.0-rc.2** 为准）。**0.1.x 不支持。**
 
-| Host | Status |
+| 宿主 | 状态 |
 |---|---|
-| Official Harness 0.2 desktop / `dsh web` | Supported |
-| Official Harness 0.1.x | Not supported |
-| Any other version | Unmatched patches stay pending or skipped; do not expect them to work |
+| 官方 Harness 0.2 桌面 / `dsh web` | 支持 |
+| 官方 Harness 0.1.x | 不支持 |
+| 其它未列出版本 | 对不上的补丁会显示待应用或跳过，不要指望能用 |
 
-The plugin version is **1.0.0**. 1.1.45 is skipped; it has bugs.
+插件版本是 **1.0.0**。1.1.45 有问题，略过。
 
 ---
 
-## Install
+## 安装
 
-Only official `dsh web` and the official desktop EXE are maintained. Install and patch them **separately**. Install only the host you have open. The host must be **dsh 0.2**. Community Desktop is not maintained; ask for it in one issue.
+现在只维护官方 `dsh web` 和官方桌面 EXE，**分开装、分开应用**。只装你正在打开的那一个。必须是 **dsh 0.2**。社区桌面端暂不维护；需要的话请单独开一个 issue。
 
-| What you run | Profile | Go to |
+| 你正在用 | profile | 安装 |
 |---|---|---|
-| Official `dsh web` | `web` | [Web](#web) |
-| Official Harness desktop EXE | `desktop` | [Official desktop EXE](#official-exe) |
+| 官方 `dsh web` | `web` | [Web](#web) |
+| 官方 Harness 桌面 EXE | `desktop` | [官方桌面 EXE](#official-exe) |
 
-If `dsh` is not on PATH, or you do not want a remote install, use [Manual install](#manual).
+`dsh` 不在 PATH、或不想走远程安装时，用 [手动安装](#manual)。
 
-### After the command: three steps
+### 装完都要做完这三步
 
-Adding the plugin to a profile does **not** patch `@deepseek-ai` by itself.
+只把插件写进 profile **还不会**改 `@deepseek-ai`。
 
-1. **Quit and reopen** the host you just installed into. Stop `dsh web` and start it again, or quit the Desktop tray and open that app's exe.
-2. On **that host**, click **dsh-purge** beside the session title, then click **Apply** on the **Clean** page. This plugin does not appear on the host Settings page.
-3. A successful **Apply** restarts once so the patches load. Apply does not restart when it did not finish.
+1. **退出并重新打开**刚装的那个宿主。Web 关掉 `dsh web` 再开；桌面端退出托盘，再打开对应的 exe。
+2. 点会话标题旁的 **dsh-purge**，在右侧栏的 **清洗** 里点 **「应用」**。宿主的设置页里没有这个条目。
+3. 点「应用」成功后会自动重启一次，让补丁进入当前进程。应用没做完不会重启。
 
-Web **Apply / Restart / Uninstall** affect Web only. Desktop controls affect the desktop app only and do not launch `dsh web`. Do not Apply one host from the other.
+> **macOS / Windows 官方桌面**：点「应用」会解开 `app.asar`，并修补官方 `dsh` 入口（asar 不在时改走 `app/`），同时补上 `app/runtime` 链接。若 `dsh.cmd` 里已有 `dsh-purge cli entry begin`，但写成了 `set "entry=%entry%"`，用当前版本再点一次「应用」会改回来。`app.asar` 还在、补丁只写在解开目录时，再点「应用」不会让当前进程读到那些补丁。
 
-> **macOS / Windows official desktop:** Apply unpacks `app.asar`, patches the official `dsh` entry so a missing asar falls back to `app/`, and adds the `app/runtime` link. If `dsh.cmd` already contains `dsh-purge cli entry begin` but the line is `set "entry=%entry%"`, Apply once more with this version rewrites it. Apply again does not make the running process read patches while `app.asar` is still sealed.
+Web 的「应用 / 重启 / 卸载」只动 Web。桌面端的只动桌面应用，不会去拉 `dsh web`。不要在 Web 里点桌面端的应用，也不要反过来。
 
 <a id="web"></a>
 
 ### Web
 
-Official `dsh` must be on PATH. If it is not, install the official CLI or use manual install.
+官方 `dsh` 需要在 PATH 上。没有就先装官方 CLI，或改走手动安装。
 
 ```sh
 dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 ```
 
-If this directory is already a clone:
+当前目录已经是本仓库时：
 
 ```sh
 dsh plugin --profile web add .
 ```
 
-Then follow the three steps above. Click **dsh-purge** beside the session title and **Apply** on **Clean**.
+然后按上面三步，点会话标题旁的 **dsh-purge**，在 **清洗** 里点「应用」。
 
 <a id="desktop"></a>
 
-### Community Desktop
+### 社区桌面端
 
-Not maintained. Only official Web and the official desktop EXE are supported. If you want the community build later, open one issue. Do not mix that into this behavior.
+暂不维护。当前只支持官方 Web 和官方桌面 EXE。以后若要社区版，请单独开一个 issue，不要和这次的行为混在一起。
 
 <a id="official-exe"></a>
 
-### Official desktop EXE
+### 官方桌面 EXE
 
-If the **official DeepSeek Harness desktop client** is installed, use the command or the button (`dsh://`). Community Desktop is not maintained; do not use this protocol to install it. Current support is **0.2.0-rc.2** only.
+已经安装 **DeepSeek Harness 官方桌面客户端** 时，用下面的命令，或点按钮走 `dsh://`。社区桌面端不维护，不要用这个协议去装它。当前只适配 **0.2.0-rc.2**。
 
 ```sh
 dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 ```
 
-Official desktop 0.2 loads the `desktop` profile. Do not use `default`, and do not use `git+https://github.com/yujunzhixue/dsh-purge.git`. That git address runs `git ls-remote` first. Ignore the allowBuilds hint after it fails.
+官方桌面 0.2 读的 profile 是 `desktop`。不要改成 `default`，也不要改成 `git+https://github.com/yujunzhixue/dsh-purge.git`。git 地址会先跑 `git ls-remote`，失败后的 allowBuilds 提示可以忽略。
 
 <p align="center">
-  <a href="https://deepseek.stream/plugins/dsh-purge"><strong>🌐 Open Hub page</strong></a>
+  <a href="https://deepseek.stream/plugins/dsh-purge"><strong>🌐 打开插件市场页</strong></a>
   &nbsp;·&nbsp;
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>🚀 Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.1&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz"><strong>🚀 唤起客户端一键安装</strong></a>
 </p>
 
-🔗 **Raw protocol URL:**
+🔗 **原生协议链接：**
 
 ```
-dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz
+dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.1&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz
 ```
 
 <details>
-<summary><strong>Protocol parameters and web trigger</strong></summary>
+<summary><strong>协议参数和网页触发代码</strong></summary>
 
-**Web trigger example:**
+**网页端（前端）触发代码示例：**
 
 ```js
 /**
- * Open the DeepSeek Harness desktop client to install dsh-purge
+ * 唤起 DeepSeek Harness 桌面客户端一键安装 dsh-purge
  */
 export function installDshPurgeToDesktop() {
   const params = new URLSearchParams({
@@ -267,71 +337,71 @@ export function installDshPurgeToDesktop() {
 }
 ```
 
-**HTML link:**
+**HTML 静态链接方式：**
 
 ```html
-<a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.0&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz">
-  🚀 Install in desktop client
+<a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.0.1&repo=Rovrry%2Fdsh-Rov-PJ&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fgithub.com%2FRovrry%2Fdsh-Rov-PJ%2Farchive%2Frefs%2Fheads%2Fmaster.tar.gz">
+  🚀 唤起客户端一键安装
 </a>
 ```
 
-**`dsh://plugin/install` parameters:**
+**协议参数配置（dsh://plugin/install）：**
 
-| Param | Value / example | Meaning |
+| 参数名 | 值 / 示例 | 说明 |
 |---|---|---|
-| id | `dsh-purge` | Plugin id |
-| name | `dsh-purge` | Display name |
-| version | `1.0.0` | Semver |
-| repo | `Rovrry/dsh-Rov-PJ` | GitHub repo |
-| permissions | `系统提示词注入, 本机补丁, 设置页` | Requested permissions |
-| downloadUrl | `https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz` | GitHub source archive |
+| id | `dsh-purge` | 插件唯一标识符 |
+| name | `dsh-purge` | 插件展示名称 |
+| version | `1.0.0` | 语义化版本号 |
+| repo | `Rovrry/dsh-Rov-PJ` | GitHub 仓库 |
+| permissions | `系统提示词注入, 本机补丁, 设置页` | 申请权限 |
+| downloadUrl | `https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz` | GitHub 源码包地址 |
 
 </details>
 
-Then fully quit the official client, including the tray, and open it again.
+然后完全退出官方客户端（含托盘），再打开，点会话标题旁的 **dsh-purge**，在「清洗」里点「应用」。
 
-On the official desktop, click **Apply** (a successful Apply restarts automatically).
+**官方桌面点「应用」即可（成功后会自动重启）。**
 
-### How to tell it installed
+### 怎样算装上了
 
-- **dsh-purge** sits beside the session title, and **Apply** is on its Clean page
-- `/purge status` in chat prints `DSH_HOME` and the patch list; the path should be the home you are actually running
-- Optional packages that are not installed (liangshen) show as skipped and do not block Apply
+- 会话标题旁有 **dsh-purge**，点开后在「清洗」里能点「应用」
+- 聊天里 `/purge status` 能打出 `DSH_HOME` 和补丁列表，路径应是你正在用的那一份
+- 没装的可选包（例如梁神）显示跳过，不挡住应用完成
 
-### Hand this to an assistant
+### 交给助手安装
 
-Paste the block below to a local assistant. It should only run the install command: no full-disk scan, no other file edits, no Apply, no restart.
+把下面整段发给本机助手。它只执行安装命令：不要全盘搜索，不要改其它文件，不要代点「应用」，也不要重启。
 
 <details>
-<summary><strong>For AI assistants (install only)</strong></summary>
+<summary><strong>给 AI 助手（只安装）</strong></summary>
 
 <!-- AI-AGENT-START -->
 
-Install the DeepSeek Harness plugin `dsh-purge`. Confirm the host first and install only that one. Do not scan the whole disk, do not read or edit other files, do not apply settings, and do not restart the app.
+安装 DeepSeek Harness 插件 `dsh-purge`。先确认宿主，只装正在用的那一个。不要全盘搜索，不要读或改其它文件，不要应用设置，也不要重启应用。
 
-**Web (official `dsh web`)**
+**Web 端（官方 `dsh web`）**
 
-If `dsh` is not on PATH, tell the user and stop.
+`dsh` 不在 PATH 就告诉用户后停止。
 
 ```sh
 dsh plugin --profile web add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 ```
 
-If this directory is already a clone, use `dsh plugin --profile web add .`.
+当前目录已是本仓库时改用 `dsh plugin --profile web add .`。
 
-**Community Desktop**
+**社区桌面端**
 
-Not maintained. Do not install it. Ask for it in one issue.
+暂不维护。不要安装。需要的话请单独开一个 issue。
 
-**Official Harness desktop EXE**
+**官方 Harness 桌面 EXE**
 
 ```sh
 dsh plugin --profile desktop add https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz
 ```
 
-Official desktop 0.2 loads the `desktop` profile. Do not use `default`, and do not use `git+https://github.com/yujunzhixue/dsh-purge.git`. That git address runs `git ls-remote` first. Ignore the allowBuilds hint after it fails.
+官方桌面 0.2 读的 profile 是 `desktop`。不要改成 `default`，也不要改成 `git+https://github.com/yujunzhixue/dsh-purge.git`。git 地址会先跑 `git ls-remote`，失败后的 allowBuilds 提示可以忽略。
 
-After the command finishes, tell the user to fully quit and restart the host they just installed into, then open **dsh-purge** beside the session title and **Apply** on **Clean**. Do not Apply Web from Desktop or Desktop from Web. Then stop.
+命令结束后，提醒：完全退出并重启刚装的那个宿主，再点会话标题旁的 **dsh-purge**，在「清洗」里点「应用」。Web 和桌面端不要交叉点应用。然后停止。
 
 <!-- AI-AGENT-END -->
 
@@ -339,33 +409,33 @@ After the command finishes, tell the user to fully quit and restart the host the
 
 <a id="manual"></a>
 
-### Manual install
+### 手动安装
 
-Use this when the command fails, `dsh` is not on `PATH`, or you do not want a remote install. Edit **only the profile for the host you are using**. Do **not** delete existing bundles. Do not edit Web and Desktop in the same pass.
+命令行装不上、官方 `dsh plugin add` 失败、或不想走远程包时，按下面做。只改**正在用的那个宿主**对应的 profile，不要删原有 bundle，不要同时改 Web 和桌面端。
 
-**0. Pick one host, one profile**
+**0. 先确认宿主，只动一个 profile**
 
-| What you actually run | Edit only this directory | Leave alone |
+| 你实际在用的 | 只改这个目录 | 不要改 |
 |---|---|---|
-| Official `dsh web` | `$DSH_HOME/profiles/web` | `desktop` |
-| Official Harness desktop EXE | `$DSH_HOME/profiles/desktop` | `web` |
+| 官方 `dsh web` | `$DSH_HOME/profiles/web` | `desktop` |
+| 官方 Harness 桌面 EXE | `$DSH_HOME/profiles/desktop` | `web` |
 
-If `profiles/<name>/package.json` is missing, start that host once so the official program creates the profile, then continue.
+对应 `profiles/<名>/package.json` 还不存在时，先正常启动一次该宿主，让官方程序自己建好 profile，再继续。
 
-**1. Find the `$DSH_HOME` this host actually uses**
+**1. 找到真正在用的 `$DSH_HOME`**
 
-A real home is named `.dsh` (official EXE sometimes uses `dsh-home`), contains `profiles`, and has at least one `profiles/<name>/package.json`.
+认目录：名字是 `.dsh`（官方 EXE 偶见 `dsh-home`），里面有 `profiles`，并且至少有一个 `profiles/<名>/package.json`。
 
-Search in this order and use the first tree that matches the host you run:
+按这个顺序找，找到第一份能对上当前宿主的就用它：
 
-| Order | Layout | Typical path |
+| 顺序 | 安装形态 | 典型路径 |
 |---|---|---|
-| 1 | Environment | `DSH_HOME` if set |
-| 2 | Windows portable / install folder | `.dsh` next to `dsh.cmd` or `npm-global`, for example `<install root>\.dsh` |
-| 3 | User default | Windows `%USERPROFILE%\.dsh`; Linux / macOS `~/.dsh` |
-| 4 | Official desktop EXE | `%APPDATA%\DeepSeek Harness\dsh-home`, `%LOCALAPPDATA%\DeepSeek Harness\dsh-home` |
+| 1 | 环境变量 | `DSH_HOME`（已设置就用它） |
+| 2 | Windows 便携 / 安装目录 | `dsh.cmd` 或 `npm-global` 旁边的 `.dsh`，例如 `<安装根>\.dsh` |
+| 3 | 用户默认 | Windows `%USERPROFILE%\.dsh`；Linux / macOS `~/.dsh` |
+| 4 | 官方桌面 EXE | `%APPDATA%\DeepSeek Harness\dsh-home`、`%LOCALAPPDATA%\DeepSeek Harness\dsh-home` |
 
-PowerShell can list candidates:
+Windows PowerShell 可先列出本机有哪些候选：
 
 ```powershell
 $cands = @()
@@ -387,37 +457,37 @@ $cands += @(
 $cands | Select-Object -Unique | Where-Object { $_ -and (Test-Path (Join-Path $_ "profiles")) }
 ```
 
-How to confirm you found the right one:
+怎么确认找对了：
 
-- Web: `$DSH_HOME/profiles/web/package.json` has `"name": "dsh-profile-web"`
-- Official EXE: `$DSH_HOME/profiles/desktop/package.json` has `"name": "dsh-profile-desktop"`
+- Web：`$DSH_HOME/profiles/web/package.json` 里 `"name"` 是 `dsh-profile-web`
+- 官方 EXE：`$DSH_HOME/profiles/desktop/package.json` 里 `"name"` 是 `dsh-profile-desktop`
 
-Machines often have two homes (user folder and install folder). A portable / install-dir official `dsh` uses the `.dsh` next to the install root — not an empty `%USERPROFILE%\.dsh`. After the steps below, start the host that belongs to that home.
+本机常有两份 `.dsh`（用户目录一份、安装目录一份）。便携包、安装目录里的官方 `dsh` **用安装根下那份**，不要改到空的 `%USERPROFILE%\.dsh`。改完下面步骤后，启动的必须是这份主目录对应的宿主。
 
-**2. Put the plugin at `$DSH_HOME/plugins/dsh-purge`**
+**2. 把插件放到 `$DSH_HOME/plugins/dsh-purge`**
 
-The tree must look like this (do not rename the folder):
+目标树必须长这样（目录名不能改）：
 
 ```
 $DSH_HOME/
   plugins/
-    dsh-purge/                 ← must be named dsh-purge
-      package.json             ← "name" must be "dsh-purge"
+    dsh-purge/                 ← 必须叫 dsh-purge
+      package.json             ← 里面 "name" 必须是 "dsh-purge"
       client.js
       cordis.patch.yml
       lib/
   profiles/
-    web/package.json           ← or desktop
+    web/package.json           ← 或 desktop
 ```
 
-With git:
+有 git 时：
 
 ```sh
 mkdir -p "$DSH_HOME/plugins"
 git clone https://github.com/Rovrry/dsh-Rov-PJ.git "$DSH_HOME/plugins/dsh-purge"
 ```
 
-Without git, download [master.tar.gz](https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz), extract it, rename `dsh-purge-master` to `dsh-purge`, and place that folder under `plugins`. PowerShell example (set `$home` to the path from step 1):
+没有 git 时，下载 [master.tar.gz](https://github.com/Rovrry/dsh-Rov-PJ/archive/refs/heads/master.tar.gz)，解压后把里面的 `dsh-purge-master` **改名为** `dsh-purge`，再整夹放到 `plugins` 下。Windows PowerShell 示例（先把 `$home` 换成上一步找到的路径）：
 
 ```powershell
 $home = $(if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $env:USERPROFILE ".dsh" })
@@ -432,25 +502,25 @@ if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
 Rename-Item $src "dsh-purge"
 ```
 
-If you already have a clone, copy the whole tree to `$DSH_HOME/plugins/dsh-purge`. Do not copy a few `.js` files by themselves.
+已有本仓库副本时，复制整个目录到 `$DSH_HOME/plugins/dsh-purge`，不要只拷几个 js。
 
-Check: `$DSH_HOME/plugins/dsh-purge/package.json` opens and `"name": "dsh-purge"`. Do not use the Hub `api/plugins/download` URL as the source.
+放好后检查：`$DSH_HOME/plugins/dsh-purge/package.json` 能打开，且 `"name": "dsh-purge"`。不要用插件市场的 `api/plugins/download` 地址当源。
 
-**3. Edit only that profile’s `package.json` — back it up first**
+**3. 只改对应 profile 的 `package.json`，先备份**
 
-| Host | File to edit |
+| 宿主 | 要改的文件 |
 |---|---|
 | Web | `$DSH_HOME/profiles/web/package.json` |
-| Official desktop EXE | `$DSH_HOME/profiles/desktop/package.json` |
+| 官方桌面 EXE | `$DSH_HOME/profiles/desktop/package.json` |
 
-Copy `package.json.bak` first. Then **add only two things**. Keep every existing dependency, bundle, and other field:
+先复制一份 `package.json.bak`。然后**只追加两处**，原有依赖、原有 bundle、其它字段全部留着：
 
-1. In `dependencies`, add `"dsh-purge": "file:../../plugins/dsh-purge"`
-2. At the **end** of `dsh.profile.bundles`, append `"dsh-purge"` (skip if it is already there)
+1. `dependencies` 增加一行：`"dsh-purge": "file:../../plugins/dsh-purge"`
+2. `dsh.profile.bundles` **末尾**追加 `"dsh-purge"`（已经有就不要再加）
 
-`file:../../plugins/dsh-purge` is the relative path from `profiles/web` or `profiles/desktop` to `$DSH_HOME/plugins/dsh-purge`. The same relative path works for both. Do not switch it to an absolute path.
+`file:../../plugins/dsh-purge` 是从 `profiles/web` 或 `profiles/desktop` 走到 `$DSH_HOME/plugins/dsh-purge` 的相对路径，两处都一样，不要改成绝对路径。
 
-Before (official default often looks like this; your file may list more plugins — keep them):
+改前（官方默认常见长这样，你机器上还会有其它插件，那些一行都不要删）：
 
 ```json
 {
@@ -469,7 +539,7 @@ Before (official default often looks like this; your file may list more plugins 
 }
 ```
 
-After:
+改后：
 
 ```json
 {
@@ -491,73 +561,73 @@ After:
 }
 ```
 
-Notes:
+注意：
 
-- Web: **keep** `@deepseek-ai/dsh-web-app`; only append this plugin
-- Desktop: keep `@deepseek-ai/dsh-base` and the rest; if there is no `dsh-web-app` row, do not add one
-- JSON must stay valid: a comma before the new item, no trailing comma after the last item
-- Leave `patchReload`, other plugin names, and versions alone
-- Do not write `"dsh-purge"` twice
+- Web：**必须保留** `@deepseek-ai/dsh-web-app`，只在数组末尾追加本插件
+- 桌面端：保留原来的 `@deepseek-ai/dsh-base` 等；没有 `dsh-web-app` 就不要硬加
+- JSON 要合法：新增项前面要有逗号，最后一项后面不要多余逗号
+- `patchReload`、其它插件名、版本号都不要动
+- 已经写过 `"dsh-purge"` 就不要再写第二份
 
-**4. Run `pnpm install` only in the profile you just edited**
+**4. 只在刚改的那个 profile 目录装依赖**
 
-`pnpm` must be available (official `dsh` usually ships it). `cd` into **that profile directory**, not the repo root and not `$DSH_HOME` itself. Run only the block for your host. Do not run both.
+本机要有 `pnpm`（官方 dsh 一般自带）。进入**上一步改过的那个** profile 目录再执行，不要在仓库根目录、也不要在 `$DSH_HOME` 根目录执行。下面两条命令只跑和你宿主对应的一条，不要连着跑。
 
 ```sh
-cd "$DSH_HOME/profiles/web"
+cd "$DSH_HOME/profiles/web"       # Web
 pnpm install
 
-cd "$DSH_HOME/profiles/desktop"
+cd "$DSH_HOME/profiles/desktop"   # 官方 EXE
 pnpm install
 ```
 
-PowerShell (use the home from step 1):
+Windows PowerShell（路径换成第 1 步找到的那份）：
 
 ```powershell
 cd "$env:USERPROFILE\.dsh\profiles\web"
-# Official desktop EXE:
+# 官方桌面 EXE：
 # cd "$env:USERPROFILE\.dsh\profiles\desktop"
-# portable install: point DSH_HOME at that .dsh, do not hardcode a drive:
+# 便携包把 $env:DSH_HOME 指到那份 .dsh，不要写死盘符：
 # cd "$env:DSH_HOME\profiles\web"
 pnpm install
 ```
 
-Success: `$DSH_HOME/profiles/<web|desktop>/node_modules/dsh-purge/package.json` exists.
+成功标志：出现 `$DSH_HOME/profiles/<web|desktop>/node_modules/dsh-purge/package.json`。
 
-Common failures:
+常见失败：
 
-- `pnpm` not found: install pnpm, or use the Node / pnpm that ships with official `dsh`
-- `Could not resolve` / missing local package: check that `plugins/dsh-purge/package.json` exists and `file:../../plugins/dsh-purge` is correct
-- JSON parse error: fix commas in `package.json` and retry; restore the backup if needed
+- 提示找不到 `pnpm`：先装 pnpm，或用官方 dsh 自带的 Node / pnpm
+- `Could not resolve` / 找不到本地包：检查 `plugins/dsh-purge/package.json` 是否存在，以及 `file:../../plugins/dsh-purge` 有没有写错
+- JSON 解析失败：把 `package.json` 用编辑器校验逗号后重试；不行就用备份还原再改一次
 
-**5. Fully quit that host, start it, then apply**
+**5. 完全退出该宿主，再启动，再打补丁**
 
-Writing `package.json` does **not** patch `@deepseek-ai` by itself. Restart, then click **Apply**.
+只写入 `package.json` **还不会**改 `@deepseek-ai` 包，必须重启后再点「应用」。
 
-1. Fully quit the host you just installed into: stop `dsh web`, or quit the official EXE tray
-2. Open **that host**. **dsh-purge** should appear beside the session title. Open it to reach Clean.
-3. Click **Apply** on this host only, or run `/purge apply` in chat. Do not Apply Web from Desktop or Desktop from Web
-4. A successful Apply restarts once so patched packages load. Apply does not restart when it did not finish. Official desktop **Restart / Uninstall** relaunch only the official desktop; they do not launch `dsh web`
+1. 完全退出刚装的那个宿主：Web 关掉 `dsh web`；官方 EXE 退出托盘
+2. 打开**这个宿主**，会话标题旁应出现 **dsh-purge**。点开后是「清洗」。
+3. 只在这个宿主点「应用」，或聊天 `/purge apply`。不要用 Web 去点桌面端的应用，也不要反过来
+4. 应用成功后会自动重启一次，补丁才会进当前进程。应用没做完不会重启。官方桌面的「重启 / 卸载」只重启官方桌面，不会去拉 `dsh web`
 
-**6. How to confirm it is installed**
+**6. 怎么确认装上了**
 
-- **dsh-purge** sits beside the session title, and **Apply** is on its Clean page
-- `/purge status` prints `DSH_HOME` and the patch list; the path should match step 1
-- `profiles/<name>/node_modules/dsh-purge` points at `plugins/dsh-purge`
+- 会话标题旁有 **dsh-purge**
+- 聊天 `/purge status` 能打出 `DSH_HOME` 和补丁列表，路径应等于第 1 步用的那份
+- `profiles/<名>/node_modules/dsh-purge` 指向 `plugins/dsh-purge`
 
-If the card is missing, you likely edited the other `.dsh`, or you edited `web` and then opened Desktop. Go back to step 1. Do not split the same install across two homes.
+还没有这个按钮时，多半是改错了另一份 `.dsh`，或改了 `web` 却在桌面端里等。回到第 1 步核对路径，不要在两份主目录各改一半。
 
-### Uninstall
+### 卸载
 
-**dsh-purge** beside the session title → **Clean** → **Uninstall**. Confirm the dialog: uninstall restores the original Harness and removes this plugin. If patches were applied, they are reverted first. The current host then restarts (Web relaunches `dsh web`; the official desktop relaunches the official client).
+会话标题旁的 **dsh-purge** →「清洗」→「卸载」。弹窗确认：卸载将还原回原版并清除本插件。如果已经点过「应用」，会先还原补丁，再删插件文件，然后重启当前宿主（Web 重启 `dsh web`；官方桌面重启官方客户端）。
 
 ```sh
-# or from a terminal
+# 也可以用命令行
 dsh-purge --uninstall
-# or in chat: /purge uninstall
+# 或聊天里 /purge uninstall
 ```
 
-Plugin config lives in `cordis.patch.yml`:
+插件配置在 `cordis.patch.yml`：
 
 ```yaml
 - insert:
@@ -573,53 +643,57 @@ Plugin config lives in `cordis.patch.yml`:
         postPrompt: ""
 ```
 
-`postPrompt` is empty by default.
+`postPrompt` 默认为空。需要时再追加一段有序 systemPrompt，不改 `prompt-inject.md`。
 
 ---
 
-## Preview
+## 界面预览
 
-**dsh-purge** sits beside the session title. It opens a right-hand dock with two pages: **Clean** and **Drill**. Switch **Light / Ink**. Patches are grouped; the count only includes items that actually applied. Rule sets sit in a list above the editor, with Enable and Delete on each row.
+会话标题旁有 **dsh-purge**。点开是右侧栏，两页：**清洗** 和 **演练台**。白 / 墨可切换。补丁按组展开，进度只计真正已应用的项。规则集在上方列表启用或删除，下方编辑正文。
 
-The first time you open Drill you read the notice, wait out the countdown, scroll to the end, and check three boxes. Clean does not need that step. Drill is only for a host you manage, an offline target, or an exercise that already has written authorization.
+第一次进演练台要先读声明、等倒计时、滚到文末并勾选三项。清洗不需要这一步。演练台只用于你有权管理的本机、离线靶标，或已经书面授权的演练环境。
 
-**Clean**
+**清洗**
 
-![Clean](docs/preview/dock-clean.png)
+![清洗](docs/preview/dock-clean.png)
 
-**Drill authorization**
+**演练台授权**
 
-![Drill authorization](docs/preview/dock-auth.png)
+![演练台授权](docs/preview/dock-auth.png)
 
-**Drill**
+**演练台**
 
-![Drill](docs/preview/dock-drill.png)
+![演练台](docs/preview/dock-drill.png)
 
-**Patches**
+**补丁**
 
-![Patches](docs/preview/settings.png)
+![补丁](docs/preview/settings.png)
 
-**Own servers**
+**规则集**
 
-On the Clean page, under Prompt. One host per line, then Save list. Steps are in [Own servers](#own-servers).
+![规则集](docs/preview/rules.png)
 
-![Own servers](docs/preview/own-servers-en.png)
+**自己的服务器**
 
-| Area | What it shows |
+在清洗页，提示词下面。每行一台，点保存名单。步骤见 [自己的服务器](#自己的服务器)。
+
+![自己的服务器](docs/preview/own-servers.png)
+
+| 区域 | 说明 |
 |---|---|
-| dsh-purge | button beside the session title; opens or collapses the dock |
-| Clean | the old Rules page: patches, prompt, rule sets, skills |
-| Drill | assets, skills, and environment after authorization. The tab says Unauthorized until then |
-| Light / Ink | card appearance |
-| Patches | grouped status, Apply, Restore, or Uninstall |
-| Prompt | edit `prompt-inject.md` as the session override |
-| Own servers | one IP or exact hostname per line, saved to `$DSH_HOME/net-scope-allow.txt` |
-| Rule sets | multiple `AGENTS.md` / `CLAUDE.md`; Enable writes under `$DSH_HOME`, Delete removes the row |
-| Skills | import a zip or folder into this host’s official `$DSH_HOME/skills/<id>/SKILL.md` (web and desktop each use their own home; no drive letter is hardcoded); DSH owns match, load, and `/name`. You can also delete that folder yourself |
+| dsh-purge | 会话标题旁的按钮，打开或收起右侧栏 |
+| 清洗 | 原来的规则设定：补丁、提示词、规则集、Skill |
+| 演练台 | 授权后的资产、技能与环境页。未授权时按钮标「未授权」 |
+| 白 / 墨 | 设置卡片外观 |
+| 补丁 | 分组查看状态，应用、还原或卸载 |
+| 提示词 | 编辑 `prompt-inject.md`，作为会话覆盖段 |
+| 自己的服务器 | 每行登记一个 IP 或完整主机名，保存后写入 `$DSH_HOME/net-scope-allow.txt` |
+| 规则集 | 多套 `AGENTS.md` / `CLAUDE.md`；启用写入 `$DSH_HOME`，删除从列表去掉 |
+| Skill | 导入压缩包或文件夹到当前宿主官方目录 `$DSH_HOME/skills/<id>/SKILL.md`（Web / 桌面各用自己的主目录，不写死盘符）；命中、加载、`/名称` 由 DSH 负责。也可自己删该文件夹 |
 
 ---
 
-## Layout
+## 目录结构
 
 ```
 dsh-purge/
@@ -655,67 +729,67 @@ dsh-purge/
 ├── package.json
 ├── screenshots.json
 ├── LICENSE
-├── README.md
-└── README.zh-CN.md
+├── README.md            # 中文（主，仓库首页）
+├── README.en.md         # English
+└── README.zh-CN.md      # 中文副本
 ```
 
-Runtime user files: `$DSH_HOME/prompt-inject.md`, `$DSH_HOME/rules/`, `$DSH_HOME/skills/`, `$DSH_HOME/net-scope-allow.txt`. If `DSH_HOME` is unset, the launcher-adjacent `.dsh` wins over `~/.dsh`. Skills are not part of the `dsh-purge` inject section and do not replace the prompt.
+运行时用户文件：`$DSH_HOME/prompt-inject.md`、`$DSH_HOME/rules/`、`$DSH_HOME/skills/`、`$DSH_HOME/net-scope-allow.txt`。未设 `DSH_HOME` 时，优先用 dsh 安装目录旁边的 `.dsh`，再退回 `~/.dsh`。Skill 不进 `dsh-purge` 注入段，也不顶替提示词。
 
 ---
 
-## Usage
+## 使用
 
 ```sh
+# CLI
 dsh-purge --status
 dsh-purge --apply
 dsh-purge --revert
 dsh-purge --uninstall
 dsh-purge --edit
 
+# 聊天
 /purge status | apply | revert | uninstall | edit | help
 /rules list | use <id> | create <id> | delete <id> | reset | help
-/skills list | import <zip-or-folder> | create <id> [description] | delete <id> | help
+/skills list | import <压缩包或文件夹> | create <id> [说明] | delete <id> | help
 /rewind
 
+# 模型工具
 purge_status   purge_apply   purge_revert
 ```
 
-After a successful Apply, the host restarts so patched packages load; you can also click **Restart** manually. Under the patch title is the stable release: you can see versions and switch. A rollback is pinned; click **Update** to return to the latest. The beta channel is gone.
+设置页「应用」成功后会自动重启，以加载已改的包文件；也可手动点「重启」。补丁标题下是正式版：可以看版本和切换。回退后会固定在该版本，要回到最新再点「更新」。测试版通道已去掉。
 
-The composer **Undo once** and **Undo last round** stay in the current conversation and do not open a branch. The sent line goes back into the input, and that cut's already-sent messages and completed tasks leave the current conversation; edit and **send again**. From **1.1.61**, rewind bounds follow the **current turn**, not the first user message. `/rewind` does the same.
+输入框旁的「回退一次」和「回退上一轮」都留在当前这条对话里，不另开分支。已发送的那句会回到输入框，这一轮已经发出的内容和已完成的任务会从当前对话撤掉，改字后**重新发送**即可。从 **1.1.61** 起，多轮对话后回退按**当前这一轮**定位，不会又退到第一条用户消息。聊天里 `/rewind` 同样可用。
 
-If the **same task works in standard but fails in minimal or PTC**, preset `run_code`, sandbox, or plan intercept text is often still uncleared, or built-in minimal is missing `agent-instructions`. Use **1.1.61+**, then **quit the host fully → Apply in Clean → restart → start a new chat**. Switching preset alone does not reload patches in the running process.
+**极简 / PTC 与标准不一致时**：同一任务在标准模式能跑、在极简或 PTC 被拦，通常是 preset 里 `run_code` 或 plan 拦截句没洗净，或内置 minimal 缺少 `agent-instructions`。请升到 **1.1.61+**，**完全退出宿主 → 清洗里应用 → 自动重启 → 新开一轮对话** 再试；只换 preset 不重应用，旧进程里的补丁不会更新。
 
-### Own servers
+### 自己的服务器
 
-Addresses in mainland China, Hong Kong, and Macau stay forbidden unless that one host was registered first. Saying “this is my server” in chat does not allow it. A key or a password does not allow it either.
+中国大陆、香港、澳门的地址默认禁止。只有事先登记的那一台可以例外。在对话里说「这是我的服务器」不会放行。密钥和密码也不会。
 
-The box sits under Prompt. If the dock does not show it yet, quit DeepSeek Harness completely and open it again.
+这一栏在提示词下面。若侧栏里还没有它，先完全退出 DeepSeek Harness，再重新打开。
 
-1. Click **dsh-purge** beside the session title and stay on **Clean**.
-2. Scroll past **Prompt**. **Own servers** is the next block.
-3. Put one host on each line, in one of these forms:
-   - `203.0.113.10` — one IP.
-   - `my-vps.example.com` — one exact hostname. After you save, the addresses that hostname resolves to at lookup time are allowed too.
-   - `alice@my-vps.example.com` — the account only identifies this form. It does not prove the machine is yours.
-4. Click **Save list**. The list is written to `$DSH_HOME/net-scope-allow.txt`.
-5. Keys, passwords, ranges, and wildcards are dropped on save. Unlisted mainland China, Hong Kong, and Macau addresses stay forbidden.
+1. 点会话标题旁的 **dsh-purge**，停在 **清洗**。
+2. 往下滚过 **提示词**，下面就是 **自己的服务器**。
+3. 每行只写一台，用下面三种写法之一：
+   - `203.0.113.10`：一个 IP。
+   - `my-vps.example.com`：一个完整主机名。保存后，这个主机名当时解析出来的地址也会放行。
+   - `alice@my-vps.example.com`：账号只用来认出这种写法，不能证明这台机器属于你。
+4. 点 **保存名单**。名单写在 `$DSH_HOME/net-scope-allow.txt`。
+5. 密钥、密码、网段和通配符会在保存时丢掉。没有写进名单的大陆、香港、澳门地址仍然禁止。
 
-`203.0.113.10` and `example.com` above are only examples of the form. Replace them with your own host before you save.
+上面的 `203.0.113.10` 和 `example.com` 只是写法示例，不是放行地址。把它们换成你自己的那一台再保存。
 
-![Own servers](docs/preview/own-servers-en.png)
+![自己的服务器](docs/preview/own-servers.png)
 
 ---
 
-## Local checks
+## 本地校验
 
 ```sh
 node --check lib/index.js
 node --check lib/core.js
-node --check lib/surface.js
-node --check lib/web.js
-node --check lib/desktop.js
-node --check lib/host.js
 node --check lib/rewind.js
 node --check lib/skills.js
 node --check client.js
@@ -723,80 +797,76 @@ node --check client.js
 
 ---
 
-## How it works
+## 工作原理
 
-Apply, on start or when you click Apply:
-
-```mermaid
-flowchart TD
-  A["Start or click Apply"] --> B{"Patch already in place?"}
-  B -->|yes| C["Skip"]
-  B -->|no| D["Back up the original as .dshpurge.bak"]
-  D --> E["Replace the matched files"]
-  E --> F["Override the shim"]
-  F --> G["Inject the encrypted prompt shipped in the plugin, the text the prompt box shows by default"]
-```
-
-Override on each session:
+应用，启动时或手动点「应用」：
 
 ```mermaid
 flowchart TD
-  A["Restart or new session"] --> B["Inject the plugin's encrypted default. No save click, and no host prompt file"]
+  A["启动或点应用"] --> B{"补丁已经生效?"}
+  B -->|是| C["跳过"]
+  B -->|否| D["备份原件为 .dshpurge.bak"]
+  D --> E["按补丁列表替换对应文件"]
+  E --> F["覆盖 shim"]
+  F --> G["注入插件加密默认（提示词框默认显示的那份）"]
 ```
 
-Skills stay out of the inject section:
+每次会话的覆盖：
+
+```mermaid
+flowchart TD
+  A["重启或新会话"] --> B["注入插件加密默认，不必点保存，不读宿主磁盘"]
+```
+
+Skill 不进注入段：
 
 ```mermaid
 flowchart LR
-  A["Settings import or /skills import"] --> B["Write into the official skills directory"]
-  B --> C["DSH loads it"]
-  C --> D["Uninstall does not delete user skills"]
+  A["设置页导入或 /skills import"] --> B["写到官方 skills 目录"]
+  B --> C["由 DSH 加载"]
+  C --> D["卸载插件不删用户 Skill"]
 ```
 
 ---
 
-## Restore
+## 还原
 
-- Each target is copied to `<file>.dshpurge.bak` before the first apply.
-- **Restore** or `/purge revert` copies backups back and deletes them. With no backup, shim lines written by this plugin are stripped.
-- `prompt-inject.md` is a user file and is kept.
-- **Uninstall** restores first if patches were applied, then deletes the inject file, rule library, and the plugin itself.
-- Apply is idempotent.
+- 每个目标文件在应用前备份为 `<文件>.dshpurge.bak`。
+- 「还原」或 `/purge revert` 用备份覆盖回去并删除备份；没有备份时去掉 shim 里由本插件写入的行。
+- `prompt-inject.md` 是用户文件，还原时保留。
+- 「卸载」会先还原（若已应用），再删除注入文件、规则库和插件本身。
+- 重复应用是幂等的。
 
 ---
 
-## Path detection
+## 路径探测
 
-The host surface is detected first: `web` / `desktop` (`gui` / `tui` are reserved and still fall back to web).
+宿主面先判断 `web` / `desktop`（预留 `gui` / `tui`，尚未单独适配时回退 web）。
 
-**Web:**
+**Web：**
 
 1. `DSH_HOME` / `DSH_BASE`
-2. `.dsh` next to the dsh launcher (portable install, any drive)
+2. dsh 启动器旁的 `.dsh`
 3. `npm prefix -g` / `npm root -g`
-4. Nested `@deepseek-ai/dsh/node_modules/@deepseek-ai`
-5. `~/.dsh`
+4. 嵌套 `@deepseek-ai/dsh/node_modules/@deepseek-ai`
+5. 系统默认 `~/.dsh`
 
-**Official desktop EXE:** the running official Harness install (`resources/app` or the unpacked package). The drive letter is not hard-coded. A successful Apply restarts once.
+**官方桌面：** 只改当前正在运行的官方桌面安装。点「应用」成功后会自动重启一次。社区桌面端不维护。
 
-Community Desktop is not maintained.
-
-Official npm-global is not patched. Sealed `host-commands` / `runtime-commands` are scrubbed, never injected.
-
-If nothing is found, set `DSH_BASE` / `DSH_DESKTOP_INSTALL`. No files are changed.
+找不到目标时提示设置 `DSH_BASE`，不改文件。
 
 ---
 
-## Releases
+## 更新
 
-What changed, and the zip, are on [Releases](https://github.com/Rovrry/dsh-Rov-PJ/releases). To publish, bump the version in `package.json`, write Chinese and English notes in `release-notes.md`, and push `master`. Pushing the same version again does not publish another package.
+每一版改了什么、安装包在 [Releases](https://github.com/Rovrry/dsh-Rov-PJ/releases)。发新版时把 `package.json` 的版本号改掉，中英文说明写进 `release-notes.md`，推到 `master` 就会自动打包。同一版本再推送不会重复发包。
 
-## Notes
+## 说明
 
-- Scope is rendered copy, defaults, and runtime logic inside local `@deepseek-ai/*` packages, plus override files and rule sets under the harness home.
-- After an upgrade, unmatched originals show as skipped. Apply still completes, and those files are left unchanged.
-- Third-party plugin *source repos* outside `@deepseek-ai` are left alone (CMD silence may **best-effort** patch installed doctor / market / liangshen / mnemon at runtime).
-- The npm package name is not published yet. Official Web: `dsh plugin --profile web add` the master.tar.gz. Official desktop: `dsh plugin --profile desktop add` the same archive. From this repo, `dsh plugin --profile web add .` or `dsh plugin --profile desktop add .`. The [Hub](https://deepseek.stream/plugins/dsh-purge) page is an introduction only.
+- 改动范围是本机 `@deepseek-ai/*` 包里的渲染文案、默认策略和执行逻辑，以及用户目录下的覆盖文件与规则集。
+- 升级后原文对不上会显示跳过，这次应用仍算完成，不会乱改。
+- 不改动非 `@deepseek-ai` 的第三方插件源仓库（启动时的 CMD 无感会**尽力**修补已装的 doctor / market / 梁神 / mnemon，属运行时补丁）。
+- npm 上暂未发布同名包。官方 Web 用 `dsh plugin --profile web add` 加 master.tar.gz；官方桌面用 `dsh plugin --profile desktop add` 加同一个包。当前目录已是本仓库时，可以 `dsh plugin --profile web add .` 或 `dsh plugin --profile desktop add .`。[插件市场](https://deepseek.stream/plugins/dsh-purge)只看介绍。
 
 ---
 
@@ -813,4 +883,4 @@ If this project helps you, send it over — I'm out here asking~
 
 ---
 
-Thanks to the [LINUX DO](https://linux.do) community
+感谢 [LINUX DO](https://linux.do) 社区
