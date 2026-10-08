@@ -1,3 +1,32 @@
+# 1.0.18
+
+## 中文
+
+- 版本 **1.0.18**。这一版治的是**「新界面 + 老服务端」**：插件在 `node_modules` 里换了新版本，
+  但**宿主进程是启动时把插件装进内存的**，没重启就还是旧代码。结果是页签和按钮都是新的，
+  点下去却报 `unknown op: pluginRemovalPlan`（面板能渲染新界面是因为浏览器每次都重新取 `client.js`）。
+- **① 面板顶部现在有一条红条**（页签之上，躲不掉）：写出「本页 JS = vX」和「宿主里的插件 = vY」，
+  并直接给命令 `pkill -f "dsh web" && dsh web --no-open`。版本一致时**不显示**（不制造噪音）。
+  服务端自报版本走 `platformConfigGet` —— 老宿主也认识这个 op，所以对照本身不会失败。
+- **② 报错说人话**：任何 `unknown op` 都会自动补一句「宿主里跑的插件还是旧版，按①关页②重启③重开」。
+- **③ 删除入口显眼化**（上一条反馈："资产测绘里没看到删除按钮"）：行内按钮从淡灰 `✕` 改成红色
+  **`✕ 删`**（原来 opacity 0.5，很多人当成装饰），列表上方加一行说明写清「哪儿的 ✕ 删什么、先干跑再确认」。
+
+## English
+
+- Version **1.0.18**. Fixes the **"new UI + old server"** trap: files in `node_modules` are updated, but the
+  **host loads the plugin into memory at boot** — without a restart it still runs the old code, so the new
+  tabs and buttons are there yet clicking them returns `unknown op: pluginRemovalPlan` (the fresh UI appears
+  because the browser re-fetches `client.js` every page load).
+- **① A red bar above the tabs** now shows "this page's JS = vX" vs "plugin inside the host = vY" and the exact
+  command `pkill -f "dsh web" && dsh web --no-open`. Hidden when versions match (no noise). The server-side
+  version comes from `platformConfigGet`, an op old hosts already know, so the check itself cannot fail.
+- **② Human-readable errors**: any `unknown op` gets the "host is still on the old plugin — close page,
+  restart, reopen" hint appended.
+- **③ Delete entry made obvious** (feedback: "no delete button in asset mapping"): the row button went from a
+  faint grey `✕` to a red **`✕ 删`** (it was opacity 0.5 and read as decoration), plus a line above the list
+  explaining which ✕ deletes what and that everything dry-runs and confirms in place.
+
 # 1.0.17
 
 ## 中文
